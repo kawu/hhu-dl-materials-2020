@@ -1,7 +1,7 @@
 # Installation
 
 This document describes the steps to install on Windows 10 the tools we will use throughout
-the course (VSCode, Python 3.8, PyTorch, Conda, and IPython).
+the course (VSCode, Python 3.8, PyTorch, Conda).
 All these tools are also available on other operating systems (Linux, Mac).
 
 <!---
@@ -54,11 +54,11 @@ Follow the steps described on the [VSCode Python Extension website](https://mark
   restart VSCode first.
   
 
-# PyTorch
+## PyTorch
 
-Use the following command to install PyTorch (without CUDA support):
+Use the following command in the terminal within the `dlnlp` environment to install a CPU-only version of PyTorch:
 
-    TODO
+    conda install pytorch cpuonly -c pytorch
 
 Then, you can start a `python` session and type:
 ```python
@@ -67,6 +67,15 @@ Then, you can start a `python` session and type:
 to verify that it works.
 
 
+## IPython
+
+To install IPython:
+
+    conda install ipython
+    
+You can then start an `ipython` sesion to verify that it works.
+    
+If IPython throws an "Unhandled exteption in the event loop" at you, see [this thread](https://stackoverflow.com/questions/59355904/why-do-i-get-an-unhandled-exception-in-event-loop-error-on-ipython).
 
 [VSCode]: https://code.visualstudio.com/
 [VSCode-downloads]: https://code.visualstudio.com/Download

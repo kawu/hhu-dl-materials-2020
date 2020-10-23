@@ -19,19 +19,26 @@ proposed during the installation process.
 
 ## VSCode
 
-Download the 64 bit User Installer for Winows from the [VSCode download
+Download the **64 bit User Installer for Windows** from the [VSCode download
 webpage][VSCode-downloads].  Run the installer, agree to the license, stick
 with the default options.
 
-Then open VSCode and:
+#### VSCode Python Extension
+
+Follow the steps described on the [VSCode Python Extension website](https://marketplace.visualstudio.com/items?itemName=ms-python.python).
+
+#### Conda Environment
+
+Then open VSCode and follow the steps:
+<!---
 * Open a new `test.py` file.  VSCode should detect `test.py` as a
-  Python file and propose to install the Python extention.  If not, you can
+  Python file and propose to install the **Python extention**.  If not, you can
   always do it manually (select the *extention* tab on the left and
-  search for Python).
-* Open the terminal using `CTRL+\`` (or from the menu: `View-\>Terminal`).
+  search for Python), or
+-->
+* Open the terminal using `` CTRL+` `` (or from the menu: `View->Terminal`).
   If you encounter the following error:
-```
-```
+
   switch from PowerShell to Command Prompt, as described [on
   stackoverflow](https://stackoverflow.com/questions/54828713/working-with-anaconda-in-visual-studio-code).
   Then, opening the terminal should automatically activate the `base`

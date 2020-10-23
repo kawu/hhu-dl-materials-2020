@@ -13,7 +13,7 @@ All these tools are also available on other operating systems (Linux, Mac).
 
 ## Miniconda
 
-Donwload and run the Python 3.8 Miniconda3 Windows 64-bit installer from [this
+Donwload and run the **Python 3.8 Miniconda3 Windows 64-bit** installer from [this
 website][miniconda-windows-installers].  You can stick with the default options
 proposed during the installation process.
 
@@ -23,11 +23,11 @@ Download the **64 bit User Installer for Windows** from the [VSCode download
 webpage][VSCode-downloads].  Run the installer, agree to the license, stick
 with the default options.
 
-#### VSCode Python Extension
+### VSCode Python Extension
 
 Follow the steps described on the [VSCode Python Extension website](https://marketplace.visualstudio.com/items?itemName=ms-python.python).
 
-#### Conda Environment
+### Conda Environment
 
 Then open VSCode and follow the steps:
 <!---

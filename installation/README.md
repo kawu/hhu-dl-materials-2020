@@ -21,7 +21,7 @@ proposed during the installation process.
 
 Download the **64 bit User Installer for Windows** from the [VSCode download
 webpage][VSCode-downloads].  Run the installer, agree to the license, stick
-with the default options.
+with the default options.  Finally, open VSCode.
 
 ### VSCode Python Extension
 

@@ -14,7 +14,7 @@ All these tools are also available on other operating systems (Linux, Mac).
 ## Miniconda
 
 Donwload and run the Python 3.8 Miniconda3 Windows 64-bit installer from [this
-website](miniconda-windows-installers).  You can stick with the default options
+website][miniconda-windows-installers].  You can stick with the default options
 proposed during the installation process.
 
 ## VSCode

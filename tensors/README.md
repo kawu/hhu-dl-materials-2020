@@ -40,8 +40,12 @@ You can also create tensors of higher dimensions (e.g. ,,cubes'' of values),
 but we will not need this functionality today.
 -->
 
-**WARNING**: do not use `torch.tensor` to combine existing tensors, only to
-create new ones.
+**IMPORTANT**:  You need to combine existing tensors to create new a new one?
+Do not use `torch.tensor`, consider
+[stacking](https://pytorch.org/docs/1.6.0/generated/torch.stack.html?highlight=stack#torch.stack)
+or
+[concatenation](https://pytorch.org/docs/1.6.0/generated/torch.cat.html?highlight=cat#torch.cat)
+instead.
 <!---
 Otherwise, [backpropagation](#backpropagation) may not work.
 -->

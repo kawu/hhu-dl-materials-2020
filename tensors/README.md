@@ -181,113 +181,43 @@ quite useful during future sessions, but you can skip it on first reading.
 TODO
 
 
-## Tensor Operations
+## Operations
 
+<!--
 Below you can find a list of basic tensor operations should be sufficient to
 build a large variety of different architectures (for example, a feed-forward
 network).
-
-### Basic element-wise operations
-
-You can use the basic arithmetic operations on tensors: `+`, `-`, `*`, `/`.
-They all work element-wise, i.e, the arguments should have exactly the same
-shape.
-```python
-# For one element tensors, this is pretty natural
-x = torch.tensor(13)
-assert x + 2 == 15          # Note the automatic cast from ints to int tensors
-
-# For vectors
-v = torch.tensor([1, 2, 3])
-w = torch.tensor([1, 2, 1])
-v * w                       # => tensor(1, 4, 3)
-
-# For matrices
-m1 = torch.tensor(
-    [[1, 0],
-     [0, 1]], dtype=torch.float)
-m2 = torch.tensor(
-    [[2, 2],
-     [2, 2]], dtype=torch.float)
-print(m1 / m2)
-# tensor([[0.5000, 0.0000],
-#         [0.0000, 0.5000]])
-```
-
-Additionally, the arguments have to have the same `dtype`.  For instance, the
-following is not allowed:
-```python
-# This will raise an exception, because the first tensor keeps integers, the
-# second tensor keeps floats, and PyTorch won't let you add them together.
-torch.tensor([0, 1]) + torch.tensor([0.0, 1.0])
-```
-
-<!---
-### Dot Product
 -->
 
-### Sum
+### Indexing and slicing
 
-You can sum all the elements in the given tensor using
-[torch.sum](https://pytorch.org/docs/stable/torch.html#torch.sum).
-```python
-id = torch.tensor(
-    [[1, 0],
-     [0, 1]])
-torch.sum(id)             # => tensor(2)
-```
-
-### Power
-
-The [torch.pow](https://pytorch.org/docs/stable/torch.html#torch.sum) serves to
-raise all the values in the tensor to the given power.
-```python
-v = torch.tensor([1, 2, 3])
-torch.pow(v, 2)           # => tensor([1, 4, 9])
-```
-
-### Sigmoid
-
-PyTorch provides a variety of non-linear functions
-([sigmoid](https://pytorch.org/docs/stable/torch.html#torch.sigmoid),
-[tanh](https://pytorch.org/docs/stable/torch.html#torch.tanh)).  They all apply
-element-wise.  For instance, if you apply sigmoid to a vector, you actually
-apply it to each of its elements individually.
-```python
-v = torch.tensor([1, 2, 3], dtype=torch.float) 
-torch.sigmoid(v)           # => tensor([0.7311, 0.8808, 0.9526])
-
-# We can apply sigmoid element-wise explicitely (this way is slower, though)
-assert all(
-    torch.sigmoid(v) ==
-    torch.tensor([torch.sigmoid(x) for x in v]))
-```
-
-### Matrix-vector product
-
-The [torch.mv](https://pytorch.org/docs/stable/torch.html#torch.mv) function
-serves to perform a matrix-vector product.
-```python
-# Identity matrix of shape [2, 2]
-id = torch.tensor(
-    [[1, 0],
-     [0, 1]])
-
-# Example vector of shape [2]
-v = torch.tensor([2, 3])
-
-# Perform the matrix-vector product
-assert all (torch.mv(id, v) == v), "Identity matrix doesn't change the input vector"
-```
-
-### Access
-
-To access elements of tensors, you can basically treat them as lists (of lists
-(of lists (...))).
+Indexing and slicing works similarly as with [numpy
+arrays](https://www.pythoninformer.com/python-libraries/numpy/index-and-slice).
+For instance:
 ```python
 # Extract the first element of our vector
 vector_1_to_10[0]         # => tensor(1)
 
+# Slicing also works
+vector_1_to_10[:3]        # => tensor([1, 2, 3])
+
+# Extract the 3rd element of the 3rd row (two ways, second more efficient)
+matrix_1_to_10[2][2]      # => tensor(9)
+matrix_1_to_10[2, 2]      # => tensor(9)
+
+# Slicing can be also used on several dimensions;
+# To extract the 3rd row:
+matrix_1_to_10[2, :]      # => tensor([7, 8, 9])
+# To extract the 3rd column:
+matrix_1_to_10[:, 2]      # => tensor([3, 6, 9])
+# To remove the 1st row and the 1st column:
+matrix_1_to_10[1:, 1:]    # => tensor([[5, 6],
+                          #            [8, 9]])
+```
+
+Tensors are also
+[iterable](https://docs.python.org/3.8/glossary.html#term-iterable):
+```
 # Print all the elements in the vector
 for x in vector_1_to_10:
     print(x)
@@ -296,32 +226,42 @@ for x in vector_1_to_10:
 # ...
 # tensor(9)
 
-# The slicing syntax also works
-vector_1_to_10[:3]        # => tensor([1, 2, 3])
-
-# You can do the same with the matrix (then think of it as a list of lists)
-for row in matrix_1_to_10: 
-    print(row) 
+# Print all the rows in the matrix
+for x in matrix_1_to_10:
+    print(x)
 # tensor([1, 2, 3])
 # tensor([4, 5, 6])
 # tensor([7, 8, 9])
-
-# Extract the 3rd element of the 3rd row
-x = matrix_1_to_10[2][2]
-x                         # => tensor(9)
+```
+Need to iterate over columns?  One solution is to use
+[transposition](https://pytorch.org/docs/1.6.0/generated/torch.t.html?highlight=t#torch.t)
+or, more generally,
+[permutation](https://pytorch.org/docs/1.6.0/tensors.html?highlight=permute#torch.Tensor.permute):
+```
+# Print all the columns in the matrix
+for x in matrix_1_to_10.permute(1, 0):
+    print(x)
+# => tensor([1, 4, 7])
+# => tensor([2, 5, 8])
+# => tensor([3, 6, 9])
 ```
 
-Whenever you access some parts or elements of tensors, you still get tensors in
-return.  This is important because PyTorch models take the form of computations
-over tensors, and the result of these these computations must typically be a
-tensor, too.  The fact that, say, `vector_1_to_10[:3]` is a tensor means that
-you can easily use it as a part of your PyTorch computation.
+### View and reshape
 
-You can extract the raw values from one element tensors if you want.
-```python
-# You can extract the value of a one element tensor using `item()`
-x.item()                  # => 9, regular int
-# It doesn't work for higher-dimentional tensors
-matrix_1_to_10.item()     
-# => ValueError: only one element tensors can be converted to Python scalars
-```
+TODO
+
+### Element-wise operations
+
+TODO
+
+### Broadcasting
+
+TODO
+
+### Products
+
+TODO
+
+### Miscellaneous
+
+TODO

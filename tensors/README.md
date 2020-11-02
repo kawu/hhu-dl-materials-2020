@@ -248,24 +248,129 @@ for x in matrix_1_to_10.permute(1, 0):
 
 ### View and reshape
 
-TODO
+In reality, a tensor is stored in memory as a contiguous chunk (a simple
+array), while its *shape* allows to interpret it as a potentially
+multi-dimensional entity.  Thanks to this, it is possible to reshape a tensor
+without changing its contents using
+[view](https://pytorch.org/docs/1.6.0/tensors.html?highlight=reshape#torch.Tensor.view)
+or
+[reshape](https://pytorch.org/docs/1.6.0/tensors.html?highlight=reshape#torch.Tensor.reshape).
+```python
+# View the matrix as a vector with 9 elements
+matrix_1_to_10.view(9)     # => tensor([1, 2, 3, 4, 5, 6, 7, 8, 9])
+
+# View the vector as a 3x3 matrix
+vector_1_to_10.view(3, 3)  # => tensor([[1, 2, 3],
+                           #            [4, 5, 6],
+                           #            [7, 8, 9]])
+```
+**NOTE**: `view` is more restrictive than `reshape` but it is also more
+efficient.
 
 ### Concatenation
 
-TODO
+Sometimes you need to join several existing tensors to create a new one.  As
+[mentioned above](#creation), do not use `torch.tensor` for this!  Use
+[stack](https://pytorch.org/docs/1.6.0/generated/torch.stack.html?highlight=stack#torch.stack)
+or
+[cat](https://pytorch.org/docs/1.6.0/generated/torch.cat.html?highlight=cat#torch.cat)
+instead.
+```python
+# Stack vectors on top of each other to create a matrix
+v1 = torch.tensor([1, 2, 3])
+v2 = torch.tensor([4, 5, 6])
+v3 = torch.tensor([7, 8, 9])
+torch.stack([v1, v2, v3])  # => tensor([[1, 2, 3],
+                           #            [4, 5, 6],
+                           #            [7, 8, 9]])
+
+# Concatenate the vectors
+torch.cat([v1, v2, v3])	   # => tensor([1, 2, 3, 4, 5, 6, 7, 8, 9])
+
+# Concatenate two copies of the matrix along the 1st dimension
+torch.cat([matrix_1_to_10, matrix_1_to_10], dim=0)
+# tensor([[1, 2, 3],
+#         [4, 5, 6],
+#         [7, 8, 9],
+#         [1, 2, 3],
+#         [4, 5, 6],
+#         [7, 8, 9]])
+
+# Concatenate two copies of the matrix along the 2nd dimension
+torch.cat([matrix_1_to_10, matrix_1_to_10], dim=1)
+# tensor([[1, 2, 3, 1, 2, 3],
+#         [4, 5, 6, 4, 5, 6],
+#         [7, 8, 9, 7, 8, 9]])
+```
+
 
 ### Element-wise operations
 
-TODO
+You can use the basic arithmetic operations on tensors: `+`, `-`, `*`, `/`.
+They all work *element-wise*.
+```python
+# For one element tensors, this is pretty natural
+x = torch.tensor(13)
+assert x + 2 == 15          # Note the automatic cast from ints to int tensors
+
+# For vectors
+v = torch.tensor([1, 2, 3])
+w = torch.tensor([1, 2, 1])
+v * w                       # => tensor(1, 4, 3)
+
+# For matrices
+m1 = torch.tensor(
+    [[1, 0],
+     [0, 1]], dtype=torch.float)
+m2 = torch.tensor(
+    [[2, 2],
+     [2, 2]], dtype=torch.float)
+print(m1 / m2)
+# tensor([[0.5000, 0.0000],
+#         [0.0000, 0.5000]])
+```
+
+**Note**: the arguments must be of the same `dtype`.
 
 ### Broadcasting
 
-TODO
+Element-wise operations (in particular) allow you to use tensors of different
+shape provided that they
+[match](https://pytorch.org/docs/1.6.0/notes/broadcasting.html?highlight=broadcasting)
+(i.e., they can be expanded to have the same shape).
+```python
+# Add 1 to a vector
+v123 = torch.tensor([1, 2, 3])
+v123 + 1                    # torch.tensor([2, 3, 4])
+
+# Add the vector to the matrix
+matrix_1_to_10 + v123       # => tensor([[ 2,  4,  6],
+                            #            [ 5,  7,  9],
+                            #            [ 8, 10, 12]])
+```
 
 ### Products
 
-TODO
+As one would expect, PyTorch provides functions for various product operations:
+* `torch.mv`: [matrix/vector product](https://pytorch.org/docs/1.6.0/generated/torch.mv.html?highlight=mv#torch.mv)
+* `torch.mm`: [matrix/matrix product](https://pytorch.org/docs/1.6.0/generated/torch.mm.html?highlight=mm#torch.mm)
+* `torch.bmm`: [batch matrix/matrix product](https://pytorch.org/docs/1.6.0/generated/torch.bmm.html?highlight=bmm#torch.bmm)
 
-### Miscellaneous
+It also provides a powerful, generic function
+[einsum](https://pytorch.org/docs/1.6.0/generated/torch.einsum.html?highlight=einsum#torch.einsum)
+which can be used to implement each of those and more.
+```python
+v123 = torch.tensor([1, 2, 3])
+torch.mv(matrix_1_to_10, v123)
+# tensor([14, 32, 50])
+
+torch.einsum("ij,j->i", matrix_1_to_10, v123)
+# tensor([14, 32, 50])
+```
+
+
+<!--
+### Functions
 
 TODO
+-->

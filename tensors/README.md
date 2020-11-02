@@ -212,7 +212,9 @@ matrix_1_to_10[1:, 1:]    # => tensor([[5, 6],
                           #            [8, 9]])
 ```
 
-Tensors are also
+### Iteration
+
+Tensors are
 [iterable](https://docs.python.org/3.8/glossary.html#term-iterable):
 ```python
 # Print all the elements in the vector
@@ -230,6 +232,7 @@ for x in matrix_1_to_10:
 # tensor([4, 5, 6])
 # tensor([7, 8, 9])
 ```
+
 Need to iterate over columns?  One solution is to use
 [transposition](https://pytorch.org/docs/1.6.0/generated/torch.t.html?highlight=t#torch.t)
 or, more generally,

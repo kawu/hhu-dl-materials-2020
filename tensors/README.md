@@ -47,11 +47,14 @@ Otherwise, [backpropagation](#backpropagation) may not work.
 -->
 
 The second way to create a tensor is to use one of the many functions which
-take as argument the desired shape of the tensor:
+take as argument the desired shape of the tensor, such as:
 * [zeros](https://pytorch.org/docs/1.6.0/generated/torch.zeros.html?highlight=zeros#torch.zeros)
 * [ones](https://pytorch.org/docs/1.6.0/generated/torch.ones.html?highlight=ones#torch.ones)
-* [full](https://pytorch.org/docs/1.6.0/generated/torch.full.html?highlight=full#torch.full) and [full_like](https://pytorch.org/docs/1.6.0/generated/torch.full_like.html?highlight=full#torch.full_like)
+* [full](https://pytorch.org/docs/1.6.0/generated/torch.full.html?highlight=full#torch.full)
 * [randn](https://pytorch.org/docs/1.6.0/generated/torch.randn.html?highlight=randn#torch.randn)
+  (random tensor with values drawn from the normal distribution with mean `0` and variance `1`)
+
+For each of those, there is a version (suffixed with `_like`) which takes on input a tensor and copies its shape instead (e.g. [full_like](https://pytorch.org/docs/1.6.0/generated/torch.full_like.html?highlight=full#torch.full_like)).
 
 
 ### Shape
@@ -81,7 +84,7 @@ irregular_tensor = torch.tensor(
 # => ValueError: expected sequence of length 3 at dim 1 (got 4)
 ```
 
-### dtype and device
+### dtype
 
 The `dtype` attribute can be used to explicitely specify the type of values
 stored in the tensor.
@@ -98,6 +101,8 @@ ints_as_floats_vect       # => tensor([1., 2., 3.])
 <!---
 TODO: bools, the `a = torch.randn(4, 2) < 0` syntax.
 -->
+
+### device
 
 The target device (CPU, GPU) can be specified for each tensor separetely using
 the `device` attribute.
@@ -178,14 +183,14 @@ TODO
 
 ## Tensor Operations
 
-Below you can find a list of basic tensor operations that are sufficient to
+Below you can find a list of basic tensor operations should be sufficient to
 build a large variety of different architectures (for example, a feed-forward
 network).
 
 ### Basic element-wise operations
 
 You can use the basic arithmetic operations on tensors: `+`, `-`, `*`, `/`.
-They all work element-wise, i.e, the arguments have to have exactly the same
+They all work element-wise, i.e, the arguments should have exactly the same
 shape.
 ```python
 # For one element tensors, this is pretty natural
@@ -320,4 +325,3 @@ x.item()                  # => 9, regular int
 matrix_1_to_10.item()     
 # => ValueError: only one element tensors can be converted to Python scalars
 ```
-

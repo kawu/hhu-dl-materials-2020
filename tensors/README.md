@@ -48,13 +48,13 @@ Otherwise, [backpropagation](#backpropagation) may not work.
 
 The second way to create a tensor is to use one of the many functions which
 take as argument the desired shape of the tensor, such as:
-* [zeros](https://pytorch.org/docs/1.6.0/generated/torch.zeros.html?highlight=zeros#torch.zeros)
-* [ones](https://pytorch.org/docs/1.6.0/generated/torch.ones.html?highlight=ones#torch.ones)
-* [full](https://pytorch.org/docs/1.6.0/generated/torch.full.html?highlight=full#torch.full)
+* [zeros](https://pytorch.org/docs/1.6.0/generated/torch.zeros.html?highlight=zeros#torch.zeros) (tensor filled with `0`s), [ones](https://pytorch.org/docs/1.6.0/generated/torch.ones.html?highlight=ones#torch.ones) (tensor filled with `1`s), [full](https://pytorch.org/docs/1.6.0/generated/torch.full.html?highlight=full#torch.full) (tensor filled with the specified value)
 * [randn](https://pytorch.org/docs/1.6.0/generated/torch.randn.html?highlight=randn#torch.randn)
   (random tensor with values drawn from the normal distribution with mean `0` and variance `1`)
 
 For each of those, there is a version (suffixed with `_like`) which takes on input a tensor and copies its shape instead (e.g. [full_like](https://pytorch.org/docs/1.6.0/generated/torch.full_like.html?highlight=full#torch.full_like)).
+
+More specific tensor-creating functions also exist, for instance [eye](https://pytorch.org/docs/1.6.0/generated/torch.eye.html?highlight=eye#torch.eye) which allows to create 2-D (identity) tensors only. 
 
 
 ### Shape

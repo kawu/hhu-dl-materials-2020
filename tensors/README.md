@@ -230,7 +230,7 @@ Need to iterate over columns?  One solution is to use
 [transposition](https://pytorch.org/docs/1.6.0/generated/torch.t.html?highlight=t#torch.t)
 or, more generally,
 [permutation](https://pytorch.org/docs/1.6.0/tensors.html?highlight=permute#torch.Tensor.permute):
-```
+```python
 # Print all the columns in the matrix
 for x in matrix_1_to_10.permute(1, 0):
     print(x)

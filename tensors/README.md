@@ -173,13 +173,6 @@ The reasons for using `requires_grad=True` are shortly explained below, in the
 -->
 
 
-### View
-
-*NOTE*: This part concerns internal representation of tensors.  This will be
-quite useful during future sessions, but you can skip it on first reading.
-
-TODO
-
 
 ## Operations
 
@@ -217,7 +210,7 @@ matrix_1_to_10[1:, 1:]    # => tensor([[5, 6],
 
 Tensors are also
 [iterable](https://docs.python.org/3.8/glossary.html#term-iterable):
-```
+```python
 # Print all the elements in the vector
 for x in vector_1_to_10:
     print(x)

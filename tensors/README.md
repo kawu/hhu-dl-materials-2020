@@ -110,7 +110,7 @@ TODO: bools, the `a = torch.randn(4, 2) < 0` syntax.
 
 The target device (CPU, GPU) can be specified for each tensor separetely using
 the `device` attribute.
-```pyhon
+```python
 # To run on CPU 
 torch.tensor(0, device=torch.device("cpu"))
 

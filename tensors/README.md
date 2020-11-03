@@ -340,12 +340,31 @@ print(m1 / m2)
 
 **Note**: the arguments must be of the same `dtype`.
 
+### Boolean operations
+
+Element-wise Boolean operations (`==`, `<`, `>`, etc.) provide a convenient way
+to construct Boolean tensors.
+```python
+v = torch.tensor([1, 2, 3])
+w = torch.tensor([1, 3, 1])
+v == w                      # => tensor([ True, False, False])
+v <  w                      # => tensor([False,  True, False])
+v >= w                      # => tensor([ True, False,  True])
+```
+If you want to check if all values (any value) in a tensor are (is) `True`, use
+[all](https://pytorch.org/docs/1.6.0/tensors.html?highlight=all#torch.BoolTensor.all)
+([any](https://pytorch.org/docs/1.6.0/tensors.html?highlight=any#torch.BoolTensor.any)).
+```python
+(v == v).all()              # => tensor(True)
+(v != v).any()              # => tensor(False)
+(v != w).any()              # => tensor(True)
+```
+
 ### Broadcasting
 
 Element-wise operations (in particular) allow you to use tensors of different
-shape provided that they
-[match](https://pytorch.org/docs/1.6.0/notes/broadcasting.html?highlight=broadcasting)
-(i.e., they can be expanded to have the same shape).
+shape provided that they [can be expanded to have the same
+shape](https://pytorch.org/docs/1.6.0/notes/broadcasting.html?highlight=broadcasting).
 ```python
 # Add 1 to a vector
 v123 = torch.tensor([1, 2, 3])
@@ -359,7 +378,7 @@ matrix_1_to_10 + v123       # => tensor([[ 2,  4,  6],
 
 ### Products
 
-As one would expect, PyTorch provides functions for various product operations:
+PyTorch provides functions for various product operations:
 * `torch.mv`: [matrix/vector product](https://pytorch.org/docs/1.6.0/generated/torch.mv.html?highlight=mv#torch.mv)
 * `torch.mm`: [matrix/matrix product](https://pytorch.org/docs/1.6.0/generated/torch.mm.html?highlight=mm#torch.mm)
 * `torch.bmm`: [batch matrix/matrix product](https://pytorch.org/docs/1.6.0/generated/torch.bmm.html?highlight=bmm#torch.bmm)

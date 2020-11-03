@@ -25,7 +25,10 @@ def ata(M: torch.Tensor, w: torch.Tensor) -> torch.Tensor:
 
     >>> M = torch.randn(3, 3)
     >>> for i in range(2):
-    ...     assert (torch.mv(M, w[i]) == ata(M, w)[i]).all()
+    ...     x = torch.mv(M, w[i])
+    ...     y = ata(M, w)[i]
+    ...     # Allow for numerical errors (just in case)
+    ...     assert (abs(x - y) < 1e-5).all()
     """
     # Make sure the shapes match
     assert M.dim() == w.dim() == 2

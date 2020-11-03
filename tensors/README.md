@@ -79,6 +79,14 @@ list(matrix_1_to_10.shape)    # => [3, 3]
 matrix_1_to_10.shape[0]       # => 3
 ```
 
+There's also method
+[dim](https://pytorch.org/docs/1.6.0/tensors.html?highlight=dim#torch.Tensor.dim)
+which gives the number of dimensions:
+```python
+len(matrix_1_to_10.shape)     # => 2
+matrix_1_to_10.dim()          # => 2
+```
+
 You cannot create tensors with irregular shapes.  This is not allowed:
 ```python
 irregular_tensor = torch.tensor(

@@ -396,8 +396,15 @@ torch.einsum("ij,j->i", matrix_1_to_10, v123)
 ```
 
 
-<!--
-### Functions
+### Miscellaneous
 
-TODO
--->
+PyTorch of course provides many other functions and methods working on tensors,
+both basic (e.g.,
+[sum](https://pytorch.org/docs/1.6.0/tensors.html?highlight=sum#torch.Tensor.sum)
+or [dot
+product](https://pytorch.org/docs/1.6.0/tensors.html?highlight=dot#torch.Tensor.dot))
+and advanced (e.g.,
+[logsumexp](https://pytorch.org/docs/1.6.0/generated/torch.logsumexp.html?highlight=logsumexp)).
+Just search through the [documentation](https://pytorch.org/docs/1.6.0)
+whenever you fill like the function/method you need should already have been
+implemented.

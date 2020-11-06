@@ -272,6 +272,27 @@ vector_1_to_10.view(3, 3)  # => tensor([[1, 2, 3],
                            #            [4, 5, 6],
                            #            [7, 8, 9]])
 ```
+Both `view` and `reshape` can infer the value of one of its arguments (marked
+with `-1`) based on the values of the other arguments and the size of the
+tensor.
+```python
+# View the matrix as a vector; infer its size automatically
+matrix_1_to_10.view(-1)    # => tensor([1, 2, 3, 4, 5, 6, 7, 8, 9])
+
+# View the vector as a 3x3 matrix; infer the number of rows automatically
+vector_1_to_10.view(-1, 3) # => tensor([[1, 2, 3],
+                           #            [4, 5, 6],
+                           #            [7, 8, 9]])
+
+# View the vector as a 3x3 matrix; infer the number of columns automatically
+vector_1_to_10.view(3, -1) # => tensor([[1, 2, 3],
+                           #            [4, 5, 6],
+                           #            [7, 8, 9]])
+
+# This won't work, (-1, -1) could stand for (1, 9), (3, 3), or (9, 1)
+vector_1_to_10.view(-1, -1)
+# => RuntimeError: only one dimension can be inferred
+```
 **NOTE**: `view` is more restrictive than `reshape` but it is also more
 efficient.
 

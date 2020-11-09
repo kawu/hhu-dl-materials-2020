@@ -13,25 +13,39 @@ I hate it => negative
 I don't hate it => neutral
 I hate it...  Just kidding!  I actually like it. => positive
 ```
-Or a list of translation pairs:
+A list of translation pairs:
 ```
-1st German sentence ||| 1st English sentence
-2st German sentence ||| 2st English sentence
+Only the Thought Police mattered. ||| Zu fürchten war nur die Gedankenpolizei.
+That was very true, he thought. |||  Das war sehr richtig, dachte er.
+He loved Big Brother. ||| Er liebte den Großen Bruder.
 ```
-Or maybe a list of word-segmented, morphologically-tagged, and
+Or a list of word-segmented, morphologically-tagged, and
 dependency-parsed sentences in a dedicated format such as [CoNLL-U][conllu]:
 ```
-# text = The quick brown fox jumps over the lazy dog.
-1   The     the    DET    DT   Definite=Def|PronType=Art   4   det     _   _
-2   quick   quick  ADJ    JJ   Degree=Pos                  4   amod    _   _
-3   brown   brown  ADJ    JJ   Degree=Pos                  4   amod    _   _
-4   fox     fox    NOUN   NN   Number=Sing                 5   nsubj   _   _
-5   jumps   jump   VERB   VBZ  Mood=Ind|Number=Sing|Person=3|Tense=Pres|VerbForm=Fin   0   root    _   _
-6   over    over   ADP    IN   _                           9   case    _   _
-7   the     the    DET    DT   Definite=Def|PronType=Art   9   det     _   _
-8   lazy    lazy   ADJ    JJ   Degree=Pos                  9   amod    _   _
-9   dog     dog    NOUN   NN   Number=Sing                 5   nmod    _   SpaceAfter=No
-10  .       .      PUNCT  .    _                           5   punct   _   _
+# text = Only the Thought Police mattered.
+1  Only      only     ADV    RB   _  4 	advmod 	   _  _
+2  the 	     the      DET    DT   _  4 	det 	   _  _
+3  Thought   thought  PROPN  NNP  _  4 	compound   _  _
+4  Police    police   PROPN  NNP  _  5 	nsubj 	   _  _
+5  mattered  matter   VERB   VBD  _  0 	root 	   _  _
+6  .         . 	      PUNCT  . 	  _  5 	punct 	   _  _
+
+# That was very true, he thought.
+1  That      that     PRON   DT   _  4 	nsubj 	   _  _
+2  was 	     be       AUX    VBD  _  4 	cop 	   _  _
+3  very      very     ADV    RB   _  4 	advmod 	   _  _
+4  true      true     ADJ    JJ   _  0 	root 	   _  _
+5  , 	     , 	      PUNCT  , 	  _  4 	punct 	   _  _
+6  he 	     he       PRON   PRP  _  7 	nsubj 	   _  _
+7  thought   think    VERB   VBD  _  4 	parataxis  _  _
+8  . 	     . 	      PUNCT  . 	  _  4 	punct 	   _  _
+
+# text = He loved Big Brother.
+1   He       he       PRON   PRP  _  2  nsubj      _  _
+2   loved    love     VERB   VBD  _  0  root       _  _
+3   Big      big      PROPN  NNP  _  4  compound   _  _
+4   Brother  brother  PROPN  NNP  _  2  obj 	   _  _
+5   . 	     . 	      PUNCT  . 	  _  2  punct 	   _  _
 
 ```
 In any case, the data has the structure of a list of (input, output) pairs,
@@ -61,17 +75,30 @@ import torch
 import conllu
 
 raw_data = """
-# text = The quick brown fox jumps over the lazy dog.
-1   The     the    DET    DT   Definite=Def|PronType=Art   4   det     _   _
-2   quick   quick  ADJ    JJ   Degree=Pos                  4   amod    _   _
-3   brown   brown  ADJ    JJ   Degree=Pos                  4   amod    _   _
-4   fox     fox    NOUN   NN   Number=Sing                 5   nsubj   _   _
-5   jumps   jump   VERB   VBZ  Mood=Ind|Number=Sing|Person=3|Tense=Pres|VerbForm=Fin   0   root    _   _
-6   over    over   ADP    IN   _                           9   case    _   _
-7   the     the    DET    DT   Definite=Def|PronType=Art   9   det     _   _
-8   lazy    lazy   ADJ    JJ   Degree=Pos                  9   amod    _   _
-9   dog     dog    NOUN   NN   Number=Sing                 5   nmod    _   SpaceAfter=No
-10  .       .      PUNCT  .    _                           5   punct   _   _
+# text = Only the Thought Police mattered.
+1  Only      only     ADV    RB   _  4 	advmod 	   _  _
+2  the 	     the      DET    DT   _  4 	det 	   _  _
+3  Thought   thought  PROPN  NNP  _  4 	compound   _  _
+4  Police    police   PROPN  NNP  _  5 	nsubj 	   _  _
+5  mattered  matter   VERB   VBD  _  0 	root 	   _  _
+6  .         . 	      PUNCT  . 	  _  5 	punct 	   _  _
+
+# That was very true, he thought.
+1  That      that     PRON   DT   _  4 	nsubj 	   _  _
+2  was 	     be       AUX    VBD  _  4 	cop 	   _  _
+3  very      very     ADV    RB   _  4 	advmod 	   _  _
+4  true      true     ADJ    JJ   _  0 	root 	   _  _
+5  , 	     , 	      PUNCT  , 	  _  4 	punct 	   _  _
+6  he 	     he       PRON   PRP  _  7 	nsubj 	   _  _
+7  thought   think    VERB   VBD  _  4 	parataxis  _  _
+8  . 	     . 	      PUNCT  . 	  _  4 	punct 	   _  _
+
+# text = He loved Big Brother.
+1   He       he       PRON   PRP  _  2  nsubj      _  _
+2   loved    love     VERB   VBD  _  0  root       _  _
+3   Big      big      PROPN  NNP  _  4  compound   _  _
+4   Brother  brother  PROPN  NNP  _  2  obj 	   _  _
+5   . 	     . 	      PUNCT  . 	  _  2  punct 	   _  _
 
 """
 
@@ -94,7 +121,9 @@ functions to extract the relevant information.
 ```python
 for token_list in conllu.parse(raw_data):
     print(token_list)
-# => TokenList<The, quick, brown, fox, jumps, over, the, lazy, dog, .>
+# => TokenList<Only, the, Thought, Police, mattered, .>
+# => TokenList<That, was, very, true, ,, he, thought, .>
+# => TokenList<He, loved, Big, Brother, .>
 
 # Create the extracted dataset
 data: List[Tuple[Inp, Out]] = []
@@ -102,22 +131,24 @@ for token_list in conllu.parse(raw_data):
     data.append(extract(token_list))
 
 for inp, out in data:
-    print(inp, out)
-# => (['The', 'quick', 'brown', 'fox', 'jumps', 'over', 'the', 'lazy', 'dog', '.'], ['DET', 'ADJ', 'ADJ', 'NOUN', 'VERB', 'ADP', 'DET', 'ADJ', 'NOUN', 'PUNCT'])
+    print(list(zip(inp, out)))
+# => [('Only', 'ADV'), ('the', 'DET'), ('Thought', 'PROPN'), ('Police', 'PROPN'), ('mattered', 'VERB'), ('.', 'PUNCT')]
+# => [('That', 'PRON'), ('was', 'AUX'), ('very', 'ADV'), ('true', 'ADJ'), (',', 'PUNCT'), ('he', 'PRON'), ('thought', 'VERB'), ('.', 'PUNCT')]
+# => [('He', 'PRON'), ('loved', 'VERB'), ('Big', 'PROPN'), ('Brother', 'PROPN'), ('.', 'PUNCT')]
 ```
 
-
-**Note**: the type annotations in the code above (such as `Inp` and `Out`) are
-optional, you may skip them in your code.  However, they help to document the
-behavior of the individual functions and in general make the code cleaner.
-Additionally, if you use the `mypy` linter, it will help detecting problems
-with your code when it does not respect the types.
+**Note**: the type annotations in the code above (such as `Inp`, `Out`,
+`List[Tuple[Inp, Out]]`) are optional, you may skip them in your code.
+However, they help to document the individual functions and in general make the
+code cleaner.  Additionally, if you use the `mypy` linter, type annotations may
+help you detecting problems with the code.
 
 ## Preprocessing
 
 This is a good moment to implement additional pre-processing.  We could for
 instance lower-case all input words to make sure that vector representations of
-words are case-insensitive.
+words are case-insensitive (this is just an example, lower-casing is not really
+necessary with modern pre-trained embedding methods).
 ```python
 def preprocess(inp: Inp) -> Inp:
     """Lower-case all words in the input sentence."""
@@ -128,22 +159,19 @@ for i in range(len(data)):
     inp, out = data[i]
     data[i] = preprocess(inp), out
 
-for sent in data:
-    print(sent)
-# => (['the', 'quick', 'brown', 'fox', 'jumps', 'over', 'the', 'lazy', 'dog', '.'], ['DET', 'ADJ', 'ADJ', 'NOUN', 'VERB', 'ADP', 'DET', 'ADJ', 'NOUN', 'PUNCT'])
+for inp, _ in data:
+    print(inp)
+# => ['only', 'the', 'thought', 'police', 'mattered', '.']
+# => ['that', 'was', 'very', 'true', ',', 'he', 'thought', '.']
+# => ['he', 'loved', 'big', 'brother', '.']
 ```
 In general, pre-processing can be much more important, for instance when the
 input is not tokenized.
 
 ## Encoding
 
-The next step is to take the extracted dataset:
-```python
-for sent in data:
-    print(sent)
-# => (['the', 'quick', 'brown', 'fox', 'jumps', 'over', 'the', 'lazy', 'dog', '.'], ['DET', 'ADJ', 'ADJ', 'NOUN', 'VERB', 'ADP', 'DET', 'ADJ', 'NOUN', 'PUNCT'])
-```
-and encode it as PyTorch tensors.
+The next step is to take the extracted, preprocessed dataset and encode it as
+PyTorch tensors.
 
 PyTorch is very flexible when it comes to choosing the moment of encoding.  For
 instance, we can keep the dataset in its original form and perform encoding
@@ -154,8 +182,8 @@ strategy here.
 
 #### Encoding class
 
-Here's the encoding class I'm currently using when it comes to encoding
-categorical values as indices:
+Here's an encoding class that can be used to encode categorical values as
+indices:
 ```python
 class Encoder:
 
@@ -209,7 +237,9 @@ for inp, out in data:
 # We now have our entire dataset encoded with tensors:
 for xy in enc_data:
     print(xy)
-# => (tensor([0, 1, 2, 3, 4, 5, 0, 6, 7, 8]), tensor([0, 1, 1, 2, 3, 4, 0, 1, 2, 5]))
+# => (tensor([0, 1, 2, 3, 4, 5]), tensor([0, 1, 2, 2, 3, 4]))
+# => (tensor([ 6,  7,  8,  9, 10, 11,  2,  5]), tensor([5, 6, 0, 7, 4, 5, 3, 4]))
+# => (tensor([11, 12, 13, 14,  5]), tensor([5, 3, 2, 2, 4]))
 ```
 
 #### One-hot encoding
@@ -225,16 +255,16 @@ question](https://discuss.pytorch.org/t/pytocrh-way-for-one-hot-encoding-multicl
 ## Embedding
 
 *Word embedding* is the process of transforming words (or word indices) into
-actual word vector representations.  There are many different embedding
-methods, differing notably in:
+actual word vector representations.  There are various embedding methods,
+differing notably in:
 * What is embedded: words, sub-words, the underlying characters
 * Whether pre-training is used (fastText) or not (custom, task-specific
   embeddings)
 * Whether the embeddings are context-sensitive (ELMo, BERT) or not (glove,
   fastText)
 
-We will now see how to implement word-level, custom (not pre-trained),
-context-insensitive embeddings for the task of POS tagging.
+We will now implement custom (not pre-trained), word-level, context-insensitive
+embeddings for the task of POS tagging.
 
 #### Method 1 (using one-hot encoding)
 

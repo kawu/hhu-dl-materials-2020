@@ -135,7 +135,7 @@ input is not tokenized.
 ## Encoding
 
 The next step is to take the extracted dataset:
-```
+```python
 for sent in data:
     print(sent)
 # => (['the', 'quick', 'brown', 'fox', 'jumps', 'over', 'the', 'lazy', 'dog', '.'], ['DET', 'ADJ', 'ADJ', 'NOUN', 'VERB', 'ADP', 'DET', 'ADJ', 'NOUN', 'PUNCT'])
@@ -146,12 +146,64 @@ PyTorch is very flexible when it comes to choosing the moment of encoding.  For
 instance, we can keep the dataset in its original form and perform encoding
 on-the-fly during training.  Alternatively, each (input, output) pair can be
 encoded as a pair (input tensor, output tensor) beforehand.  Finally, the
-entire dataset can be encoded as a pair of tensors.  We will follow the last
+entire dataset can be encoded as a pair of tensors.  We will follow the second
 strategy here.
 
-#### Generic solution
+#### Encoding class
 
-TODO
+Here's the encoding class I'm currently using when it comes to encoding
+categorical values as indices:
+```python
+class Encoder:
+
+    """Mapping between classes and the corresponding indices.
+
+    >>> classes = ["English", "German", "French"]
+    >>> enc = Encoding(classes)
+    >>> assert "English" == enc.decode(enc.encode("English"))
+    >>> assert "German" == enc.decode(enc.encode("German"))
+    >>> assert "French" == enc.decode(enc.encode("French"))
+    >>> set(range(3)) == set(enc.encode(cl) for cl in classes)
+    True
+    >>> for cl in classes:
+    ...     ix = enc.encode(cl)
+    ...     assert 0 <= ix <= enc.class_num
+    ...     assert cl == enc.decode(ix)
+    """
+
+    def __init__(self, classes):
+        # Make a set to remove duplicates, just in case
+        class_set = set(cl for cl in classes)
+        self.class_num = len(class_set)
+        self.class_to_ix = {}
+        self.ix_to_class = {}
+        for (ix, cl) in enumerate(class_set):
+            self.class_to_ix[cl] = ix
+            self.ix_to_class[ix] = cl
+
+    def encode(self, cl: str) -> int:
+        return self.class_to_ix[cl]
+
+    def decode(self, ix: int) -> str:
+        return self.ix_to_class[ix]
+```
+Using this class, we can encode our dataset as follows:
+```python
+# Create the encoder fo the input words
+word_enc = Encoder(word for inp, _ in data for word in inp)
+# Create the encoder for the POS tags
+tag_enc = Encoder(pos for _, out in data for pos in out)
+# Encode the dataset
+enc_data = []
+for inp, out in data:
+    enc_inp = torch.tensor([word_enc.encode(word) for word in inp])
+    enc_out = torch.tensor([tag_enc.encode(pos) for pos in out])
+    enc_data.append((enc_inp, enc_out))
+# We now have out entire dataset encoded as tensors:
+for xy in enc_data:
+    print(xy)
+# => TODO
+```
 
 #### One-hot encoding
 

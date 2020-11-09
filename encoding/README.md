@@ -109,7 +109,7 @@ for inp, out in data:
 
 **Note**: the type annotations in the code above (such as `Inp` and `Out`) are
 optional, you may skip them in your code.  However, they help to document the
-behavior of the individual functions and in general make the code clearer.
+behavior of the individual functions and in general make the code cleaner.
 Additionally, if you use the `mypy` linter, it will help detecting problems
 with your code when it does not respect the types.
 
@@ -217,6 +217,113 @@ one-hot encoding.  This is not the preferred method to use in PyTorch (probably
 because it uses lots of memory for no very good reason), but you can transform
 the indices to one-hot vectors as described in [this
 question](https://discuss.pytorch.org/t/pytocrh-way-for-one-hot-encoding-multiclass-target-variable/68321).
+
+
+## Embedding
+
+*Word embedding* is the process of transforming words (or word indices) into
+actual word vector representations.  There are many different embedding
+methods, differing notably in:
+* What is embedded: words, sub-words, the underlying characters
+* Whether pre-training is used (fastText) or not (custom, task-specific
+  embeddings)
+* Whether the embeddings are context-sensitive (ELMo, BERT) or not (glove,
+  fastText)
+
+We will now see how to implement word-level, custom (not pre-trained),
+context-insensitive embeddings for the task of POS tagging.
+
+#### Method 1 (using one-hot encoding)
+
+**Note**: when you run the code below, do not be surprised to obtain different
+values in the randomly generated tensors.
+
+```python
+# Create an embedding matrix E of shape N x D, where N is the total number of
+# words and D is the embedding size.  For instance, with `D = 5`:
+E = torch.randn(word_enc.size(), 5)
+E 		# => tensor([[-0.0358, -0.3950, -1.8251, -0.0101, -0.8462],
+		# =>         [ 0.3565, -0.9042, -0.3476, -0.6734, -0.2240],
+		# =>         [ 0.7418,  1.1183, -0.2996, -0.0334, -0.0498],
+		# =>         [-0.9738, -0.0465, -1.1639,  0.2371,  1.3033],
+		# =>         [-0.3283, -1.4421,  0.8929, -1.3165, -0.3889],
+		# =>         [-0.1805,  0.4792, -0.1668, -1.1172, -0.2787],
+		# =>         [-1.4763, -0.3729,  0.6232, -1.3880, -0.6965],
+		# =>         [-1.4002,  0.5463,  0.6842, -0.2499,  0.2652],
+		# =>         [ 0.6933,  0.5644,  0.5488,  0.2362,  0.3567]])
+
+# Transform the encoded input of the first sentence to one-hot vector
+x, y = enc_data[0]
+x		# => tensor([0, 1, 2, 3, 4, 5, 0, 6, 7, 8])
+one_hot = torch.nn.functional.one_hot(x)
+one_hot         # => tensor([[1, 0, 0, 0, 0, 0, 0, 0, 0],
+		# =>         [0, 1, 0, 0, 0, 0, 0, 0, 0],
+		# =>         [0, 0, 1, 0, 0, 0, 0, 0, 0],
+		# =>         [0, 0, 0, 1, 0, 0, 0, 0, 0],
+		# =>         [0, 0, 0, 0, 1, 0, 0, 0, 0],
+		# =>         [0, 0, 0, 0, 0, 1, 0, 0, 0],
+		# =>         [1, 0, 0, 0, 0, 0, 0, 0, 0],
+		# =>         [0, 0, 0, 0, 0, 0, 1, 0, 0],
+		# =>         [0, 0, 0, 0, 0, 0, 0, 1, 0],
+		# =>         [0, 0, 0, 0, 0, 0, 0, 0, 1]])
+
+# Cast one-hot vector to float and use matrix/matrix product (or @)
+one_hot.float() @ E
+		# => tensor([[-0.0358, -0.3950, -1.8251, -0.0101, -0.8462],
+		# =>         [ 0.3565, -0.9042, -0.3476, -0.6734, -0.2240],
+		# =>         [ 0.7418,  1.1183, -0.2996, -0.0334, -0.0498],
+		# =>         [-0.9738, -0.0465, -1.1639,  0.2371,  1.3033],
+		# =>         [-0.3283, -1.4421,  0.8929, -1.3165, -0.3889],
+		# =>         [-0.1805,  0.4792, -0.1668, -1.1172, -0.2787],
+		# =>         [-0.0358, -0.3950, -1.8251, -0.0101, -0.8462],
+		# =>         [-1.4763, -0.3729,  0.6232, -1.3880, -0.6965],
+		# =>         [-1.4002,  0.5463,  0.6842, -0.2499,  0.2652],
+		# =>         [ 0.6933,  0.5644,  0.5488,  0.2362,  0.3567]])
+```
+
+#### Method 2 (using indexing)
+
+```python
+# Assuming the same embedding matrix `E` of shape 9 x 5 as above, we can simply
+# use the index vector `x` as index
+E[x] 		# => tensor([[-0.0358, -0.3950, -1.8251, -0.0101, -0.8462],
+		# =>         [ 0.3565, -0.9042, -0.3476, -0.6734, -0.2240],
+		# =>         [ 0.7418,  1.1183, -0.2996, -0.0334, -0.0498],
+		# =>         [-0.9738, -0.0465, -1.1639,  0.2371,  1.3033],
+		# =>         [-0.3283, -1.4421,  0.8929, -1.3165, -0.3889],
+		# =>         [-0.1805,  0.4792, -0.1668, -1.1172, -0.2787],
+		# =>         [-0.0358, -0.3950, -1.8251, -0.0101, -0.8462],
+		# =>         [-1.4763, -0.3729,  0.6232, -1.3880, -0.6965],
+		# =>         [-1.4002,  0.5463,  0.6842, -0.2499,  0.2652],
+		# =>         [ 0.6933,  0.5644,  0.5488,  0.2362,  0.3567]])
+```
+
+#### Method 3 (using nn.Embedding)
+
+PyTorch provides a dedicated
+[Embedding](https://pytorch.org/docs/stable/generated/torch.nn.Embedding.html)
+class to store embedding objects.
+```python
+# Create a new embedding object of shape 9 x 5
+emb = torch.nn.Embedding(9, 5)
+
+# Or from pre-existing embeddings
+emb = torch.nn.Embedding.from_pretrained(E)
+emb(x) 		# => tensor([[-0.0358, -0.3950, -1.8251, -0.0101, -0.8462],
+		# =>         [ 0.3565, -0.9042, -0.3476, -0.6734, -0.2240],
+		# =>         [ 0.7418,  1.1183, -0.2996, -0.0334, -0.0498],
+		# =>         [-0.9738, -0.0465, -1.1639,  0.2371,  1.3033],
+		# =>         [-0.3283, -1.4421,  0.8929, -1.3165, -0.3889],
+		# =>         [-0.1805,  0.4792, -0.1668, -1.1172, -0.2787],
+		# =>         [-0.0358, -0.3950, -1.8251, -0.0101, -0.8462],
+		# =>         [-1.4763, -0.3729,  0.6232, -1.3880, -0.6965],
+		# =>         [-1.4002,  0.5463,  0.6842, -0.2499,  0.2652],
+		# =>         [ 0.6933,  0.5644,  0.5488,  0.2362,  0.3567]])
+```
+The `Embedding` class provides some additional functionality, for instance
+handling out-of-vocabulary words (see the `padding_idx` attribute).  However,
+in most cases the three methods are interchangeable (although I don't see any
+good reasons to use method 1 in practice).
 
 
 

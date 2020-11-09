@@ -307,7 +307,7 @@ class to store embedding objects.
 # Create a new embedding object of shape 9 x 5
 emb = torch.nn.Embedding(9, 5)
 
-# Or from pre-existing embeddings
+# Or from pre-existing embedding matrix
 emb = torch.nn.Embedding.from_pretrained(E)
 emb(x) 		# => tensor([[-0.0358, -0.3950, -1.8251, -0.0101, -0.8462],
 		# =>         [ 0.3565, -0.9042, -0.3476, -0.6734, -0.2240],
@@ -321,9 +321,15 @@ emb(x) 		# => tensor([[-0.0358, -0.3950, -1.8251, -0.0101, -0.8462],
 		# =>         [ 0.6933,  0.5644,  0.5488,  0.2362,  0.3567]])
 ```
 The `Embedding` class provides some additional functionality, for instance
-handling out-of-vocabulary words (see the `padding_idx` attribute).  However,
-in most cases the three methods are interchangeable (although I don't see any
-good reasons to use method 1 in practice).
+handling out-of-vocabulary words (see the `padding_idx` attribute).  Moreover,
+it's an instance of the
+[nn.Module](https://pytorch.org/docs/stable/generated/torch.nn.Module.html?highlight=module#torch.nn.Module)
+class, a base class for all neural network submodules which we will learn more
+about later.
+<!--
+However, in most cases the three methods are interchangeable (although I don't
+see any good reasons to use method 1 in practice).
+-->
 
 
 

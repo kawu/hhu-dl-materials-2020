@@ -8,9 +8,10 @@ The data to which we can apply deep learning can come in variety of different
 formats.  It can be a list of non-tokenized text chunks coupled with their
 sentiments:
 ```
-First sentence => neutral
-Second sentence => negative
-Third sentence => positive
+I love it => positive
+I hate it => negative
+I don't hate it => neutral
+I hate it...  Just kidding!  I actually like it. => positive
 ```
 Or a list of translation pairs:
 ```
@@ -56,6 +57,7 @@ pre-segmented words on input.
 ```python
 from typing import Tuple, List
 
+import torch
 import conllu
 
 raw_data = """
@@ -96,7 +98,7 @@ for sent in conllu.parse(raw_data):
 
 # Create the extracted dataset
 data = []
-for sent in conllu.parse_incr(raw_data):
+for sent in conllu.parse(raw_data):
     data.append(extract(sent))
 
 for sent in data:
@@ -209,7 +211,8 @@ for xy in enc_data:
 
 A traditional strategy to encode categorical values (in our case: input words
 on the one hand, and output POS tags on the other hand) as vectors is to use
-one-hot encoding.  PyTorch does not support it directly, but you can transform
+one-hot encoding.  This is not the preferred method to use in PyTorch (probably
+because it uses lots of memory for no very good reason), but you can transform
 the indices to one-hot vectors as described in [this
 question](https://discuss.pytorch.org/t/pytocrh-way-for-one-hot-encoding-multiclass-target-variable/68321).
 

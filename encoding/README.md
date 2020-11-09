@@ -46,7 +46,7 @@ environment activated):
 pip install conllu
 ```
 
-## Extraction and preporcessing
+## Extraction
 
 Before we start encoding the dataset into the tensor form, it is usually
 convenient to extract the relevant data and (if necessary) to perform
@@ -58,7 +58,7 @@ from typing import Tuple, List
 
 import conllu
 
-data = """
+raw_data = """
 # text = The quick brown fox jumps over the lazy dog.
 1   The     the    DET    DT   Definite=Def|PronType=Art   4   det     _   _
 2   quick   quick  ADJ    JJ   Degree=Pos                  4   amod    _   _
@@ -90,12 +90,46 @@ def extract(sent: conllu.TokenList) -> Tuple[Inp, Out]:
 You can then use the `conllu.parse` and the `extract` functions to extract the
 relevant information.
 ```python
-for sent in conllu.parse(data):
+for sent in conllu.parse(raw_data):
     print(sent)
-    print(extract(sent))
 # => TokenList<The, quick, brown, fox, jumps, over, the, lazy, dog, .>
+
+# Create the extracted dataset
+data = []
+for sent in conllu.parse(raw_data):
+    data.append(extract(sent))
+
+for sent in data:
+    print(sent)
 # => (['The', 'quick', 'brown', 'fox', 'jumps', 'over', 'the', 'lazy', 'dog', '.'], ['DET', 'ADJ', 'ADJ', 'NOUN', 'VERB', 'ADP', 'DET', 'ADJ', 'NOUN', 'PUNCT'])
+
+
+**Note**: the type annotations in the code above (such as `Inp` and `Out`) are
+optional, you may skip them in your code.  However, they help to document the
+behavior of the individual functions and in general make the code clearer.
+Additionally, if you use the `mypy` linter, it will help detecting problems
+with your code when it does not respect the types.
+
+## Preprocessing
+
+This is a good moment to implement additional pre-processing.  We could for
+instance lower-case all input words to make sure that vector representations of
+words are case-insensitive.
+```python
+def preprocess(inp: Inp) -> Inp:
+    """Lower-case all words in the input sentence."""
+    return [x.lower() for x in inp]
+
+# Apply the pre-processing function to the dataset
+for sent in data:
+    sent[0] = preprocess(sent[0])
+
+for sent in data:
+    print(sent)
+# => (['the', 'quick', 'brown', 'fox', 'jumps', 'over', 'the', 'lazy', 'dog', '.'], ['DET', 'ADJ', 'ADJ', 'NOUN', 'VERB', 'ADP', 'DET', 'ADJ', 'NOUN', 'PUNCT'])
 ```
+In general, pre-processing can be much more important, for instance when the
+input is not tokenized.
 
 ## Encoding
 

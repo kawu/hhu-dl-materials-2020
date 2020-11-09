@@ -89,7 +89,7 @@ def extract(sent: conllu.TokenList) -> Tuple[Inp, Out]:
 ```
 You can then use the `conllu.parse` and the `extract` functions to extract the
 relevant information.
-``python
+```python
 for sent in conllu.parse(data):
     print(sent)
     print(extract(sent))

@@ -81,10 +81,10 @@ Inp = List[str]
 # Output type annotation: a list of POS tags
 Out = List[str]
 
-def extract(sent: conllu.TokenList) -> Tuple[Inp, Out]:
+def extract(token_list: conllu.TokenList) -> Tuple[Inp, Out]:
     """Extract the input/output pair from a CoNLL-U sentence."""
     inp, out = [], []
-    for tok in sent:
+    for tok in token_list:
         inp.append(tok["form"])
         out.append(tok["upos"])
     return inp, out
@@ -92,17 +92,17 @@ def extract(sent: conllu.TokenList) -> Tuple[Inp, Out]:
 You can then use the `conllu.parse` (or `conllu.parse_incr`) and the `extract`
 functions to extract the relevant information.
 ```python
-for sent in conllu.parse(raw_data):
-    print(sent)
+for token_list in conllu.parse(raw_data):
+    print(token_list)
 # => TokenList<The, quick, brown, fox, jumps, over, the, lazy, dog, .>
 
 # Create the extracted dataset
-data = []
-for sent in conllu.parse(raw_data):
-    data.append(extract(sent))
+data: List[Tuple[Inp, Out]] = []
+for token_list in conllu.parse(raw_data):
+    data.append(extract(token_list))
 
-for sent in data:
-    print(sent)
+for inp, out in data:
+    print(inp, out)
 # => (['The', 'quick', 'brown', 'fox', 'jumps', 'over', 'the', 'lazy', 'dog', '.'], ['DET', 'ADJ', 'ADJ', 'NOUN', 'VERB', 'ADP', 'DET', 'ADJ', 'NOUN', 'PUNCT'])
 ```
 
@@ -124,8 +124,9 @@ def preprocess(inp: Inp) -> Inp:
     return [x.lower() for x in inp]
 
 # Apply the pre-processing function to the dataset
-for sent in data:
-    sent[0] = preprocess(sent[0])
+for i in range(len(data)):
+    inp, out = data[i]
+    data[i] = preprocess(inp), out
 
 for sent in data:
     print(sent)
@@ -174,19 +175,18 @@ class Encoder:
     """
 
     def __init__(self, classes):
-        # Make a set to remove duplicates, just in case
-        class_set = set(cl for cl in classes)
-        self.class_num = len(class_set)
         self.class_to_ix = {}
         self.ix_to_class = {}
-        for (ix, cl) in enumerate(class_set):
-            self.class_to_ix[cl] = ix
-            self.ix_to_class[ix] = cl
+        for cl in classes:
+            if cl not in self.class_to_ix:
+                ix = len(self.class_to_ix)
+                self.class_to_ix[cl] = ix
+                self.ix_to_class[ix] = cl
 
-    def encode(self, cl: str) -> int:
+    def encode(self, cl):
         return self.class_to_ix[cl]
 
-    def decode(self, ix: int) -> str:
+    def decode(self, ix):
         return self.ix_to_class[ix]
 ```
 Using this class, we can encode our dataset as follows:
@@ -195,16 +195,18 @@ Using this class, we can encode our dataset as follows:
 word_enc = Encoder(word for inp, _ in data for word in inp)
 # Create the encoder for the POS tags
 tag_enc = Encoder(pos for _, out in data for pos in out)
+
 # Encode the dataset
 enc_data = []
 for inp, out in data:
     enc_inp = torch.tensor([word_enc.encode(word) for word in inp])
     enc_out = torch.tensor([tag_enc.encode(pos) for pos in out])
     enc_data.append((enc_inp, enc_out))
-# We now have out entire dataset encoded as tensors:
+    
+# We now have our entire dataset encoded with tensors:
 for xy in enc_data:
     print(xy)
-# => TODO
+# => (tensor([0, 1, 2, 3, 4, 5, 0, 6, 7, 8]), tensor([0, 1, 1, 2, 3, 4, 0, 1, 2, 5]))
 ```
 
 #### One-hot encoding

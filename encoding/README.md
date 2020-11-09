@@ -102,6 +102,7 @@ for sent in conllu.parse(raw_data):
 for sent in data:
     print(sent)
 # => (['The', 'quick', 'brown', 'fox', 'jumps', 'over', 'the', 'lazy', 'dog', '.'], ['DET', 'ADJ', 'ADJ', 'NOUN', 'VERB', 'ADP', 'DET', 'ADJ', 'NOUN', 'PUNCT'])
+```
 
 
 **Note**: the type annotations in the code above (such as `Inp` and `Out`) are

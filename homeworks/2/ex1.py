@@ -31,6 +31,7 @@ def parse(raw_data: str) -> List[Tuple[Name, Lang]]:
     specified.  See also `sample_raw_data` above.
 
     Examples:
+
     >>> data_set = parse('German: Bach, Engel')
     >>> print(sorted(data_set))
     [('German', 'Bach'), ('German', 'Engel')]

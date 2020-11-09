@@ -183,6 +183,9 @@ class Encoder:
                 self.class_to_ix[cl] = ix
                 self.ix_to_class[ix] = cl
 
+    def size(self):
+        return len(self.class_to_ix)
+
     def encode(self, cl):
         return self.class_to_ix[cl]
 

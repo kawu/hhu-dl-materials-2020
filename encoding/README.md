@@ -268,7 +268,7 @@ one_hot         # => tensor([[1, 0, 0, 0, 0, 0, 0, 0, 0],
 		# =>         [0, 0, 0, 0, 0, 0, 0, 0, 1]])
 
 # Cast one-hot vector to float and use matrix/matrix product (or @)
-one_hot.float() @ E
+torch.mm(one_hot.float(), E)	# equivalently: one_hot.float() @ E
 		# => tensor([[-0.0358, -0.3950, -1.8251, -0.0101, -0.8462],
 		# =>         [ 0.3565, -0.9042, -0.3476, -0.6734, -0.2240],
 		# =>         [ 0.7418,  1.1183, -0.2996, -0.0334, -0.0498],

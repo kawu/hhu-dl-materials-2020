@@ -87,8 +87,8 @@ def extract(sent: conllu.TokenList) -> Tuple[Inp, Out]:
         out.append(tok["upos"])
     return inp, out
 ```
-You can then use the `conllu.parse` and the `extract` functions to extract the
-relevant information.
+You can then use the `conllu.parse` (or `conllu.parse_incr`) and the `extract`
+functions to extract the relevant information.
 ```python
 for sent in conllu.parse(raw_data):
     print(sent)
@@ -96,7 +96,7 @@ for sent in conllu.parse(raw_data):
 
 # Create the extracted dataset
 data = []
-for sent in conllu.parse(raw_data):
+for sent in conllu.parse_incr(raw_data):
     data.append(extract(sent))
 
 for sent in data:
@@ -133,6 +133,34 @@ In general, pre-processing can be much more important, for instance when the
 input is not tokenized.
 
 ## Encoding
+
+The next step is to take the extracted dataset:
+```
+for sent in data:
+    print(sent)
+# => (['the', 'quick', 'brown', 'fox', 'jumps', 'over', 'the', 'lazy', 'dog', '.'], ['DET', 'ADJ', 'ADJ', 'NOUN', 'VERB', 'ADP', 'DET', 'ADJ', 'NOUN', 'PUNCT'])
+```
+and encode it as PyTorch tensors.
+
+PyTorch is very flexible when it comes to choosing the moment of encoding.  For
+instance, we can keep the dataset in its original form and perform encoding
+on-the-fly during training.  Alternatively, each (input, output) pair can be
+encoded as a pair (input tensor, output tensor) beforehand.  Finally, the
+entire dataset can be encoded as a pair of tensors.  We will follow the last
+strategy here.
+
+#### Generic solution
+
+TODO
+
+#### One-hot encoding
+
+A traditional strategy to encode categorical values (in our case: input words
+on the one hand, and output POS tags on the other hand) as vectors is to use
+one-hot encoding.  PyTorch does not support it directly, but you can transform
+the indices to one-hot vectors as described in [this
+question](https://discuss.pytorch.org/t/pytocrh-way-for-one-hot-encoding-multiclass-target-variable/68321).
+
 
 
 [conllu]: https://universaldependencies.org/format.html "CoNLL-U format"

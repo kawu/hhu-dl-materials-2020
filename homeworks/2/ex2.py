@@ -53,13 +53,38 @@ def encode_data(data_set: List[Tuple[Name, Lang]]) \
         , (tensor([4, 6, 7, 8, 9]), tensor(1))
         ]
     
-    although the exact values inside may differ (e.g. you might use
-    index `0` for character `a`)
+    although the exact values inside may differ (e.g. you may use
+    index `0` to represent character `a`)
 
-    >>> for x, y in enc_data:
+    >>> assert len(enc_data) == len(data)
+    >>> for (inp, out), (x, y) in zip(data, enc_data):
+    ...    assert len(inp) == len(x)
     ...    assert isinstance(x, Tensor)
-    ...    assert isinstance(y, Tensor)    
+    ...    assert isinstance(y, Tensor)
 
-    >>> for x, y in enc_data:
+    # There are 10 distinct names in the dataset
+    >>> set(ix.item() for x, y in enc_data for ix in x)
+    {0, 1, 2, 3, 4, 5, 6, 7, 8, 9}
+
+    # And 2 distinct languages
+    >>> set(y.item() for x, y in enc_data)
+    {0, 1}
+
+    # Finally, some tests with the sample data set
+    >>> enc_data = encode_data(sample_data_set)
+    >>> set(y.item() for x, y in enc_data)
+    {0, 1, 2, 3, 4, 5, 6}
+    >>> set(ix.item() for x, y in enc_data for ix in x) # doctest:+ELLIPSIS
+    {0, 1, ..., 36, 37}
+
+    # The number of occurrences of the most frequent character
+    >>> from collections import Counter
+    >>> cnt = Counter(char for name, lang in sample_data_set for char in name)
+    >>> cnt.most_common(1)[0]
+    ('e', 16)
+    >>> cnt = Counter(ix.item() for x, y in enc_data for ix in x)
+    >>> cnt.most_common(1)[0][1]
+    16
     """
+    # TODO:
     pass

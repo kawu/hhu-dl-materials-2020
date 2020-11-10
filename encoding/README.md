@@ -19,29 +19,29 @@ Or a list of word-segmented, morphologically-tagged, and dependency-parsed
 sentences in a dedicated format such as [CoNLL-U][conllu]:
 ```
 # text = Only the Thought Police mattered.
-1  Only      only     ADV    RB   _  4 	advmod 	   _  _
-2  the 	     the      DET    DT   _  4 	det 	   _  _
-3  Thought   thought  PROPN  NNP  _  4 	compound   _  _
-4  Police    police   PROPN  NNP  _  5 	nsubj 	   _  _
-5  mattered  matter   VERB   VBD  _  0 	root 	   _  _
-6  .         . 	      PUNCT  . 	  _  5 	punct 	   _  _
+1	Only	only	ADV	RB	_	4	advmod	_	_
+2	the	the	DET	DT	_	4	det	_	_
+3	Thought	thought	PROPN	NNP	_	4	compound	_	_
+4	Police	police	PROPN	NNP	_	5	nsubj	_	_
+5	mattered	matter	VERB	VBD	_	0	root	_	_
+6	.	.	PUNCT	.	_	5	punct	_	_
 
 # That was very true, he thought.
-1  That      that     PRON   DT   _  4 	nsubj 	   _  _
-2  was 	     be       AUX    VBD  _  4 	cop 	   _  _
-3  very      very     ADV    RB   _  4 	advmod 	   _  _
-4  true      true     ADJ    JJ   _  0 	root 	   _  _
-5  , 	     , 	      PUNCT  , 	  _  4 	punct 	   _  _
-6  he 	     he       PRON   PRP  _  7 	nsubj 	   _  _
-7  thought   think    VERB   VBD  _  4 	parataxis  _  _
-8  . 	     . 	      PUNCT  . 	  _  4 	punct 	   _  _
+1	That	that	PRON	DT	_	4	nsubj	_	_
+2	was	be	AUX	VBD	_	4	cop	_	_
+3	very	very	ADV	RB	_	4	advmod	_	_
+4	true	true	ADJ	JJ	_	0	root	_	_
+5	,	,	PUNCT	,	_	4	punct	_	_
+6	he	he	PRON	PRP	_	7	nsubj	_	_
+7	thought	think	VERB	VBD	_	4	parataxis	_	_
+8	.	.	PUNCT	.	_	4	punct	_	_
 
 # text = He loved Big Brother.
-1   He       he       PRON   PRP  _  2  nsubj      _  _
-2   loved    love     VERB   VBD  _  0  root       _  _
-3   Big      big      PROPN  NNP  _  4  compound   _  _
-4   Brother  brother  PROPN  NNP  _  2  obj 	   _  _
-5   . 	     . 	      PUNCT  . 	  _  2  punct 	   _  _
+1	He	he	PRON	PRP	_	2	nsubj	_	_
+2	loved	love	VERB	VBD	_	0	root	_	_
+3	Big	big	PROPN	NNP	_	4	compound	_	_
+4	Brother	brother	PROPN	NNP	_	2	obj	_	_
+5	.	.	PUNCT	.	_	2	punct	_	_
 
 ```
 In any case, the data has the structure of a list of (input, output) pairs,
@@ -76,29 +76,29 @@ import conllu
 
 raw_data = """
 # text = Only the Thought Police mattered.
-1  Only      only     ADV    RB   _  4 	advmod 	   _  _
-2  the 	     the      DET    DT   _  4 	det 	   _  _
-3  Thought   thought  PROPN  NNP  _  4 	compound   _  _
-4  Police    police   PROPN  NNP  _  5 	nsubj 	   _  _
-5  mattered  matter   VERB   VBD  _  0 	root 	   _  _
-6  .         . 	      PUNCT  . 	  _  5 	punct 	   _  _
+1	Only	only	ADV	RB	_	4	advmod	_	_
+2	the	the	DET	DT	_	4	det	_	_
+3	Thought	thought	PROPN	NNP	_	4	compound	_	_
+4	Police	police	PROPN	NNP	_	5	nsubj	_	_
+5	mattered	matter	VERB	VBD	_	0	root	_	_
+6	.	.	PUNCT	.	_	5	punct	_	_
 
 # That was very true, he thought.
-1  That      that     PRON   DT   _  4 	nsubj 	   _  _
-2  was 	     be       AUX    VBD  _  4 	cop 	   _  _
-3  very      very     ADV    RB   _  4 	advmod 	   _  _
-4  true      true     ADJ    JJ   _  0 	root 	   _  _
-5  , 	     , 	      PUNCT  , 	  _  4 	punct 	   _  _
-6  he 	     he       PRON   PRP  _  7 	nsubj 	   _  _
-7  thought   think    VERB   VBD  _  4 	parataxis  _  _
-8  . 	     . 	      PUNCT  . 	  _  4 	punct 	   _  _
+1	That	that	PRON	DT	_	4	nsubj	_	_
+2	was	be	AUX	VBD	_	4	cop	_	_
+3	very	very	ADV	RB	_	4	advmod	_	_
+4	true	true	ADJ	JJ	_	0	root	_	_
+5	,	,	PUNCT	,	_	4	punct	_	_
+6	he	he	PRON	PRP	_	7	nsubj	_	_
+7	thought	think	VERB	VBD	_	4	parataxis	_	_
+8	.	.	PUNCT	.	_	4	punct	_	_
 
 # text = He loved Big Brother.
-1   He       he       PRON   PRP  _  2  nsubj      _  _
-2   loved    love     VERB   VBD  _  0  root       _  _
-3   Big      big      PROPN  NNP  _  4  compound   _  _
-4   Brother  brother  PROPN  NNP  _  2  obj 	   _  _
-5   . 	     . 	      PUNCT  . 	  _  2  punct 	   _  _
+1	He	he	PRON	PRP	_	2	nsubj	_	_
+2	loved	love	VERB	VBD	_	0	root	_	_
+3	Big	big	PROPN	NNP	_	4	compound	_	_
+4	Brother	brother	PROPN	NNP	_	2	obj	_	_
+5	.	.	PUNCT	.	_	2	punct	_	_
 
 """
 

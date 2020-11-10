@@ -47,6 +47,10 @@ sentences in a dedicated format such as [CoNLL-U][conllu]:
 In any case, the data has the structure of a list of (input, output) pairs,
 which need to be encoded as tensors for subsequent PyTorch processing.
 
+**Note**: Sometimes the dataset is already stored in numerical form, in which
+case encoding might not be necessary.  However, this is rarely the case in NLP,
+where input/output typically has a structured, categorical form.
+
 #### CoNLL-U
 
 Let's focus on the CoNLL-U example.  There is a [conllu
@@ -133,7 +137,7 @@ for inp, out in data:
 # => [('He', 'PRON'), ('loved', 'VERB'), ('Big', 'PROPN'), ('Brother', 'PROPN'), ('.', 'PUNCT')]
 ```
 
-**Note**: the type annotations in the code above (such as `Inp`, `Out`,
+**Note**: The type annotations in the code above (such as `Inp`, `Out`,
 `List[Tuple[Inp, Out]]`) are optional, you may skip them in your code.
 However, they help to document the individual functions and in general make the
 code cleaner.  Additionally, if you use the `mypy` linter, type annotations may
@@ -264,7 +268,7 @@ embeddings for the task of POS tagging.
 
 #### Method 1 (using one-hot encoding)
 
-**Note**: when you run the code below, do not be surprised to obtain different
+**Note**: When you run the code below, do not be surprised to obtain different
 values in the randomly generated tensors.
 
 ```python

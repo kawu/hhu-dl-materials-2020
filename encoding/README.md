@@ -1,9 +1,5 @@
 # Encoding and embedding
 
-TODO
-
-## Data
-
 The data to which we can apply deep learning can come in variety of different
 formats.  It can be a list of non-tokenized text chunks coupled with their
 sentiments:
@@ -19,8 +15,8 @@ Only the Thought Police mattered. ||| Zu fürchten war nur die Gedankenpolizei.
 That was very true, he thought. |||  Das war sehr richtig, dachte er.
 He loved Big Brother. ||| Er liebte den Großen Bruder.
 ```
-Or a list of word-segmented, morphologically-tagged, and
-dependency-parsed sentences in a dedicated format such as [CoNLL-U][conllu]:
+Or a list of word-segmented, morphologically-tagged, and dependency-parsed
+sentences in a dedicated format such as [CoNLL-U][conllu]:
 ```
 # text = Only the Thought Police mattered.
 1  Only      only     ADV    RB   _  4 	advmod 	   _  _

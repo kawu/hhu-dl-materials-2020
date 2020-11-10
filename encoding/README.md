@@ -247,24 +247,28 @@ for xy in enc_data:
 A traditional strategy to encode categorical values (in our case: input words
 on the one hand, and output POS tags on the other hand) as vectors is to use
 one-hot encoding.  This is not the preferred method to use in PyTorch (probably
-because it uses lots of memory for no very good reason), but you can transform
-the indices to one-hot vectors as described in [this
+because it uses lots of memory for no good reason), but you can transform the
+indices to one-hot vectors as described in an answer to this [this
 question](https://discuss.pytorch.org/t/pytocrh-way-for-one-hot-encoding-multiclass-target-variable/68321).
 
 
 ## Embedding
 
 *Word embedding* is the process of transforming words (or word indices) into
-actual word vector representations.  There are various embedding methods,
-differing notably in:
-* What is embedded: words, sub-words, the underlying characters
-* Whether pre-training is used (fastText) or not (custom, task-specific
+word vector representations.  There are various embedding methods, differing
+notably in:
+* What is embedded: words, sub-words, the underlying characters, POS tags, ...
+* Whether pre-training is used (fastText, BERT) or not (custom, task-specific
   embeddings)
 * Whether the embeddings are context-sensitive (ELMo, BERT) or not (glove,
   fastText)
 
+An important point is that we can decide to **adapt the word embeddings** in a
+task-specific way, i.e. make them part of the neural model, or keep them as
+are.
+
 We will now implement custom (not pre-trained), word-level, context-insensitive
-embeddings for the task of POS tagging.
+embeddings, with the task of POS tagging in mind.
 
 #### Method 1 (using one-hot encoding)
 
@@ -364,6 +368,20 @@ However, in most cases the three methods are interchangeable (although I don't
 see any good reasons to use method 1 in practice).
 -->
 
+### When to embed?
+
+In an actual PyTorch application you may decide to perform embedding at
+different :
+1. Make embedding part of the neural model
+2. Embed the entire dataset before training the neural model
+
+The two methods have different trade-offs.  
+* Method 1. is the only option if you want to train/adapt the embeddings for a
+  given NLP task
+* Method 2. may be more convenient (and faster) if you use pre-trained word
+  embeddings
+
+Both methods will also differ in memory requirements.
 
 
 [conllu]: https://universaldependencies.org/format.html "CoNLL-U format"

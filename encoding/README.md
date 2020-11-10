@@ -369,7 +369,7 @@ see any good reasons to use method 1 in practice).
 ### When to embed?
 
 In an actual PyTorch application you may decide to perform embedding at
-different :
+different stages:
 1. Make embedding part of the neural model
 2. Embed the entire dataset before training the neural model
 

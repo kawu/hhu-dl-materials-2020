@@ -279,7 +279,7 @@ values in the randomly generated tensors.
 # Create an embedding matrix E of shape N x D, where N is the total number of
 # words and D is the embedding size.  For instance, with `D = 5`:
 E = torch.randn(word_enc.size(), 5)
-E 		# => tensor([[-0.0358, -0.3950, -1.8251, -0.0101, -0.8462],
+print(E) 	# => tensor([[-0.0358, -0.3950, -1.8251, -0.0101, -0.8462],
 		# =>         [ 0.3565, -0.9042, -0.3476, -0.6734, -0.2240],
 		# =>         [ 0.7418,  1.1183, -0.2996, -0.0334, -0.0498],
 		# =>         [-0.9738, -0.0465, -1.1639,  0.2371,  1.3033],
@@ -293,7 +293,7 @@ E 		# => tensor([[-0.0358, -0.3950, -1.8251, -0.0101, -0.8462],
 x, y = enc_data[0]
 x		# => tensor([0, 1, 2, 3, 4, 5, 0, 6, 7, 8])
 one_hot = torch.nn.functional.one_hot(x)
-one_hot         # => tensor([[1, 0, 0, 0, 0, 0, 0, 0, 0],
+print(one_hot)  # => tensor([[1, 0, 0, 0, 0, 0, 0, 0, 0],
 		# =>         [0, 1, 0, 0, 0, 0, 0, 0, 0],
 		# =>         [0, 0, 1, 0, 0, 0, 0, 0, 0],
 		# =>         [0, 0, 0, 1, 0, 0, 0, 0, 0],
@@ -323,7 +323,7 @@ torch.mm(one_hot.float(), E)	# equivalently: one_hot.float() @ E
 ```python
 # Assuming the same embedding matrix `E` of shape 9 x 5 as above, we can simply
 # use the index vector `x` as index
-E[x] 		# => tensor([[-0.0358, -0.3950, -1.8251, -0.0101, -0.8462],
+print(E[x]) 	# => tensor([[-0.0358, -0.3950, -1.8251, -0.0101, -0.8462],
 		# =>         [ 0.3565, -0.9042, -0.3476, -0.6734, -0.2240],
 		# =>         [ 0.7418,  1.1183, -0.2996, -0.0334, -0.0498],
 		# =>         [-0.9738, -0.0465, -1.1639,  0.2371,  1.3033],
@@ -346,7 +346,7 @@ emb = torch.nn.Embedding(9, 5)
 
 # Or from pre-existing embedding matrix
 emb = torch.nn.Embedding.from_pretrained(E)
-emb(x) 		# => tensor([[-0.0358, -0.3950, -1.8251, -0.0101, -0.8462],
+print(emb(x)) 	# => tensor([[-0.0358, -0.3950, -1.8251, -0.0101, -0.8462],
 		# =>         [ 0.3565, -0.9042, -0.3476, -0.6734, -0.2240],
 		# =>         [ 0.7418,  1.1183, -0.2996, -0.0334, -0.0498],
 		# =>         [-0.9738, -0.0465, -1.1639,  0.2371,  1.3033],

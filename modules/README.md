@@ -166,7 +166,7 @@ the `i+1`-th module.
 
 ### Example: FFN
 
-A [feed-forward network][ffn] (FFN; also called *multi-layered perceptron*,
+A [feedforward network][ffn] (FFN; also called *multi-layered perceptron*,
 MLP) with:
 * the size of the input layer equal to 3
 * the size of the hidden layer equal to 5
@@ -271,3 +271,4 @@ ffn.lin1.training   # => True (!!!)
 [sequential]: https://pytorch.org/docs/1.6.0/generated/torch.nn.Sequential.html?highlight=sequential#torch.nn.Sequential "Sequential composition module"
 [tanh]: https://pytorch.org/docs/1.6.0/generated/torch.nn.Tanh.html?highlight=tanh#torch.nn.Tanh "Tanh"
 [relu]: https://pytorch.org/docs/1.6.0/generated/torch.nn.ReLU.html?highlight=relu#torch.nn.ReLU "ReLU"
+[ffn]: https://en.wikipedia.org/wiki/Feedforward_neural_network "Feedforward network"

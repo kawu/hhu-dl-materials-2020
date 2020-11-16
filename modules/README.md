@@ -43,13 +43,13 @@ TODO: consider removing the "differentiable" word from the description above?
 Maybe you want to mention that next time.
 -->
 
-<sup>1</sup> Not to be confused with a regular [Python
+<sup>1</sup>Not to be confused with a regular [Python
 module](https://docs.python.org/3.8/tutorial/modules.html)!
 
-<sup>2</sup> A neural module stores a list of its parameters, which can be
+<sup>2</sup>A neural module stores a list of its parameters, which can be
 updated during training.
 
-<sup>3</sup> A neural module is differentiable with respect to its parameters,
+<sup>3</sup>A neural module is differentiable with respect to its parameters,
 and PyTorch allows to use automatic differentiation to learn how these
 parameters should be changed in order to better fit the entire neural model to
 the data at hand.

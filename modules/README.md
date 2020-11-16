@@ -56,17 +56,17 @@ the data at hand.
 
 When creating a neural module via inheritance, you have to follow certain
 rules:
-* Use `nn.Module` (or its subclass) as the base class.
-* Use `super().__init__()` at the beginning of the initialization method of
-  **each class** that (directly or not) inherits from the PyTorch Module.
-* Add sub-modules and parameters in the initialization method.  Simply assign them to the
-  object's attributes.
-* To use a [tensor](https://pytorch.org/docs/stable/tensors.html#torch.Tensor)
-  as a module's parameter, wrap it as a
-  [Parameter](https://pytorch.org/docs/master/nn.html#torch.nn.Parameter) before
-  assigning it to a module's attribute in the initialization method.
-* Finally, implement the function that the module represents in the `forward`
-  method.
+1. Use `nn.Module` (or its subclass) as the base class.
+1. Use `super().__init__()` at the beginning of the initialization method of
+   **each class** that (directly or not) inherits from the PyTorch Module.
+1. Add sub-modules and parameters in the initialization method.  Simply assign them to the
+   object's attributes.
+1. To use a [tensor](https://pytorch.org/docs/stable/tensors.html#torch.Tensor)
+   as a module's parameter, wrap it as a
+   [Parameter](https://pytorch.org/docs/master/nn.html#torch.nn.Parameter) before
+   assigning it to a module's attribute in the initialization method.
+1. Finally, implement the function that the module represents in the `forward`
+   method.
 
 <!--
 **Warning**: Remember that the sub-modules should not be used as the base class!

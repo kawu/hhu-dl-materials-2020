@@ -45,6 +45,11 @@ input word.
 enc_data[0]
 # => (tensor([0, 1, 2, 3, 4, 5]), tensor([0, 1, 2, 2, 3, 4]))
 
+# Apply the baseline model to the first word of the first sentence
+baseline(enc_data[0][0][0])
+# => tensor([-0.9836,  0.4314,  0.5208, -0.2047, -0.5286,  0.7035, -0.2217, -1.3357],
+# =>        grad_fn=<AddBackward0>)
+
 # Apply the baseline model to the input of the first sentence
 baseline(enc_data[0][0])
 # => tensor([[-0.9836,  0.4314,  0.5208, -0.2047, -0.5286,  0.7035, -0.2217, -1.3357],

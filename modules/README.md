@@ -166,41 +166,32 @@ the `i+1`-th module.
 
 ### Example: FFN
 
-A two-layered feed-forward network, with ReLU activation, can be defined as
-follows:
+A two-layered feed-forward network, with:
+* the size of the two layers equal to 5 and 2, respectively
+* the size of the input layer equal to 3
+* one non-linear [tanh][tanh] ,,activation'' layer in-between the two layers
+can be defined using [nn.Sequential][sequential] as follows:
 ```python
-import torch
 import torch.nn as nn
-import torch.nn.functional as F
 
-# TODO: list the rules
-class FFN(nn.Module):
-    def __init__(self, idim: int, hdim: int, odim: int):
-        super(FFN, self).__init__()
-        # Below, we create two `nn.Linear` sub-modules and assign them
-        # to the attributes `lin1` and `lin2`.  They get automatically
-        # registered as the FFN's sub-modules.
-        self.lin1 = nn.Linear(idim, hdim)
-        self.lin2 = nn.Linear(hdim, odim)
-
-    def forward(self, x):
-        # The following line is equivalent to: h = self.lin1.forward(x)
-        y = self.lin1(x)
-        # Apply ReLU and the second layer
-        return self.lin2(F.relu(y))
+ffn = nn.Sequential(
+    nn.Linear(3, 5),
+    nn.Tanh(),
+    nn.Linear(5, 2)
+)
 ```
 You can then retrieve the module's parameters and apply it to a vector, as in
-the linear transformation example (TODO: add link).
+the [linear transformation example](#example-linear-transformation).
 ```python
-# Create the FFN and retrieve its parameters
-ffn = FFN(10, 5, 3)
-ffn.parameters()        # Generator of parameters
-list(ffn.parameters())  # To actually see the parameters
+# Retrieve the FFN's parameters
+for param in L.parameters():
+    print(param)
+# TODO
 
-# Create an example vector of size 10 (input size) and push it through FFN
-x = torch.randn(10)
+# Create an example vector of size 3 (input size) and pass it through the FFN
+x = torch.randn(3)
 y = ffn(x)
-y.shape         # => torch.Size([3])
+y.shape         # => torch.Size([2])
 ```
 
 ### Exercises
@@ -258,3 +249,4 @@ ffn.lin1.training   # => True (!!!)
 [module]: https://pytorch.org/docs/1.6.0/generated/torch.nn.Module.html?highlight=module#torch.nn.Module "PyTorch neural module"
 [linear]: https://pytorch.org/docs/1.6.0/generated/torch.nn.Linear.html?highlight=linear#torch.nn.Linear "Linear nn.Module"
 [sequential]: https://pytorch.org/docs/1.6.0/generated/torch.nn.Sequential.html?highlight=sequential#torch.nn.Sequential "Sequential composition module"
+[tanh]: https://pytorch.org/docs/1.6.0/generated/torch.nn.Tanh.html?highlight=tanh#torch.nn.Tanh "Tanh"

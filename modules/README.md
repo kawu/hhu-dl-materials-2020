@@ -8,12 +8,12 @@
 - [nn.Module](#nnmodule)
 - [Inheritance](#inheritance)
     - [Example: linear transformation](#example-linear-transformation)
-    - [Example: FFN/MLP](#example-ffnmlp)
+    - [Parameters](#parameters)
+    - [Exercises](#exercises)
 - [Composition](#composition)
-    - [Example: FFN/MLP](#example-ffnmlp-1)
-- [Parameters](#parameters)
+    - [Example: FFN](#example-ffn)
+    - [Exercises](#exercises-1)
 - [Evaluation mode](#evaluation-mode)
-- [Dropout](#dropout)
 
 <!-- END doctoc generated TOC please keep comment here to allow auto update -->
 

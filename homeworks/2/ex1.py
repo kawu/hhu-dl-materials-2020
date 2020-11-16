@@ -34,11 +34,11 @@ def parse(raw_data: str) -> List[Tuple[Name, Lang]]:
 
     >>> data_set = parse('German: Bach, Engel')
     >>> print(sorted(data_set))
-    [('German', 'Bach'), ('German', 'Engel')]
+    [('Bach', 'German'), ('Engel', 'German')]
 
     >>> data_set = parse('German: Bach, Engel\\nEnglish: Alderson, Churchill')
     >>> print(sorted(data_set))
-    [('English', 'Alderson'), ('English', 'Churchill'), ('German', 'Bach'), ('German', 'Engel')]
+    [('Alderson', 'English'), ('Bach', 'German'), ('Churchill', 'English'), ('Engel', 'German')]
 
     # Duplicates should be preserved
     >>> data_set1 = parse('German: Bach, Bach')
@@ -53,7 +53,7 @@ def parse(raw_data: str) -> List[Tuple[Name, Lang]]:
     20
 
     # Retrive Enlish names only
-    >>> en_names = [name for lang, name in data_set if lang == 'English']
+    >>> en_names = [name for name, lang in data_set if lang == 'English']
     >>> print(sorted(en_names))
     ['Alderson', 'Churchill', 'Ecclestone', 'Keighley', 'Reynolds']
     """

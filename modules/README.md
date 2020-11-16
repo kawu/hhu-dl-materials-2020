@@ -27,10 +27,12 @@ its subclasses.  PyTorch modules are also building blocks, which can be
 combined together to construct larger modules via [inheritance](#inheritance)
 or [composition](#composition).
 
+<!--
 Links:
 * ,,Deep Learning est mort. Vive Differentiable Programming''
 * ,,Deep Learning is supervised learning of parameterised functions by gradient
   descent'' [link](https://www.signifytechnology.com/blog/2018/10/differentiable-functional-programming-by-noel-welsh)
+-->
 
 **Note**: Using nn.Module is not obligatory (in the sense that most of what it
 provides can be easily implemented manually), but it sure is very convenient
@@ -170,8 +172,10 @@ A two-layered feed-forward network, with:
 * the size of the two layers equal to 5 and 2, respectively
 * the size of the input layer equal to 3
 * one non-linear [tanh][tanh] ,,activation'' layer in-between the two layers
+
 can be defined using [nn.Sequential][sequential] as follows:
 ```python
+import torch
 import torch.nn as nn
 
 ffn = nn.Sequential(
@@ -184,9 +188,21 @@ You can then retrieve the module's parameters and apply it to a vector, as in
 the [linear transformation example](#example-linear-transformation).
 ```python
 # Retrieve the FFN's parameters
-for param in L.parameters():
+for param in ffn.parameters():
     print(param)
-# TODO
+# => Parameter containing:
+# => tensor([[ 0.4449,  0.5154,  0.1755],
+# =>         [-0.5651, -0.5183,  0.5056],
+# =>         [-0.3026,  0.3103,  0.5573],
+# =>         [-0.3577, -0.1382, -0.1853],
+# =>         [ 0.2714,  0.5311,  0.5413]], requires_grad=True)
+# => Parameter containing:
+# => tensor([-0.4973,  0.4565, -0.4420,  0.1457, -0.1782], requires_grad=True)
+# => Parameter containing:
+# => tensor([[-0.2961,  0.0960, -0.2400,  0.0070,  0.0172],
+# =>         [ 0.2841,  0.0824, -0.0689,  0.3786, -0.2311]], requires_grad=True)
+# => Parameter containing:
+# => tensor([0.3572, 0.0281], requires_grad=True)
 
 # Create an example vector of size 3 (input size) and pass it through the FFN
 x = torch.randn(3)

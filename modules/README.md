@@ -20,19 +20,42 @@
 
 ## nn.Module
 
-A neural module is basically a parameterised, differentiable function which
-transforms input tensors to output tensors.  In PyTorch, it is implemented by
-the [nn.Module][module] and its subclasses.  You can think of PyTorch modules
-as building blocks, which can be combined together to construct larger modules
-via [inheritance](#inheritance) or [composition](#composition).
+A neural module<sup>1</sup> is basically a parameterised<sup>2</sup>,
+differentiable<sup>3</sup> function which transforms input tensors to output
+tensors.  In PyTorch, it is implemented by the [nn.Module][module] class and
+its subclasses.  PyTorch modules are also building blocks, which can be
+combined together to construct larger modules via [inheritance](#inheritance)
+or [composition](#composition).
 
 Links:
 * ,,Deep Learning est mort. Vive Differentiable Programming''
 * ,,Deep Learning is supervised learning of parameterised functions by gradient
   descent'' [link](https://www.signifytechnology.com/blog/2018/10/differentiable-functional-programming-by-noel-welsh)
 
+**Note**: Using nn.Module is not obligatory (in the sense that most of what it
+provides can be easily implemented manually), but it sure is very convenient
+and much of the remaining PyTorch API relies on the nn.Module abstraction.
+
+<!--
+TODO: consider removing the "differentiable" word from the description above?
+Maybe you want to mention that next time.
+-->
+
+<sup>1</sup> Not to be confused with a regular [Python
+module](https://docs.python.org/3.8/tutorial/modules.html)!
+
+<sup>2</sup> A neural module stores a list of its parameters, which can be
+updated during training.
+
+<sup>3</sup> A neural module is differentiable with respect to its parameters,
+and PyTorch allows to use automatic differentiation to learn how these
+parameters should be changed in order to better fit the entire neural model to
+the data at hand.
+
 ## Inheritance
 
+When creating a neural module via inheritance, you have to follow certain
+rules:
 * Use `super().__init__()` at the beginning of the initialization method of
   **each class** that (directly or not) inherits from the PyTorch Module.
 * Always add submodules in the initialization method.  Simply assign them to
@@ -46,13 +69,11 @@ Links:
 
 #### Example: linear transformation
 
-Here is how a linear transformation module can be implemented manually:
 ```python
-TODO
 ```
 
 **Note**: this is just an example, if you want to use a linear transformation
-module in your network, just use [nn.Linear][linear].
+module in your network, use [nn.Linear][linear] instead.
 
 #### Example: FFN/MLP
 

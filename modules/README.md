@@ -143,8 +143,6 @@ for param in L.parameters():
    this module look like.
 1. Implement two-layered feed-forward network (FFN; also called *multi-layered
    perceptron*, MLP) using inheritance.
-1. Factorize Linear as a combination of two modules and implement it using
-   composition.
 
 
 ## Composition
@@ -207,11 +205,10 @@ y.shape         # => torch.Size([3])
 
 ### Exercises
 
-**Exercise**: Implement FFN with a dynamic number of layers, whose shapes
-should be specified as argument of the initialization method.
-
-**Exercise**: Factorize Linear as a combination of two modules and implement it
-using composition.
+1. Implement FFN with a dynamic number of layers, whose shapes should be
+   specified as argument of the initialization method.
+1. Factorize Linear as a combination of two modules and implement it using
+   composition.
 
 
 ## Evaluation mode

@@ -213,7 +213,9 @@ y.shape         # => torch.Size([2])
 ### Exercises
 
 1. Implement FFN with a dynamic number of layers, whose shapes should be
-   specified as argument of the initialization method.
+   specified as argument to the initialization method.  An actication layer of
+   your choice (e.g. [tanh][tanh] or [relu][relu]) should be used in between
+   each two adjacent layers.
 1. Factorize Linear as a combination of two modules and implement it using
    composition.
 
@@ -266,3 +268,4 @@ ffn.lin1.training   # => True (!!!)
 [linear]: https://pytorch.org/docs/1.6.0/generated/torch.nn.Linear.html?highlight=linear#torch.nn.Linear "Linear nn.Module"
 [sequential]: https://pytorch.org/docs/1.6.0/generated/torch.nn.Sequential.html?highlight=sequential#torch.nn.Sequential "Sequential composition module"
 [tanh]: https://pytorch.org/docs/1.6.0/generated/torch.nn.Tanh.html?highlight=tanh#torch.nn.Tanh "Tanh"
+[relu]: https://pytorch.org/docs/1.6.0/generated/torch.nn.ReLU.html?highlight=relu#torch.nn.ReLU "ReLU"

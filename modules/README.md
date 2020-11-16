@@ -7,12 +7,12 @@
 
 - [nn.Module](#nnmodule)
 - [Inheritance](#inheritance)
-    - [Example: linear transformation](#example-linear-transformation)
-    - [Parameters](#parameters)
-    - [Exercises](#exercises)
+  - [Example: linear transformation](#example-linear-transformation)
+  - [Parameters](#parameters)
+  - [Exercises](#exercises)
 - [Composition](#composition)
-    - [Example: FFN](#example-ffn)
-    - [Exercises](#exercises-1)
+  - [Example: FFN](#example-ffn)
+  - [Exercises](#exercises-1)
 - [Evaluation mode](#evaluation-mode)
 
 <!-- END doctoc generated TOC please keep comment here to allow auto update -->
@@ -76,7 +76,7 @@ rules:
 **Warning**: Remember that the sub-modules should not be used as the base class!
 -->
 
-#### Example: linear transformation
+### Example: linear transformation
 
 ```python
 import torch
@@ -121,7 +121,7 @@ L(v)
 **Note**: this is just an example, PyTorch already provides an implementation
 of a linear transformation: [nn.Linear][linear].
 
-#### Parameters
+### Parameters
 
 A Module encapsulates the model parameters, which you can retrieve using the
 [parameters](https://pytorch.org/docs/1.6.0/generated/torch.nn.Module.html?highlight=parameters#torch.nn.Module.parameters)
@@ -136,7 +136,7 @@ for param in L.parameters():
 # ...
 ```
 
-#### Exercises
+### Exercises
 
 **Exercise**: Use the official [nn.Linear][linear] PyTorch module to create a
 linear transformation layer and apply it to vector `v`.  See how the parameters
@@ -168,7 +168,7 @@ combine the two modules.  To this end, PyTorch provides the
 the output of the `i`-th module match with the type and shape of the input of
 the `i+1`-th module.
 
-#### Example: FFN
+### Example: FFN
 
 A two-layered feed-forward network, with ReLU activation, can be defined as
 follows:
@@ -207,7 +207,7 @@ y = ffn(x)
 y.shape         # => torch.Size([3])
 ```
 
-#### Exercises
+### Exercises
 
 **Exercise**: Implement FFN with a dynamic number of layers, whose shapes
 should be specified as argument of the initialization method.

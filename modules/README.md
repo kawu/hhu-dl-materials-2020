@@ -1,11 +1,11 @@
 # Building neural modules
 
-TODO: The [nn.Module][module].
 
 <!-- START doctoc generated TOC please keep comment here to allow auto update -->
 <!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
 
 
+- [nn.Module](#nnmodule)
 - [Inheritance](#inheritance)
     - [Example: linear transformation](#example-linear-transformation)
     - [Example: FFN/MLP](#example-ffnmlp)
@@ -17,6 +17,19 @@ TODO: The [nn.Module][module].
 
 <!-- END doctoc generated TOC please keep comment here to allow auto update -->
 
+
+## nn.Module
+
+A neural module is basically a parameterised, differentiable function which
+transforms input tensors to output tensors.  In PyTorch, it is implemented by
+the [nn.Module][module] and its subclasses.  You can think of PyTorch modules
+as building blocks, which can be combined together to construct larger modules
+via [inheritance](#inheritance) or [composition](#composition).
+
+Links:
+* ,,Deep Learning est mort. Vive Differentiable Programming''
+* ,,Deep Learning is supervised learning of parameterised functions by gradient
+  descent'' [link](https://www.signifytechnology.com/blog/2018/10/differentiable-functional-programming-by-noel-welsh)
 
 ## Inheritance
 
@@ -38,8 +51,8 @@ Here is how a linear transformation module can be implemented manually:
 TODO
 ```
 
-**Note**: this is just an example, if you want to use a linear module in your
-network, just use [nn.Linear][linear].
+**Note**: this is just an example, if you want to use a linear transformation
+module in your network, just use [nn.Linear][linear].
 
 #### Example: FFN/MLP
 

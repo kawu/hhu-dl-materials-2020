@@ -43,6 +43,8 @@ TODO: consider removing the "differentiable" word from the description above?
 Maybe you want to mention that next time.
 -->
 
+#### Footnotes
+
 <sup>1</sup>Not to be confused with a regular [Python
 module](https://docs.python.org/3.8/tutorial/modules.html)!
 

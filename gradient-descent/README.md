@@ -4,7 +4,11 @@
 <!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
 
 
+- [POS tagging dataset](#pos-tagging-dataset)
+- [Baseline model](#baseline-model)
 - [Loss](#loss)
+    - [Footnotes](#footnotes)
+- [Backward calculation](#backward-calculation)
 - [Gradient descent](#gradient-descent)
 
 <!-- END doctoc generated TOC please keep comment here to allow auto update -->

@@ -43,25 +43,48 @@ TODO: examples
 
 ## Loss
 
-To train a model, we need a measure of its quality w.r.t. to the data.  This
+To train a model, we need a measure of how well it matches the data.  This
 measure is customarily called a *loss* function, although other names for the
-same idea exist (e.g., *objective* function).
+same concept exist (e.g., *objective* function).
 
-One o the most useful loss functions in NLP<sup>1</sup> is *cross-entropy
+One of the most useful loss functions in NLP<sup>1</sup> is *cross-entropy
 loss*, which measure the [cross entropy][cross-entropy] between:
-* the predicted distribution of target classes (the one predicted by the model
-  given the current parameters)
-* the target distribution of classes (as specified in the dataset)
+* the predicted distribution of target classes (the one predicted by the model)
+* the target, ,,gold'' distribution of classes (as specified in the dataset)
 
-<sup>1</sup>It applies within the context of POS tagging, dependency parsing,
-sentiment analysis, etc.  Possibly also within the context of neural machin
-translation.
+In PyTorch, cross entropy is implemented with the
+[CrossEntropyLoss][cross-entropy-loss] class.  It is a [neural module][module]
+which represents a function with two arguments:
+1. Float tensor of shape `N x C`, where `C` is the number of target classes
+1. Integer tensor of shape `N`
 
+* Tensor 1. corresponds to the predicted distribution of target classes.  It
+  takes the form of score vectors assigned to the individual input words.  Note
+  that this is precisely what the baseline model gives on output.
+* Tensor 2. represents the target classes (as indices) for the individual input
+  words.  Note this is precisely what is stored as output in the dataset.
+```python
+TODO: example
+```
+
+
+<sup>1</sup>It can be applied within the context of POS tagging, dependency
+parsing, sentiment analysis, etc.  Possibly also within the context of neural
+machin translation.
+
+
+## Backward calculation
+
+TODO
 
 
 ## Gradient descent
 
+TODO
+
 
 
 [linear]: https://pytorch.org/docs/1.6.0/generated/torch.nn.Linear.html?highlight=linear#torch.nn.Linear "Linear nn.Module"
+[module]: https://pytorch.org/docs/1.6.0/generated/torch.nn.Module.html?highlight=module#torch.nn.Module "PyTorch neural module"
 [cross-entropy]: https://en.wikipedia.org/wiki/Cross_entropy "Cross entropy"
+[cross-entropy-loss]: https://pytorch.org/docs/1.6.0/generated/torch.nn.CrossEntropyLoss.html?highlight=crossentropyloss#torch.nn.CrossEntropyLoss "Cross entropy loss criterion"

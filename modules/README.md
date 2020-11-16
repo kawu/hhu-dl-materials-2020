@@ -65,10 +65,6 @@ rules:
   as a module's parameter, wrap it as a
   [Parameter](https://pytorch.org/docs/master/nn.html#torch.nn.Parameter) before
   assigning it to a module's attribute in the initialization method.
-<!--
-  Then you can treat it as a sub-module and assign to an attribute in the
-  initialization method.
--->
 * Finally, implement the function that the module represents in the `forward`
   method.
 
@@ -115,7 +111,7 @@ L = Lin(3, 5)
 # Create a sample vector and apply the linear module to it
 v = torch.randn(3)
 L(v)
-# TODO: ...
+# => tensor([-0.8723, -0.2786,  0.3521,  0.5432,  1.5007], grad_fn=<AddBackward0>)
 ```
 
 **Note**: this is just an example, PyTorch already provides an implementation
@@ -130,23 +126,25 @@ method.
 # Retrieve the parameters of the module
 for param in L.parameters():
     print(param)
-# TODO: Parameter containing:
-# ...
-# Parameter containing:
-# ...
+# => Parameter containing:
+# => tensor([[-1.4545, -1.4958,  0.4731],
+# =>         [-0.5244,  0.3125, -0.3845],
+# =>         [-0.5057,  0.1806, -0.3674],
+# =>         [-1.5896,  0.2048, -1.1689],
+# =>         [-1.1178,  0.0784, -1.7647]], requires_grad=True)
+# => Parameter containing:
+# => tensor([ 1.6982, -0.2577,  0.3647,  0.5163, -0.2279], requires_grad=True)
 ```
 
 ### Exercises
 
-**Exercise**: Use the official [nn.Linear][linear] PyTorch module to create a
-linear transformation layer and apply it to vector `v`.  See how the parameters
-of this module look like.
-
-**Exercise**: Implement two-layered feed-forward network (FFN; also called
-*multi-layered perceptron*, MLP) using inheritance.
-
-**Exercise**: Factorize Linear as a combination of two modules and implement it
-using composition.
+1. Use the official [nn.Linear][linear] PyTorch module to create a linear
+   transformation layer and apply it to vector `v`.  See how the parameters of
+   this module look like.
+1. Implement two-layered feed-forward network (FFN; also called *multi-layered
+   perceptron*, MLP) using inheritance.
+1. Factorize Linear as a combination of two modules and implement it using
+   composition.
 
 
 ## Composition

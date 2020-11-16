@@ -143,8 +143,6 @@ for param in L.parameters():
 1. Use the official [nn.Linear][linear] PyTorch module to create a linear
    transformation layer and apply it to vector `v`.  See how the parameters of
    this module look like.
-1. Implement two-layered feed-forward network (FFN; also called *multi-layered
-   perceptron*, MLP) using inheritance.
 
 
 ## Composition
@@ -168,10 +166,12 @@ the `i+1`-th module.
 
 ### Example: FFN
 
-A two-layered feed-forward network, with:
-* the size of the two layers equal to 5 and 2, respectively
+A [feed-forward network][ffn] (FFN; also called *multi-layered perceptron*,
+MLP) with:
 * the size of the input layer equal to 3
-* one non-linear [tanh][tanh] ,,activation'' layer in-between the two layers
+* the size of the hidden layer equal to 5
+* one [tanh][tanh] ,,activation'' layer applied to the hidden layer
+* the size of the output layer equal to 2
 
 can be defined using [nn.Sequential][sequential] as follows:
 ```python
@@ -212,10 +212,12 @@ y.shape         # => torch.Size([2])
 
 ### Exercises
 
-1. Implement FFN with a dynamic number of layers, whose shapes should be
-   specified as argument to the initialization method.  An actication layer of
-   your choice (e.g. [tanh][tanh] or [relu][relu]) should be used in between
-   each two adjacent layers.
+1. Using inheritance, implement FNN with one hidden layer and one [tanh][tanh]
+   activation layer, as in the [composition example above](#example-ffn).
+1. Using composition, implement FFN with a dynamic number of layers, whose
+   shapes should be specified as argument to the initialization method.  An
+   actication layer of your choice (e.g. [tanh][tanh] or [relu][relu]) should be
+   used in between each two adjacent layers.
 1. Factorize Linear as a combination of two modules and implement it using
    composition.
 

@@ -158,10 +158,9 @@ the `i+1`-th module.
 ### Example: feedforward network
 
 A [feedforward network][ffn] (FFN) with:
-* the size of the input layer equal to 3
-* the size of the hidden layer equal to 5
-* one [tanh][tanh] ,,activation'' layer applied to the hidden layer
-* the size of the output layer equal to 2
+* an input layer of size `3`
+* a hidden layer of size `5`, with [tanh][tanh] activation function
+* an output layer of size `2`
 
 can be defined using [nn.Sequential][sequential] as follows:
 ```python
@@ -203,11 +202,11 @@ y.shape         # => torch.Size([2])
 ### Exercises
 
 1. Using inheritance, implement FNN with one hidden layer and one [tanh][tanh]
-   activation layer, as in the [composition example above](#example-ffn).
+   activation layer, as in the [composition example above](#example-feedforward-network).
 1. Using composition, implement FFN with a dynamic number of layers, whose
    shapes should be specified as argument to the initialization method.  An
-   actication layer of your choice (e.g. [tanh][tanh] or [relu][relu]) should be
-   used in between each two adjacent layers.
+   activation function of your choice (e.g. [tanh][tanh] or [relu][relu]) should
+   be used in between each two adjacent layers.
 1. Factorize Linear as a combination of two modules and implement it using
    composition.
 1. If sequential combination of modules is just function composition, could we

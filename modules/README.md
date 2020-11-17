@@ -55,8 +55,8 @@ rules:
 1. Add sub-modules and parameters in the initialization method.  Simply assign them to the
    object's attributes.
 1. To use a [tensor](https://pytorch.org/docs/stable/tensors.html#torch.Tensor)
-   as a module's parameter, wrap it as a
-   [Parameter](https://pytorch.org/docs/master/nn.html#torch.nn.Parameter) before
+   as a module's parameter, wrap it as an
+   [nn.Parameter](https://pytorch.org/docs/master/nn.html#torch.nn.Parameter) before
    assigning it to a module's attribute in the initialization method.
 1. Finally, implement the function that the module represents in the `forward`
    method.
@@ -146,13 +146,10 @@ error-prone in practice than the [inheritance-based method](#inheritance).  Use
 it when possible, use inheritance when you need extra flexibility.
 
 In many cases, you just want to give the output from one module as input to
-another module.
-<!--(as in the [FFN example](#example_ffnmlp) above).
--->
-In this case, the regular [function
+another module.  In this case, the regular [function
 composition](https://en.wikipedia.org/wiki/Function_composition) can be used to
 combine the two modules.  To this end, PyTorch provides the
-[Senuential][sequential] class.
+[Sequential][sequential] class.
 
 **Note**: Whenever you use this method, make sure that the type and shape of
 the output of the `i`-th module match with the type and shape of the input of

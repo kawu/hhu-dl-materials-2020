@@ -52,7 +52,7 @@ def parse(raw_data: str) -> List[Tuple[Name, Lang]]:
     >>> print(len(data_set))
     20
 
-    # Retrive Enlish names only
+    # Retrieve English names only
     >>> en_names = [name for name, lang in data_set if lang == 'English']
     >>> print(sorted(en_names))
     ['Alderson', 'Churchill', 'Ecclestone', 'Keighley', 'Reynolds']

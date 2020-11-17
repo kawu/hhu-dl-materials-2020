@@ -6,7 +6,6 @@
 
 
 - [nn.Module](#nnmodule)
-    - [Footnotes](#footnotes)
 - [Inheritance](#inheritance)
   - [Example: linear transformation](#example-linear-transformation)
   - [Parameters](#parameters)
@@ -15,18 +14,20 @@
   - [Example: feedforward network](#example-feedforward-network)
   - [Exercises](#exercises-1)
 - [Evaluation mode](#evaluation-mode)
+- [Footnotes](#footnotes)
 
 <!-- END doctoc generated TOC please keep comment here to allow auto update -->
 
 
 ## nn.Module
 
-A neural module<sup>1</sup> is basically a parameterised<sup>2</sup>,
-differentiable<sup>3</sup> function which transforms input tensors to output
-tensors.  In PyTorch, it is implemented by the [nn.Module][module] class and
-its subclasses.  PyTorch modules are also building blocks, which can be
-combined together to construct larger modules via [inheritance](#inheritance)
-or [composition](#composition).
+A neural module<sup>[1](#footnote1)</sup> is basically a
+parameterised<sup>[2](#footnote2)</sup>,
+differentiable<sup>[3](#footnote3)</sup> function which transforms input
+tensors to output tensors.  In PyTorch, it is implemented by the
+[nn.Module][module] class and its subclasses.  PyTorch modules are also
+building blocks, which can be combined together to construct larger modules via
+[inheritance](#inheritance) or [composition](#composition).
 
 <!--
 Links:
@@ -43,19 +44,6 @@ and much of the remaining PyTorch API relies on the nn.Module abstraction.
 TODO: consider removing the "differentiable" word from the description above?
 Maybe you want to mention that next time.
 -->
-
-#### Footnotes
-
-<sup>1</sup>Not to be confused with a regular [Python
-module](https://docs.python.org/3.8/tutorial/modules.html)!
-
-<sup>2</sup>A neural module stores a list of its parameters, which can be
-updated during training.
-
-<sup>3</sup>A neural module is differentiable with respect to its parameters,
-and PyTorch allows to use automatic differentiation to learn how these
-parameters should be changed in order to better fit the entire neural model to
-the data at hand.
 
 ## Inheritance
 
@@ -277,6 +265,20 @@ ffn.lin1.training   # => True (!!!)
 <!--
 ## Dropout
 -->
+
+## Footnotes
+
+<a name="footnote1">1</a>: Not to be confused with a regular [Python
+module](https://docs.python.org/3.8/tutorial/modules.html)!
+
+<a name="footnote2">2</a>: A neural module stores a list of its parameters,
+which can be updated during training.
+
+<a name="footnote3">3</a>: A neural module is differentiable with respect to
+its parameters, and PyTorch allows to use automatic differentiation to learn
+how these parameters should be changed in order to better fit the entire neural
+model to the data at hand.
+
 
 
 

@@ -264,12 +264,12 @@ assert ffn.training == ffn[0].training
 **WARNING**: You should never change the mode of the submodule, because this
 will not propagate the mode information to other module components!
 ```python
-ffn.eval()          # Set everything to evaluation mode
-ffn.training        # => False
-ffn[0].training   # => False
-ffn[0].train()    # Set `ffn[0]` to training mode
-ffn.training        # => False
-ffn[0].training   # => True (!!!)
+ffn.eval()	# Set everything to evaluation mode
+ffn.training    # => False
+ffn[0].training # => False
+ffn[0].train()  # Set `ffn[0]` to training mode
+ffn.training    # => False
+ffn[0].training # => True (!!!)
 ```
 
 <!--

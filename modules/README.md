@@ -173,6 +173,20 @@ ffn = nn.Sequential(
     nn.Linear(5, 2)
 )
 ```
+You can retrieve the individual submodules of `ffn` using indexing.
+```python
+ffn
+# => Sequential(
+# =>   (0): Linear(in_features=3, out_features=5, bias=True)
+# =>   (1): Tanh()
+# =>   (2): Linear(in_features=5, out_features=2, bias=True)
+
+ffn[0]
+# => Linear(in_features=3, out_features=5, bias=True)
+
+ffn[1]
+# => Tanh()
+```
 You can then retrieve the module's parameters and apply it to a vector, as in
 the [linear transformation example](#example-linear-transformation).
 ```python
@@ -216,7 +230,7 @@ lin1 = nn.Linear(3, 5)
 tanh = nn.Tanh()
 lin2 = nn.Linear(5, 2)
 def ffn(x):
-    return lin2(tah(lin1(x)))
+    return lin2(tanh(lin1(x)))
 ```
 
 
@@ -236,15 +250,15 @@ sub-modules).
 To retrieve the current mode:
 ```python
 ffn.training    # True by default
-assert ffn.training == ffn.lin1.training
+assert ffn.training == ffn[0].training
                 # All modules should be in the same mode
 ```
 
 You can switch the mode using the `train` or `eval` method of the main module:
 ```python
 ffn.eval()      # Set to evaluation mode
-assert ffn.training == ffn.lin1.training
-                # The mode of `ffn.lin1` should get updated, too
+assert ffn.training == ffn[0].training
+                # The mode of `ffn[0]` should get updated, too
 ```
 
 **WARNING**: You should never change the mode of the submodule, because this
@@ -252,10 +266,10 @@ will not propagate the mode information to other module components!
 ```python
 ffn.eval()          # Set everything to evaluation mode
 ffn.training        # => False
-ffn.lin1.training   # => False
-ffn.lin1.train()    # Set `ffn.lin1` to training mode
+ffn[0].training   # => False
+ffn[0].train()    # Set `ffn[0]` to training mode
 ffn.training        # => False
-ffn.lin1.training   # => True (!!!)
+ffn[0].training   # => True (!!!)
 ```
 
 <!--

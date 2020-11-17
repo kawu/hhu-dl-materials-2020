@@ -142,6 +142,9 @@ for param in L.parameters():
 
 ### Exercises
 
+1. Try to violate the individual [inheritance rules](#inheritance) in the
+   definition of the [linear transformation
+   class](#example-linear-transformation) and see what breaks.
 1. Use the official [nn.Linear][linear] PyTorch module to create a linear
    transformation layer and apply it to vector `v`.  See how the parameters of
    this module look like.
@@ -222,6 +225,15 @@ y.shape         # => torch.Size([2])
    used in between each two adjacent layers.
 1. Factorize Linear as a combination of two modules and implement it using
    composition.
+1. If sequential combination of modules is just function composition, could we
+   simply define `ffn` functionally as:
+```python
+lin1 = nn.Linear(3, 5)
+tanh = nn.Tanh()
+lin2 = nn.Linear(5, 2)
+def ffn(x):
+    return lin2(tah(lin1(x)))
+```
 
 
 ## Evaluation mode

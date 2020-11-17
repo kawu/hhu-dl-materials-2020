@@ -6,12 +6,13 @@
 
 
 - [nn.Module](#nnmodule)
+    - [Footnotes](#footnotes)
 - [Inheritance](#inheritance)
   - [Example: linear transformation](#example-linear-transformation)
   - [Parameters](#parameters)
   - [Exercises](#exercises)
 - [Composition](#composition)
-  - [Example: FFN](#example-ffn)
+  - [Example: feedforward network](#example-feedforward-network)
   - [Exercises](#exercises-1)
 - [Evaluation mode](#evaluation-mode)
 
@@ -169,7 +170,7 @@ combine the two modules.  To this end, PyTorch provides the
 the output of the `i`-th module match with the type and shape of the input of
 the `i+1`-th module.
 
-### Example: FFN
+### Example: feedforward network
 
 A [feedforward network][ffn] (FFN) with:
 * the size of the input layer equal to 3

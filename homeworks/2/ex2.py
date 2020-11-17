@@ -62,7 +62,7 @@ def encode_data(data_set: List[Tuple[Name, Lang]]) \
     ...    assert isinstance(x, Tensor)
     ...    assert isinstance(y, Tensor)
 
-    # There are 10 distinct names in the dataset
+    # There are 10 distinct characters in the dataset
     >>> set(ix.item() for x, y in enc_data for ix in x)
     {0, 1, 2, 3, 4, 5, 6, 7, 8, 9}
 

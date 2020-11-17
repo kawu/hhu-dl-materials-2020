@@ -171,8 +171,7 @@ the `i+1`-th module.
 
 ### Example: FFN
 
-A [feedforward network][ffn] (FFN; also called *multi-layered perceptron*,
-MLP) with:
+A [feedforward network][ffn] (FFN) with:
 * the size of the input layer equal to 3
 * the size of the hidden layer equal to 5
 * one [tanh][tanh] ,,activation'' layer applied to the hidden layer

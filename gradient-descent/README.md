@@ -185,43 +185,71 @@ print(loss(baseline(x), y))
 
 TODO: some illustration of how it works
 
-We can now transform this idea into an iterative process.
+Let's transform this idea into an iterative process.
 ```python
 for k in range(1000):
     loss(baseline(x), y).backward()
     nudge(baseline)
 
-print(loss(baseline(x), y))
-# => ...
+print(loss(baseline(x), y))	# => tensor(0.0035, grad_fn=<NllLossBackward>)
 ```
 We can now manually verify that the scores returned by the model indeed match
 the target class indices.
 ```python
 # Target indices
-print(y)
-# => ...
+print(y)			# => tensor([0, 1, 2, 2, 3, 4])
 
 # Predicted scores
 print(baseline(x))
-# => ...
+# => tensor([[ 7.4894,  0.8941, -0.3217,  0.4878, -4.7018, -0.5048, -0.3962, -0.4806],
+# =>         [-0.5916,  6.4069, -0.8281, -0.1889, -0.3827, -2.2988, -2.2811, -1.7803],
+# =>         [-2.1046,  1.0441,  7.7204, -3.3260,  0.5010, -2.0406, -1.5700, -1.4351],
+# =>         [-1.0978, -1.8977,  6.6228, -1.7472, -0.2857, -1.1864, -0.7551, -0.6199],
+# =>         [ 0.3482,  0.8762, -2.2882,  7.3868, -0.6562, -0.6644, -1.0683, -1.1325],
+# =>         [-5.4989,  0.7547,  1.1137, -0.5782,  7.6080, -1.2245, -1.4871, -2.1185]],
+# =>        grad_fn=<AddmmBackward>)
 
 # Pick the indices with the highest scores
 print(torch.argmax(baseline(x), dim=1))
-# => ...
+				# => tensor([0, 1, 2, 2, 3, 4])
 ```
 
 
 However, we looked at the first dataset element only, so it shouldn't be a
-supripise that the model did not adapt to the other two very well.
+supripise that the model did not adapt to the other two elements very well.
 ```python
 for x, y in enc_data:
     print(loss(baseline(x), y))
+# => tensor(0.0035, grad_fn=<NllLossBackward>)
+# => tensor(4.4172, grad_fn=<NllLossBackward>)
+# => tensor(2.2837, grad_fn=<NllLossBackward>)
+```
+
+The simplest solution is to use [minibatch gradient descent][mini-gd]:
+```python
+for k in range(1000):
+    for x, y in enc_data:
+        loss(baseline(x), y).backward()
+        nudge(baseline)
+
+# Let's see the final losses
+for x, y in enc_data:
+    print(loss(baseline(x), y))
+# => ...
+
+# And compare the predicted with the gold class indices
+for x, y in enc_data:
+    print("Gold:", y)
+    print("Pred:", torch.argmax(baseline(x), dim=1))
 # => ...
 ```
+
+TODO: Link to minibatch gradient descent.
 
 
 ## Adam
 
+## Decoding
 
 ## Closing remarks
 

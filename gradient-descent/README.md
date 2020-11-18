@@ -9,9 +9,12 @@
 - [POS tagging dataset](#pos-tagging-dataset)
 - [Baseline model](#baseline-model)
 - [Loss](#loss)
-    - [Footnotes](#footnotes)
 - [Backward calculation](#backward-calculation)
 - [Gradient descent](#gradient-descent)
+- [Adam](#adam)
+- [Decoding](#decoding)
+- [Closing remarks](#closing-remarks)
+- [Footnotes](#footnotes)
 
 <!-- END doctoc generated TOC please keep comment here to allow auto update -->
 

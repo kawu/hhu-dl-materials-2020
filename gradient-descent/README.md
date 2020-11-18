@@ -235,13 +235,16 @@ for k in range(1000):
 # Let's see the final losses
 for x, y in enc_data:
     print(loss(baseline(x), y))
-# => ...
+# => tensor(0.1041, grad_fn=<NllLossBackward>)
+# => tensor(0.1018, grad_fn=<NllLossBackward>)
+# => tensor(0.0022, grad_fn=<NllLossBackward>)
 
 # And compare the predicted with the gold class indices
 for x, y in enc_data:
-    print("Gold:", y)
-    print("Pred:", torch.argmax(baseline(x), dim=1))
-# => ...
+    print(f'gold: {y}, pred: {torch.argmax(baseline(x), dim=1)}')
+# => gold: tensor([0, 1, 2, 2, 3, 4]), pred: tensor([0, 1, 2, 2, 3, 4])
+# => gold: tensor([5, 6, 0, 7, 4, 5, 3, 4]), pred: tensor([5, 6, 0, 7, 4, 5, 2, 4])
+# => gold: tensor([5, 3, 2, 2, 4]), pred: tensor([5, 3, 2, 2, 4])
 ```
 
 TODO: Link to minibatch gradient descent.

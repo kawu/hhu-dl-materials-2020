@@ -113,10 +113,10 @@ for x, y in enc_data:
 
 ## Backward calculation
 
-A distinguishing feature of PyTorch is that it automatises the gradient
+A distinguishing feature of PyTorch is that it automates the gradient
 calculation process.  Once we calculate the value of the loss function that we
-want to minimize in the *forward* pass, we can perform the *backward* pass.
-This will calculate the gradients of all the parameters of the
+want to minimize in the *forward* pass, we can perform the *backward* pass,
+which will calculate the gradients of all the parameters of the
 model.<sup>[3](#footnote3)</sup>
 ```python
 # The gradients of the parameters of the embedding and the linear scoring
@@ -126,7 +126,7 @@ baseline[0].weight.grad is None
 baseline[1].weight.grad is None
 # => True
 
-# Let's calculate the gradient of the loss for the first input, output pair
+# Let's calculate the gradient of the loss for the first (input, output) pair
 x, y = enc_data[0]
 loss(baseline(x), y).backward()
 
@@ -183,9 +183,41 @@ print(loss(baseline(x), y))
 
 ## Gradient descent
 
-TODO
-
 TODO: some illustration of how it works
+
+We can now transform this idea into an iterative process.
+```python
+for k in range(1000):
+    loss(baseline(x), y).backward()
+    nudge(baseline)
+
+print(loss(baseline(x), y))
+# => ...
+```
+We can now manually verify that the scores returned by the model indeed match
+the target class indices.
+```python
+# Target indices
+print(y)
+# => ...
+
+# Predicted scores
+print(baseline(x))
+# => ...
+
+# Pick the indices with the highest scores
+print(torch.argmax(baseline(x), dim=1))
+# => ...
+```
+
+
+However, we looked at the first dataset element only, so it shouldn't be a
+supripise that the model did not adapt to the other two very well.
+```python
+for x, y in enc_data:
+    print(loss(baseline(x), y))
+# => ...
+```
 
 
 ## Adam

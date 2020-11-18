@@ -128,11 +128,9 @@ baseline[1].weight.grad is None
 
 # Let's calculate the gradient of the loss for the first input, output pair
 x, y = enc_data[0]
-print(loss(baseline(x), y))
-# => tensor(2.1675, grad_fn=<NllLossBackward>)
 loss(baseline(x), y).backward()
 
-# We can now inspect the gradients
+# We can now inspect (some of) the gradients
 print(baseline[0].weight.grad)
 # => tensor([[ 0.0069, -0.0296,  0.0343,  0.0020, -0.0318,  0.0511, -0.0532, -0.0145,
 # =>           0.0384, -0.0406],
@@ -156,10 +154,25 @@ print(baseline[1].weight.grad)
 # =>           0.0885,  0.0847]])
 ```
 
-TODO:
-* Nudge the parameters
-* Show that the loss gets lower
+At this point we can ,,nudge'' the parameters in the opposite direction of the
+gradient (since we want to minimise the loss rather than maximise it).
+```python
+def nudge(model: nn.Module, learning_rate=0.1):
+    '''Nudge the parameters of the `model` along its gradient'''
+    # Switch off the gradient calculation machinery
+    with torch.no_grad():
+        for param in model.parameters():
+            param -= learning_rate * param.grad  # type: ignore
+        # The `backward` method is cumulative, so we have to reset
+        # to zero all the gradients
+        model.zero_grad()
 
+print(loss(baseline(x), y))
+# => tensor(2.1675, grad_fn=<NllLossBackward>)
+nudge(baseline)
+print(loss(baseline(x), y))
+# => tensor(1.9947, grad_fn=<NllLossBackward>)
+```
 
 
 ## Gradient descent

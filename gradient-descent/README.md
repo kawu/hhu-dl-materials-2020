@@ -252,7 +252,11 @@ TODO: Link to minibatch gradient descent.
 
 ## Adam
 
+TODO
+
 ## Decoding
+
+TODO
 
 ## Closing remarks
 

@@ -11,8 +11,9 @@
 - [Loss](#loss)
 - [Backward calculation](#backward-calculation)
 - [Gradient descent](#gradient-descent)
-- [Adam](#adam)
+    - [Stochastic gradient descent](#stochastic-gradient-descent)
 - [Decoding](#decoding)
+- [Adam](#adam)
 - [Closing remarks](#closing-remarks)
 - [Footnotes](#footnotes)
 
@@ -228,36 +229,47 @@ for x, y in enc_data:
 # => tensor(2.2837, grad_fn=<NllLossBackward>)
 ```
 
-The simplest solution is to use [minibatch gradient descent][mini-gd]:
+#### Stochastic gradient descent
+
+The simplest solution is to use [stochastic gradient descent][sgd]:
 ```python
 for k in range(1000):
-    for x, y in enc_data:
+    # Optional: use random dataset permutation in each epoch
+    for i in torch.randperm(len(enc_data)):
+        x, y = enc_data[i]
         loss(baseline(x), y).backward()
         nudge(baseline)
 
 # Let's see the final losses
 for x, y in enc_data:
     print(loss(baseline(x), y))
-# => tensor(0.1041, grad_fn=<NllLossBackward>)
-# => tensor(0.1018, grad_fn=<NllLossBackward>)
-# => tensor(0.0022, grad_fn=<NllLossBackward>)
+# => TODO
+# => TODO
+# => TODO
 
 # And compare the predicted with the gold class indices
 for x, y in enc_data:
-    print(f'gold: {y}, pred: {torch.argmax(baseline(x), dim=1)}')
-# => gold: tensor([0, 1, 2, 2, 3, 4]), pred: tensor([0, 1, 2, 2, 3, 4])
-# => gold: tensor([5, 6, 0, 7, 4, 5, 3, 4]), pred: tensor([5, 6, 0, 7, 4, 5, 2, 4])
-# => gold: tensor([5, 3, 2, 2, 4]), pred: tensor([5, 3, 2, 2, 4])
+    y_pred = torch.argmax(baseline(x), dim=1)
+    print(f'gold: {y}, pred: {y_pred}')
+# => TODO
 ```
 
-TODO: Link to minibatch gradient descent.
+## Decoding
+
+The encoding object allows to decode the indices into their original
+representations:
+```python
+for x, y in enc_data:
+    y_pred = torch.argmax(baseline(x), dim=1)
+    inp = [data.word_enc.decode(ix) for ix in x]
+    gold = [data.tag_enc.decode(ix) for ix in y]
+    pred = [data.tag_enc.decode(ix) for ix in y_pred]
+    print(f'input: {inp}, gold: {gold}, pred: {pred}')
+# => TODO
+```
 
 
 ## Adam
-
-TODO
-
-## Decoding
 
 TODO
 
@@ -290,3 +302,4 @@ training technique, but what is important that
 [module]: https://pytorch.org/docs/1.6.0/generated/torch.nn.Module.html?highlight=module#torch.nn.Module "PyTorch neural module"
 [cross-entropy]: https://en.wikipedia.org/wiki/Cross_entropy "Cross entropy"
 [cross-entropy-loss]: https://pytorch.org/docs/1.6.0/generated/torch.nn.CrossEntropyLoss.html?highlight=crossentropyloss#torch.nn.CrossEntropyLoss "Cross entropy loss criterion"
+[sgd]: https://en.wikipedia.org/wiki/Stochastic_gradient_descent#Iterative_method "Stochastic gradient descent"

@@ -12,9 +12,8 @@
 - [Backward calculation](#backward-calculation)
 - [Gradient descent](#gradient-descent)
     - [Stochastic gradient descent](#stochastic-gradient-descent)
+    - [Optimisers](#optimisers)
 - [Decoding](#decoding)
-- [Adam](#adam)
-- [Closing remarks](#closing-remarks)
 - [Footnotes](#footnotes)
 
 <!-- END doctoc generated TOC please keep comment here to allow auto update -->
@@ -42,7 +41,7 @@ torch.manual_seed(0)
 
 baseline = nn.Sequential(
     nn.Embedding(data.word_enc.size(), 10),
-    nn.Linear(10, data.pos_enc.size())
+    nn.Linear(10, data.tag_enc.size())
 )
 ```
 The linear transformation layer *scores* the word vector representations: it
@@ -256,6 +255,39 @@ for x, y in enc_data:
 # => gold: tensor([5, 3, 2, 2, 4]), pred: tensor([5, 3, 2, 2, 4])
 ```
 
+#### Optimisers
+
+In practice, PyTorch already provides an array of different optimisers which
+implement and extend the `nudge` method shows above: [SGD][sgd-optim],
+[Adagrad][adagrad-optim], [Adam][adam-optim], etc.
+```python
+# Let's recreate the baseline model
+baseline = nn.Sequential(
+    nn.Embedding(data.word_enc.size(), 10),
+    nn.Linear(10, data.tag_enc.size())
+)
+
+# Use Adam to adapt the baseline model's parameters
+optim = torch.optim.Adam(baseline.parameters(), lr=0.001)  # lr -> learning rate
+
+# Perform SGD
+for k in range(1000):
+    # Optional: use random dataset permutation in each epoch
+    for i in torch.randperm(len(enc_data)):
+        x, y = enc_data[i]
+        loss(baseline(x), y).backward()
+        optim.step()	# version of `nudge` provided by `Adam`
+
+# Let's verify the final losses
+for x, y in enc_data:
+    print(loss(baseline(x), y))
+# => tensor(3.6117e-05, grad_fn=<NllLossBackward>)
+# => tensor(1.0547, grad_fn=<NllLossBackward>)
+# => tensor(0., grad_fn=<NllLossBackward>)
+
+```
+
+
 ## Decoding
 
 The encoding objects allow to decode the indices into their original
@@ -281,19 +313,16 @@ for x, y in enc_data:
 # => input: ['he', 'loved', 'big', 'brother', '.']
 # => gold: ['PRON', 'VERB', 'PROPN', 'PROPN', 'PUNCT']
 # => pred: ['PRON', 'VERB', 'PROPN', 'PROPN', 'PUNCT']
-# =>
 ```
 
 
-## Adam
-
-TODO
-
+<!--
 ## Closing remarks
 
 TODO: At the end, check if you are not under-fitting!  Training neural networks
 is often a difficult task and one should not prematurely draw conclusions from
 obtaining poor results, since this can be precisely an effect of under-fitting.
+-->
 
 
 ## Footnotes
@@ -319,3 +348,6 @@ training technique, but what is important that
 [cross-entropy]: https://en.wikipedia.org/wiki/Cross_entropy "Cross entropy"
 [cross-entropy-loss]: https://pytorch.org/docs/1.6.0/generated/torch.nn.CrossEntropyLoss.html?highlight=crossentropyloss#torch.nn.CrossEntropyLoss "Cross entropy loss criterion"
 [sgd]: https://en.wikipedia.org/wiki/Stochastic_gradient_descent#Iterative_method "Stochastic gradient descent"
+[sgd-optim]: https://pytorch.org/docs/1.6.0/optim.html?highlight=sgd#torch.optim.SGD "SGD optimiser"
+[adam-optim]: https://pytorch.org/docs/1.6.0/optim.html?highlight=adam#torch.optim.Adam "Adam optimiser"
+[adagrad-optim]: https://pytorch.org/docs/1.6.0/optim.html#torch.optim.Adagrad "Adagrad optimiser"

@@ -243,29 +243,45 @@ for k in range(1000):
 # Let's see the final losses
 for x, y in enc_data:
     print(loss(baseline(x), y))
-# => TODO
-# => TODO
-# => TODO
+# => tensor(0.0926, grad_fn=<NllLossBackward>)
+# => tensor(0.1128, grad_fn=<NllLossBackward>)
+# => tensor(0.0022, grad_fn=<NllLossBackward>)
 
 # And compare the predicted with the gold class indices
 for x, y in enc_data:
     y_pred = torch.argmax(baseline(x), dim=1)
     print(f'gold: {y}, pred: {y_pred}')
-# => TODO
+# => gold: tensor([0, 1, 2, 2, 3, 4]), pred: tensor([0, 1, 2, 2, 3, 4])
+# => gold: tensor([5, 6, 0, 7, 4, 5, 3, 4]), pred: tensor([5, 6, 0, 7, 4, 5, 2, 4])
+# => gold: tensor([5, 3, 2, 2, 4]), pred: tensor([5, 3, 2, 2, 4])
 ```
 
 ## Decoding
 
-The encoding object allows to decode the indices into their original
+The encoding objects allow to decode the indices into their original
 representations:
 ```python
 for x, y in enc_data:
     y_pred = torch.argmax(baseline(x), dim=1)
-    inp = [data.word_enc.decode(ix) for ix in x]
-    gold = [data.tag_enc.decode(ix) for ix in y]
-    pred = [data.tag_enc.decode(ix) for ix in y_pred]
-    print(f'input: {inp}, gold: {gold}, pred: {pred}')
-# => TODO
+    inp = [data.word_enc.decode(ix.item()) for ix in x]
+    gold = [data.tag_enc.decode(ix.item()) for ix in y]
+    pred = [data.tag_enc.decode(ix.item()) for ix in y_pred]
+    print(f'input: {inp}')
+    print(f'gold: {gold}')
+    print(f'pred: {pred}')
+    print()
+# => input: ['only', 'the', 'thought', 'police', 'mattered', '.']
+# => gold: ['ADV', 'DET', 'PROPN', 'PROPN', 'VERB', 'PUNCT']
+# => pred: ['ADV', 'DET', 'PROPN', 'PROPN', 'VERB', 'PUNCT']
+# =>
+# => input: ['that', 'was', 'very', 'true', ',', 'he', 'thought', '.']
+# => gold: ['PRON', 'AUX', 'ADV', 'ADJ', 'PUNCT', 'PRON', 'VERB', 'PUNCT']
+# => pred: ['PRON', 'AUX', 'ADV', 'ADJ', 'PUNCT', 'PRON', 'PROPN', 'PUNCT']
+# =>
+# => input: ['he', 'loved', 'big', 'brother', '.']
+# => gold: ['PRON', 'VERB', 'PROPN', 'PROPN', 'PUNCT']
+# => pred: ['PRON', 'VERB', 'PROPN', 'PROPN', 'PUNCT']
+# =>
 ```
 
 

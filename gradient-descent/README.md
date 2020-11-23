@@ -79,8 +79,17 @@ word only.  This is by pure luck (and when you run the code again without
 `torch.manual_seed(0)` the numbers will differ due to random initialization),
 but we can train the model to provide predictions closer to the gold truth.
 
-TODO: add graphical example?
-
+To obtain a graphical representation of the scores and the POS tags they
+represent (this requires `matplotlib` and the `plot.py` module which can be
+found in the current directory in the git repository):
+```python
+from plot import plot_scores
+classes = [data.tag_enc.decode(ix) for ix in range(data.tag_enc.size())]
+words = data.data[0][0]
+scores = baseline(enc_data[0][0])
+plot_scores(sent, classes, scores.detach().numpy())
+```
+Result: ![Initial thought police scores](imgs/init_thought_police_scores.jpg?raw=true "Initial scores")
 
 ## Loss
 

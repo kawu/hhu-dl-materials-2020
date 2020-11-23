@@ -55,17 +55,17 @@ enc_data[0]
 
 # Apply the baseline model to the first word of the first sentence
 baseline(enc_data[0][0][0])
-# => tensor([-0.9836,  0.4314,  0.5208, -0.2047, -0.5286,  0.7035, -0.2217, -1.3357],
+# => tensor([-0.1968, -0.3774,  0.7091,  0.4277, -0.3487,  0.4146,  0.5522,  0.7214],
 # =>        grad_fn=<AddBackward0>)
 
 # Apply the baseline model to the input of the first sentence
 baseline(enc_data[0][0])
-# => tensor([[-0.9836,  0.4314,  0.5208, -0.2047, -0.5286,  0.7035, -0.2217, -1.3357],
-# =>         [-0.9657,  0.7258, -0.7684,  0.9671, -0.1222,  1.2167, -1.2175, -0.8721],
-# =>         [-0.9120, -0.8854,  1.1599,  0.0689,  0.2130, -1.0645, -0.7430,  0.1419],
-# =>         [-0.9182, -1.4884,  1.1120,  1.0361,  0.4861, -1.3754, -1.4426,  0.4466],
-# =>         [ 1.2594, -0.7689,  0.0638, -0.2677,  0.3047,  0.0791, -0.4826, -0.0036],
-# =>         [ 0.5270, -0.6693, -0.8103, -0.5349,  1.0109,  0.0976, -0.0234, -0.1674]],
+# => tensor([[-0.1968, -0.3774,  0.7091,  0.4277, -0.3487,  0.4146,  0.5522,  0.7214],
+# =>         [-0.0864, -0.8299,  0.3783,  0.6115,  0.0515, -0.6863, -0.5591,  0.0317],
+# =>         [ 0.1915, -0.1941, -0.0142, -0.2924, -0.5386, -0.7619,  0.0623,  0.2564],
+# =>         [ 0.0409, -0.1175, -0.2323, -0.3093, -0.5567, -0.1836,  0.3357,  0.2477],
+# =>         [ 0.0331, -1.0675,  0.9767,  1.5936, -0.0267,  0.6958,  0.0319,  0.1326],
+# =>         [ 0.5803,  0.3383, -0.8666,  0.1645, -0.1949, -0.2698, -0.2451, -0.7747]],
 # =>        grad_fn=<AddmmBackward>)
 ```
 You can compare it with the target tensor of class indices:
@@ -73,13 +73,13 @@ You can compare it with the target tensor of class indices:
 enc_data[0][1]
 # => tensor([0, 1, 2, 2, 3, 4])
 ```
-In this particular case, the model correctly produces the highest scores
-(`1.1599`, `1.1120` and `1.0109`) on positions `2`, `2`, and `4` for the 3rd,
-4th, and 6th words, respectively.  This is by pure luck (and when you run the
-code the numbers will differ due to random initialization), but we can train
-the model to provide predictions closer to the gold truth.
+In this particular case, the model correctly produces the highest score
+`1.5936` on 4th position (which correspond to POS tag index `3`) for the 5th
+word only.  This is by pure luck (and when you run the code again without
+`torch.manual_seed(0)` the numbers will differ due to random initialization),
+but we can train the model to provide predictions closer to the gold truth.
 
-TODO: Update the example above.
+TODO: add graphical example?
 
 
 ## Loss

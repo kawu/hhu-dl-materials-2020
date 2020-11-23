@@ -219,7 +219,7 @@ print(torch.argmax(baseline(x), dim=1))
 
 
 However, we looked at the first dataset element only, so it shouldn't be a
-supripise that the model did not adapt to the other two elements very well.
+supripise that the model did not adapt to the other two elements.
 ```python
 for x, y in enc_data:
     print(loss(baseline(x), y))
@@ -258,19 +258,32 @@ for x, y in enc_data:
 #### Optimisers
 
 In practice, PyTorch already provides an array of different optimisers which
-implement and extend the `nudge` method shows above: [SGD][sgd-optim],
-[Adagrad][adagrad-optim], [Adam][adam-optim], etc.
+implement and extend the `nudge` method shown above: [SGD][sgd-optim],
+[Adagrad][adagrad-optim], [Adam][adam-optim], etc.  Here's a full
+example using [Adam][adam-optim]:
 ```python
+import torch
+import torch.nn as nn
+
+import data
+from data import enc_data
+
+# For reproducibility
+torch.manual_seed(0)
+
 # Let's recreate the baseline model
 baseline = nn.Sequential(
     nn.Embedding(data.word_enc.size(), 10),
     nn.Linear(10, data.tag_enc.size())
 )
 
+# Use cross entropy loss as the objective function
+loss = nn.CrossEntropyLoss()
+
 # Use Adam to adapt the baseline model's parameters
 optim = torch.optim.Adam(baseline.parameters(), lr=0.001)  # lr -> learning rate
 
-# Perform SGD
+# Perform SGD for 1000 epochs
 for k in range(1000):
     # Optional: use random dataset permutation in each epoch
     for i in torch.randperm(len(enc_data)):

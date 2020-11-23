@@ -294,8 +294,8 @@ for k in range(1000):
 # Let's verify the final losses
 for x, y in enc_data:
     print(loss(baseline(x), y))
-# => tensor(3.6117e-05, grad_fn=<NllLossBackward>)
-# => tensor(1.0547, grad_fn=<NllLossBackward>)
+# => tensor(3.6871e-05, grad_fn=<NllLossBackward>)
+# => tensor(1.0520, grad_fn=<NllLossBackward>)
 # => tensor(0., grad_fn=<NllLossBackward>)
 
 ```

@@ -7,7 +7,8 @@ from torch import Tensor
 import data
 from data import enc_data
 
-# This exercise relies on solutions from ex1 and ex2
+# This exercise relies on solutions in ex1 and ex2; you may replace
+# ex1 with ex1b if you solved Ex. 1 (b).
 from ex1 import create_model
 from ex2 import calculate_loss
 

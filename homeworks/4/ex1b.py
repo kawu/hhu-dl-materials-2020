@@ -1,6 +1,3 @@
-import torch
-import torch.nn as nn
-
 def create_model(alpha_size: int, emb_size: int, class_num: int) -> nn.Module:
     """Construct a neural language prediction model.
 
@@ -11,8 +8,8 @@ def create_model(alpha_size: int, emb_size: int, class_num: int) -> nn.Module:
 
     Output: A neural model which transforms a tensor vector with
     input character indices, such as `tensor([0, 1, 2, 1])`, to
-    a score vector, such as `tensor([0.6861, -0.7673,  1.2969])`. 
-    
+    a score vector, such as `tensor([0.6861, -0.7673,  1.2969])`.
+
     Examples:
 
     # Create a language prediction model for 10 distinct characters
@@ -29,5 +26,11 @@ def create_model(alpha_size: int, emb_size: int, class_num: int) -> nn.Module:
     # The size of the output score vector should be equal to `class_num`.
     >>> len(model(torch.tensor([0, 1, 2]))) == class_num
     True
+    
+    # The model should ignore negative character indices (e.g. `-1`)
+    # as well as indices >= `alpha_size`.
+    >>> x1 = torch.tensor([0, 5])
+    >>> x2 = torch.tensor([-5, 0, 5, 10])
+    >>> (model(x1) == model(x2)).all().item()
     """
     pass

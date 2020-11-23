@@ -1,8 +1,7 @@
 import torch
 import torch.nn as nn
 
-
-def mk_model(alpha_size: int, emb_size: int, class_num: int):
+def create_model(alpha_size: int, emb_size: int, class_num: int):
     """Construct a neural language prediction model.
 
     Arguments:
@@ -21,7 +20,7 @@ def mk_model(alpha_size: int, emb_size: int, class_num: int):
     >>> alpha_size = 10
     >>> emb_size = 5
     >>> class_num = 5
-    >>> model = mk_model(alpha_size, emb_size, class_num)
+    >>> model = create_model(alpha_size, emb_size, class_num)
 
     # The model should be a nn.Module
     >>> isinstance(model, nn.Module)

@@ -89,7 +89,7 @@ words = data.data[0][0]
 scores = baseline(enc_data[0][0])
 plot_scores(sent, classes, scores.detach().numpy())
 ```
-Result: ![Initial thought police scores](imgs/init_thought_police_scores.jpg?raw=true "Initial scores")
+Result: ![Initial thought police scores](imgs/thought_police_scores_init.png?raw=true "Initial scores")
 
 ## Loss
 

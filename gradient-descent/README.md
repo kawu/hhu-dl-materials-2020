@@ -85,7 +85,7 @@ from plot import plot_scores
 classes = [data.tag_enc.decode(ix) for ix in range(data.tag_enc.size())]
 words = data.data[0][0]
 scores = baseline(enc_data[0][0])
-plot_scores(sent, classes, scores.detach().numpy())
+plot_scores(words, classes, scores.detach().numpy())
 ```
 ![Initial thought police scores](imgs/thought_police_scores_init.png?raw=true "Initial scores")
 
@@ -226,6 +226,7 @@ print(baseline(x))
 print(torch.argmax(baseline(x), dim=1))
 				# => tensor([0, 1, 2, 2, 3, 4])
 ```
+![Mid-term thought police scores](imgs/thought_police_scores_mid.png?raw=true "Mid-term scores")
 
 However, we looked at the first dataset element only, so it shouldn't be a
 supripise that the model did not adapt to the other two elements.

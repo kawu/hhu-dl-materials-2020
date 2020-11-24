@@ -4,13 +4,15 @@ This document covers the basic tensor operations you should get familiar with.
 
 Tensors can be understood as multi-dimensional arrays (or matrices) containing
 values of a certain type (integer, float, bool).
-* 0-order tensor is a single value 
+* 0-order tensor is a single value
 * 1-order tensor is a vector of values (one dimensional array)
 * 2-order tensor is a matrix of values (two dimensional array)
 and so on.
 
 You can also go through the lengthier but arguably more comprehensive PyTorch
 [documentation on tensors](https://pytorch.org/docs/stable/tensors.html).
+
+### Table of contents
 
 <!-- START doctoc generated TOC please keep comment here to allow auto update -->
 <!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->

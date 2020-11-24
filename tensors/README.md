@@ -12,6 +12,34 @@ and so on.
 You can also go through the lengthier but arguably more comprehensive PyTorch
 [documentation on tensors](https://pytorch.org/docs/stable/tensors.html).
 
+<!-- START doctoc generated TOC please keep comment here to allow auto update -->
+<!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
+
+
+- [Changelog](#changelog)
+- [Creation](#creation)
+  - [Shape](#shape)
+  - [dtype](#dtype)
+  - [device](#device)
+- [Operations](#operations)
+  - [Indexing and slicing](#indexing-and-slicing)
+  - [Iteration](#iteration)
+  - [View and reshape](#view-and-reshape)
+  - [Concatenation](#concatenation)
+  - [Element-wise operations](#element-wise-operations)
+  - [Boolean operations](#boolean-operations)
+  - [Broadcasting](#broadcasting)
+  - [Products](#products)
+  - [Miscellaneous](#miscellaneous)
+
+<!-- END doctoc generated TOC please keep comment here to allow auto update -->
+
+## Changelog
+
+**24/11/2020**:
+* Add table of contents
+* Update information about [logical operators](#boolean-operations)
+
 ## Creation
 
 One way to create a tensor is to directly provide its value as argument to
@@ -363,14 +391,35 @@ print(m1 / m2)
 
 ### Boolean operations
 
+Comparison operators (`==`, `<`, `>`, etc.) provide a convenient way to
+construct Boolean tensors.
+<!--
 Element-wise Boolean operations (`==`, `<`, `>`, etc.) provide a convenient way
 to construct Boolean tensors.
+-->
 ```python
 v = torch.tensor([1, 2, 3])
 w = torch.tensor([1, 3, 1])
 v == w                      # => tensor([ True, False, False])
 v <  w                      # => tensor([False,  True, False])
 v >= w                      # => tensor([ True, False,  True])
+```
+Bitwise operators (`&`, `|`, etc.) can be used to perform element-wise logical
+operations (and, or, etc., respectively).
+```python
+x = torch.tensor([True, False, True, False])
+y = torch.tensor([True, True, False, False])
+x & y 			    # => tensor([ True, False, False, False])
+x | y 			    # => tensor([ True,  True,  True, False])
+x ^ y 			    # => tensor([False,  True,  True, False])
+```
+**Warning:** The regular logical operators (`and`, `or`) do not work
+element-wise on Boolean tensors:
+```python
+x and y 			    # => tensor([ True, False, False, False])
+# => Traceback (most recent call last):
+# =>   File "<stdin>", line 1, in <module>
+# => RuntimeError: Boolean value of Tensor with more than one value is ambiguous
 ```
 If you want to check if all values (any value) in a tensor are (is) `True`, use
 [all](https://pytorch.org/docs/1.6.0/tensors.html?highlight=all#torch.BoolTensor.all)

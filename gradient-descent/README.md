@@ -1,7 +1,5 @@
 # Training by gradient descent
 
-### :construction: Work In Progress :construction:
-
 <!-- START doctoc generated TOC please keep comment here to allow auto update -->
 <!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
 
@@ -27,8 +25,8 @@ encoding.  All this is implemented in the [data.py](data.py) module.
 
 ## Baseline model
 
-As a baseline model, let's apply an [nn.Linear][linear] to directly score the
-word embedding representations.
+As a baseline model, let's apply [nn.Linear][linear] to directly score the word
+embedding representations.
 ```python
 import torch
 import torch.nn as nn
@@ -195,9 +193,12 @@ print(loss(baseline(x), y))
 
 ## Gradient descent
 
-TODO: some illustration of how it works
-
-Let's transform this idea into an iterative process.
+Let's transform this idea into an iterative process, called *gradient descent*.
+You can think of it as [rolling a ball
+downhill](https://st4.ning.com/topology/rest/1.0/file/get/3713179836?profile=original)
+on the surface which plots the loss as a function of model parameters.  Here
+are [other
+examples](https://ruder.io/optimizing-gradient-descent/index.html#visualizationofalgorithms).
 ```python
 for k in range(1000):
     loss(baseline(x), y).backward()
@@ -225,7 +226,6 @@ print(baseline(x))
 print(torch.argmax(baseline(x), dim=1))
 				# => tensor([0, 1, 2, 2, 3, 4])
 ```
-
 
 However, we looked at the first dataset element only, so it shouldn't be a
 supripise that the model did not adapt to the other two elements.

@@ -309,6 +309,19 @@ for x, y in enc_data:
 
 ```
 
+**Exercise**: The final loss for the second dataset element is not as close to
+`0` as for the other two elements.  Why is that?
+
+**Exercise**: Replace the cross-entropy loss with the [Euclidean
+distance][eucl-dist] and make sure you can still train the mode.  You may
+additionally need a [Softmax
+module](https://pytorch.org/docs/1.6.0/generated/torch.nn.Softmax.html?highlight=softmax#torch.nn.Softmax)
+/ [softmax
+function](https://pytorch.org/docs/1.6.0/nn.functional.html?highlight=softmax#torch.nn.functional.softmax)
+and
+[one-hot](https://pytorch.org/docs/1.6.0/nn.functional.html?highlight=one_hot#torch.nn.functional.one_hot)
+encoding.
+
 
 ## Decoding
 
@@ -369,6 +382,7 @@ training technique, but what is important that
 [module]: https://pytorch.org/docs/1.6.0/generated/torch.nn.Module.html?highlight=module#torch.nn.Module "PyTorch neural module"
 [cross-entropy]: https://en.wikipedia.org/wiki/Cross_entropy "Cross entropy"
 [cross-entropy-loss]: https://pytorch.org/docs/1.6.0/generated/torch.nn.CrossEntropyLoss.html?highlight=crossentropyloss#torch.nn.CrossEntropyLoss "Cross entropy loss criterion"
+[eucl-dist]: https://pytorch.org/docs/1.6.0/generated/torch.dist.html?highlight=dist#torch.dist "Euclidean distance"
 [sgd]: https://en.wikipedia.org/wiki/Stochastic_gradient_descent#Iterative_method "Stochastic gradient descent"
 [sgd-optim]: https://pytorch.org/docs/1.6.0/optim.html?highlight=sgd#torch.optim.SGD "SGD optimiser"
 [adam-optim]: https://pytorch.org/docs/1.6.0/optim.html?highlight=adam#torch.optim.Adam "Adam optimiser"

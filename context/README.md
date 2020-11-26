@@ -8,10 +8,26 @@
 
 ## Dataset
 
+<!--
 TODO:
 * Increate the size of the dataset (use a fragment of ParTUT?)
 * Split it to train/dev/test
 * Read data from disk?
+-->
+
+<!--
+[official    repository][UD_German-HDT-repo] (either use `git` or `Code -> Download ZIP`)
+-->
+
+1. Download and unzip a 1000-sentences sample UD dataset (a fragment of
+   [`UD_German-HDT`][UD_German-HDT-repo]<sup>[1](#footnote1)</sup>) from
+   [here][dataset]
+1. The [data.py](data.py) module allows to read and encode the downloaded
+   dataset
+
+```python
+TODO
+```
 
 
 ## Baseline
@@ -51,10 +67,14 @@ TODO:
 
 ## Footnotes
 
+<a name="footnote1">1</a>: The sample consists of the first 1000 sentences from
+[UD_German-HDT-master/de_hdt-ud-train-a-1.conllu](https://github.com/UniversalDependencies/UD_German-HDT/blob/master/de_hdt-ud-train-a-1.conllu)
 
 
 
 [linear]: https://pytorch.org/docs/1.6.0/generated/torch.nn.Linear.html?highlight=linear#torch.nn.Linear "Linear nn.Module"
+[dataset]: https://user.phil.hhu.de/~waszczuk/teaching/hhu-dl-wi20/data/UD_German-HDT-sample.zip "UD_German-HDT sample dataset"
+[UD_German-HDT-repo]: https://github.com/UniversalDependencies/UD_German-HDT
 
 <!--
 [linear]: https://pytorch.org/docs/1.6.0/generated/torch.nn.Linear.html?highlight=linear#torch.nn.Linear "Linear nn.Module"

@@ -32,5 +32,6 @@ def create_model(alpha_size: int, emb_size: int, class_num: int) -> nn.Module:
     >>> x1 = torch.tensor([0, 5])
     >>> x2 = torch.tensor([-5, 0, 5, 10])
     >>> (model(x1) == model(x2)).all().item()
+    True
     """
     pass

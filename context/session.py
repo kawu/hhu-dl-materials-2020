@@ -1,5 +1,6 @@
 import torch
 import torch.nn as nn
+import torch.nn.functional as F
 
 from utils import accuracy
 from data import parse_and_extract, create_encoders, encode_with
@@ -22,6 +23,28 @@ enc_dev = encode_with(dev_data, word_enc, pos_enc)
 # pos_enc = train_data['pos_enc']
 
 class SimpleLSTM(nn.Module):
+
+    def __init__(self, inp_size: int, out_size: int):
+        super().__init__()
+        self.lstm = nn.LSTM(
+            input_size=inp_size, hidden_size=out_size, bidirectional=False)
+
+    def forward(self, x):
+        '''Apply the LSTM to the input sentence.
+
+        Arguments:
+        * x: a tensor of shape N x D, where N is the input sentence length
+            and D is the embedding size
+
+        Output: a tensor of shape N x O, where O is the output size (a parameter
+            of the SimpleLSTM component)
+        '''
+        # Apply the LSTM, extract the first value of the result tuple only
+        out, _ = self.lstm(x.view(x.shape[0], 1, x.shape[1]))
+        # Reshape and return
+        return out.view(out.shape[0], out.shape[2])
+
+class SimpleBiLSTM(nn.Module):
 
     def __init__(self, inp_size: int, out_size: int):
         super().__init__()
@@ -60,19 +83,75 @@ class SimpleTransformer(nn.Module):
         # print(f'out: {out.shape}')
         return out.view(out.shape[0], out.shape[2])
 
+# class SimpleConv(nn.Module):
+
+#     def __init__(self, inp_size: int, out_size: int, kernel_size=1):
+#         super().__init__()
+#         self.kernel_size = kernel_size
+#         self.conv = nn.Conv1d(
+#             # inp_size, out_size, kernel_size=1+ctx_size*2, padding=ctx_size)
+#             inp_size, out_size,
+#             kernel_size=kernel_size,
+#             padding=kernel_size // 2
+#         )
+
+#     def forward(self, x):
+#         print(f'x: {x.shape}')
+#         out = self.conv(x.view(1, x.shape[1], x.shape[0]))
+#         out_reshaped = out.view(out.shape[2], out.shape[1])
+#         print(f'out: {out_reshaped.shape}')
+#         if self.kernel_size % 2 == 0:
+#             return out_reshaped[:-1]
+#         else:
+#             return out_reshaped
+
+class SimpleConv(nn.Module):
+    def __init__(self, inp_size: int, out_size: int, kernel_size=1):
+        super().__init__()
+        self.kernel_size = kernel_size
+        self.conv = nn.Conv1d(inp_size, out_size, kernel_size)
+        # nn.init.xavier_uniform_(self.conv.weight)
+
+    def forward(self, x):
+        x = x.view(1, x.shape[1], x.shape[0])
+        padding = (self.kernel_size - 1, 0)
+        out = self.conv(F.pad(x, padding))
+        out_reshaped = out.view(out.shape[2], out.shape[1])
+        return out_reshaped
+
+
+class Concat2d(nn.Module):
+
+    def __init__(self, m1: nn.Module, m2: nn.Module):
+        super().__init__()
+        self.m1 = m1
+        self.m2 = m2
+
+    def forward(self, x):
+        assert x.dim() == 2
+        y1 = self.m1(x)
+        y2 = self.m2(x)
+        assert y1.dim() == y2.dim() == 2
+        assert y1.shape[0] == y2.shape[0]
+        y = torch.cat([y1, y2], dim=1)
+        assert y.shape[1] == y1.shape[1] + y2.shape[1]
+        return y
+
+
 # Let's recreate the baseline model
 baseline = nn.Sequential(
-    nn.Embedding(word_enc.size()+1, 24, padding_idx=word_enc.size()),
-    # SimpleLSTM(25, 26),
-    SimpleTransformer(24),
-    nn.Linear(24, pos_enc.size())
+    nn.Embedding(word_enc.size()+1, 10, padding_idx=word_enc.size()),
+    SimpleBiLSTM(10, 20),
+    # SimpleTransformer(24),
+    # SimpleConv(24, 24, kernel_size=2),
+    nn.Linear(20, pos_enc.size())
 )
 
 # Use cross entropy loss as the objective function
 loss = nn.CrossEntropyLoss()
 
 # Use Adam to adapt the baseline model's parameters
-optim = torch.optim.Adagrad(baseline.parameters(), lr=0.001)
+optim = torch.optim.Adagrad(baseline.parameters(), lr=0.01)
 
 # Perform SGD for 1000 epochs
 for k in range(100):

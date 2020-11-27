@@ -21,10 +21,36 @@ enc_dev = encode_with(dev_data, word_enc, pos_enc)
 # word_enc = train_data['word_enc']
 # pos_enc = train_data['pos_enc']
 
+class SimpleLSTM(nn.Module):
+
+    def __init__(self, inp_size: int, out_size: int):
+        super().__init__()
+        # Make sure out_size is an even number
+        if not out_size % 2 == 0:
+            raise RuntimeError(f'Provided out size = {out_size} must be even')
+        self.lstm = nn.LSTM(
+            input_size=inp_size, hidden_size=out_size//2, bidirectional=True)
+
+    def forward(self, x):
+        '''Apply the LSTM to the input sentence.
+
+        Arguments:
+        * x: a tensor of shape N x D, where N is the input sentence length
+            and D is the embedding size
+
+        Output: a tensor of shape N x O, where O is the output size (a parameter
+            of the SimpleLSTM component)
+        '''
+        # Apply the LSTM, extract the first value of the result tuple only
+        out, _ = self.lstm(x.view(x.shape[0], 1, x.shape[1]))
+        # Reshape and return
+        return out.view(out.shape[0], out.shape[2])
+
 # Let's recreate the baseline model
 baseline = nn.Sequential(
     nn.Embedding(word_enc.size()+1, 25, padding_idx=word_enc.size()),
-    nn.Linear(25, pos_enc.size())
+    SimpleLSTM(25, 26),
+    nn.Linear(26, pos_enc.size())
 )
 
 # Use cross entropy loss as the objective function
@@ -51,7 +77,3 @@ for k in range(100):
             f'acc(dev)={acc_dev:.3f}'
         )
     total_loss = 0.0
-
-# # Let's verify the final losses
-# for x, y in enc_data:
-#     print(loss(baseline(x), y))

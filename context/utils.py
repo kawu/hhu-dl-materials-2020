@@ -1,5 +1,8 @@
 from typing import Iterable, TypeVar, Generic, Dict
 
+import torch
+
+
 T = TypeVar('T')
 class Encoder(Generic[T]):
 
@@ -35,3 +38,13 @@ class Encoder(Generic[T]):
 
     def decode(self, ix: int) -> T:
         return self.ix_to_class[ix]
+
+
+# Accuracy of the model
+def accuracy(model, data):
+    correct, total = 0, 0
+    for x, y in data:
+        pred_y = torch.argmax(model(x), dim=1)
+        correct += (y == pred_y).long().sum()
+        total += len(y)
+    return float(correct) / total

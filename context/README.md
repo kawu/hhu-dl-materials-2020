@@ -67,6 +67,9 @@ TODO:
 * Explain and implement accuracy
 * Show the result of the baseline model on the dev set
 
+POS tagging accuracy is defined as the percentage of the words for which the
+classifier predicts the correct POS tag.  One way to implement it is:
+
 ## Contextualisation
 
 ### Convolution

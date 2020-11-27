@@ -46,18 +46,33 @@ class SimpleLSTM(nn.Module):
         # Reshape and return
         return out.view(out.shape[0], out.shape[2])
 
+class SimpleTransformer(nn.Module):
+
+    def __init__(self, dim_size: int):
+        super().__init__()
+        encoder_layer = nn.TransformerEncoderLayer(
+            d_model=dim_size, nhead=8, dim_feedforward=512, dropout=0.1)
+        self.transformer_encoder = nn.TransformerEncoder(encoder_layer, num_layers=4)
+
+    def forward(self, x):
+        # print(f'x: {x.shape}')
+        out = self.transformer_encoder(x.view(x.shape[0], 1, x.shape[1]))
+        # print(f'out: {out.shape}')
+        return out.view(out.shape[0], out.shape[2])
+
 # Let's recreate the baseline model
 baseline = nn.Sequential(
-    nn.Embedding(word_enc.size()+1, 25, padding_idx=word_enc.size()),
-    SimpleLSTM(25, 26),
-    nn.Linear(26, pos_enc.size())
+    nn.Embedding(word_enc.size()+1, 24, padding_idx=word_enc.size()),
+    # SimpleLSTM(25, 26),
+    SimpleTransformer(24),
+    nn.Linear(24, pos_enc.size())
 )
 
 # Use cross entropy loss as the objective function
 loss = nn.CrossEntropyLoss()
 
 # Use Adam to adapt the baseline model's parameters
-optim = torch.optim.Adagrad(baseline.parameters(), lr=0.01)
+optim = torch.optim.Adagrad(baseline.parameters(), lr=0.001)
 
 # Perform SGD for 1000 epochs
 for k in range(100):
@@ -68,12 +83,11 @@ for k in range(100):
         total_loss += z.item()
         z.backward()
         optim.step()
-    if k % 10 == 0:
+    if k == 0 or (k+1) % 10 == 0:
         acc_train = accuracy(baseline, enc_train)
         acc_dev = accuracy(baseline, enc_dev)
         print(
-            f'@{k}: loss(train)={total_loss:.3f}, '
+            f'@{k+1}: loss(train)={total_loss:.3f}, '
             f'acc(train)={acc_train:.3f}, '
             f'acc(dev)={acc_dev:.3f}'
         )
-    total_loss = 0.0

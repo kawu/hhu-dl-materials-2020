@@ -1,8 +1,19 @@
 # Contextualization
 
+### :construction: Work In Progress :construction:
+
 <!-- START doctoc generated TOC please keep comment here to allow auto update -->
 <!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
 
+
+- [Dataset](#dataset)
+- [Baseline](#baseline)
+- [Accuracy](#accuracy)
+- [Contextualisation](#contextualisation)
+  - [Convolution](#convolution)
+  - [Recurent networks](#recurent-networks)
+  - [Transformer](#transformer)
+- [Footnotes](#footnotes)
 
 <!-- END doctoc generated TOC please keep comment here to allow auto update -->
 
@@ -56,7 +67,7 @@ TODO:
 * Explain and implement accuracy
 * Show the result of the baseline model on the dev set
 
-## Contextualisation methods
+## Contextualisation
 
 ### Convolution
 
@@ -68,7 +79,7 @@ TODO:
 ## Footnotes
 
 <a name="footnote1">1</a>: The sample consists of the first 1000 sentences from
-[UD_German-HDT-master/de_hdt-ud-train-a-1.conllu](https://github.com/UniversalDependencies/UD_German-HDT/blob/master/de_hdt-ud-train-a-1.conllu)
+[UD_German-HDT-master/de_hdt-ud-train-a-1.conllu](https://github.com/UniversalDependencies/UD_German-HDT/blob/23f2f1d5ce1621611604c39c9e1069448ec2eb39/de_hdt-ud-train-a-1.conllu).
 
 
 

@@ -34,7 +34,9 @@ class SimpleBiLSTM(nn.Module):
         if not out_size % 2 == 0:
             raise RuntimeError(f'Provided out size = {out_size} must be even')
         self.lstm = nn.LSTM(
-            input_size=inp_size, hidden_size=out_size//2, bidirectional=True)
+            input_size=inp_size, hidden_size=out_size//2,
+            bidirectional=True, num_layers=1, dropout=0.0,
+        )
 
     def forward(self, x):
         '''Apply the LSTM to the input sentence.

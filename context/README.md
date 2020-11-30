@@ -98,10 +98,10 @@ Currently we only check the loss/accuracy of the model on the training set, but
 in practice we want to make sure the model generalises well to data unseen
 during training.  To this end, we can:
 * Extract the development dataset and encode it using the encoders created on
-  the training set (**Q**: could we just create the encoders on the entire,
+  the training set (**Q**: Could we just create the encoders on the entire
   training+development dataset instead?)
 * Report the accuracy of the model on the develoment set (dev set for short)
-  during training, along the accuracy on the training set
+  during training, along with the accuracy on the training set
 
 **Exercise**: Extract and encode the dev set from the `dev.conllu` file.  To
 make encoding work, you may need to modify the `encode_with` function in
@@ -122,34 +122,54 @@ called *out-of-vocabulary* (OOV) words.
 
 ## Contextualisation
 
-Contextualisation is a technique of transforming input embeddings (in our case,
-word embeddings) to contextualized embeddings.  Formally, a contextualisation
-module takes on input a sequence of embedding vectors, and outputs a sequence
-of contextualised embedding vectors.  The output sequence has *the same length*
-as the input sequence, but the *size of word embeddings can change*.
+Contextualisation is a technique of transforming input embeddings to
+contextualized embeddings: vector representations which capture the context in
+which the input words<sup>[1](#footnote1)</sup>) occur.  Formally, a
+contextualisation module takes on input a sequence of embedding vectors, and
+outputs a sequence of contextualised embedding vectors.  The output sequence
+has *the same length* as the input sequence, but the *size of word embeddings
+can change*.
 
 ### LSTM
 
-One of the contextualisation techniques is based on *recurrent neural networks*
-(RNNs), *long short-term memory* ([LSTM][lstm]) RNNs in particular.  Here's an
-`nn.Module` which encapsulates an LSTM transforming embeddings of a given input
-size to contextualised embeddings a given output size.
+A popular contextualisation technique is based on *recurrent neural networks*
+(RNNs) in general, and *long short-term memory* ([LSTM][nn-lstm]) RNNs in
+particular.  Here's an `nn.Module` which encapsulates an LSTM transforming
+embeddings of a given input size to contextualised embeddings of a given output
+size.
 ```python
 class SimpleLSTM(nn.Module):
+
+    '''
+    Contextualise the input sequence of embedding vectors using unidirectional
+    LSTM.
+
+    Type: Tensor[N x Din] -> Tensor[N x Dout], where
+    * `N` is is the length of the input sequence
+    * `Din` is the input embedding size
+    * `Dout` is the output embedding size
+
+    Example:
+
+    >>> lstm = SimpleLSTM(3, 5) # input size 3, output size 5
+    >>> xs = torch.randn(10, 3)	# input sequence of length 10
+    >>> ys = lstm(xs)	        # equivalent to: lstm.forward(xs)
+    >>> list(ys.shape)
+    [10, 5]
+    '''
 
     def __init__(self, inp_size: int, out_size: int):
         super().__init__()
 	self.lstm = nn.LSTM(input_size=inp_size, hidden_size=out_size)
 
     def forward(self, x):
-        '''Apply the LSTM to the input sentence.
+        '''Apply the LSTM to the input sequence.
 
         Arguments:
-        * x: a tensor of shape N x D, where N is the input sentence length
-            and D is the embedding size
+        * x: a tensor of shape N x Din, where N is the input sequence length
+            and Din is the embedding size
 
-        Output: a tensor of shape N x O, where O is the output size (a parameter
-            of the SimpleLSTM component)
+        Output: a tensor of shape N x Dout, where Dout is the output size
         '''
         # Apply the LSTM, extract the first value of the result tuple only
         out, _ = self.lstm(x.view(x.shape[0], 1, x.shape[1]))
@@ -157,11 +177,16 @@ class SimpleLSTM(nn.Module):
         return out.view(out.shape[0], out.shape[2])
 ```
 
-Note that the `forward` method of an [nn.LSTM][nn-lstm] module takes a
-3-dimensional tensor on input.  Its second dimension is the size of a
-*mini-batch*, and it allows to process with an LSTM several input sentences in
-parallel.  In practice, input sentences have different lengths, and are easier
-to be processed when stored in a [packed sequence][packed-seq].
+**Note**: The `forward` method of the [nn.LSTM][nn-lstm] module takes a
+3-dimensional tensor on input.  Its second dimension is the *batch size* and it
+allows to process several input sentences in parallel.  In practice, input
+sentences have different lengths, and may be easier to be processed when stored
+in a [packed sequence][packed-seq] (which [nn.LSTM][nn-lstm] also accepts on
+input).
+
+**Note**: LSTM is relatively slow when applied to a single sentence, due to the
+recurrent/sequential nature of the computation it performs, which inhibits
+effective parallelisation.
 
 **Exercise**: Extend the baseline model with the `SimpleLSTM` module and see if
 you can obtain better performance on the dev set.
@@ -178,10 +203,11 @@ available hyper-parameters.  See if it improves the performance of the model.
 ### Transformer
 -->
 
-
-<!--
 ## Footnotes
 
+<a name="footnote1">1</a>: In general, contextualisation can be applied to any sequential input, whatever the nature of the elements stored in the sequence (as long as we can reasonably embed them!)
+
+<!--
 <a name="footnote1">1</a>: The sample consists of the first 1000 sentences from
 [UD_German-HDT-master/de_hdt-ud-train-a-1.conllu](https://github.com/UniversalDependencies/UD_German-HDT/blob/23f2f1d5ce1621611604c39c9e1069448ec2eb39/de_hdt-ud-train-a-1.conllu).
 -->

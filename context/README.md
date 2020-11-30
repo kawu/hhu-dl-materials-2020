@@ -52,9 +52,6 @@ embedding representations.
 import torch
 import torch.nn as nn
 
-import data
-from data import enc_data
-
 # # Uncomment for reproducibility
 # torch.manual_seed(0)
 

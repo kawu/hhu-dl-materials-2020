@@ -59,17 +59,9 @@ def encode_with(
     word_enc: Encoder[Word],
     pos_enc: Encoder[POS]
 ) -> List[Tuple[Tensor, Tensor]]:
-    # An internal function to handle encoding exceptions
-    # TODO: replace with enc.encode(x) for the session
-    def encode(x, enc):
-        try:
-            return enc.encode(x)
-        except KeyError:
-            return enc.size()
-
     enc_data = []
     for inp, out in data:
-        enc_inp = torch.tensor([encode(word, word_enc) for word in inp])
-        enc_out = torch.tensor([encode(pos, pos_enc) for pos in out])
+        enc_inp = torch.tensor([word_enc.encode(word) for word in inp])
+        enc_out = torch.tensor([pos_enc.encode(pos) for pos in out])
         enc_data.append((enc_inp, enc_out))
     return enc_data

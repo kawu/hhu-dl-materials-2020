@@ -30,16 +30,13 @@ TODO:
 [official    repository][UD_German-HDT-repo] (either use `git` or `Code -> Download ZIP`)
 -->
 
-TODO: update the link to data (will use English data after all).
-
-1. Download and unzip a 1000-sentences sample UD dataset (a fragment of
-   [`UD_German-HDT`][UD_German-HDT-repo]<sup>[1](#footnote1)</sup>) from
-   [here][dataset]
+1. Download and unzip the [`UD_English-ParTUT`][UD_English-ParTUT] dataset (v.2.2)
+  <!-- <sup>[1](#footnote1)</sup>) from [here][dataset] -->
 1. The [data.py](data.py) module allows to read and encode the downloaded
    dataset
 
 ```python
-TODO: Parsed, extract, and examine the training data set.
+TODO: Parse, extract, and examine the training data set.
 ```
 
 
@@ -177,15 +174,18 @@ available hyper-parameters.  See if it improves the performance of the model.
 -->
 
 
+<!--
 ## Footnotes
 
 <a name="footnote1">1</a>: The sample consists of the first 1000 sentences from
 [UD_German-HDT-master/de_hdt-ud-train-a-1.conllu](https://github.com/UniversalDependencies/UD_German-HDT/blob/23f2f1d5ce1621611604c39c9e1069448ec2eb39/de_hdt-ud-train-a-1.conllu).
+-->
 
 
 
 [linear]: https://pytorch.org/docs/1.6.0/generated/torch.nn.Linear.html?highlight=linear#torch.nn.Linear "Linear nn.Module"
-[dataset]: https://user.phil.hhu.de/~waszczuk/teaching/hhu-dl-wi20/data/UD_German-HDT-sample.zip "UD_German-HDT sample dataset"
+<!-- [dataset]: https://user.phil.hhu.de/~waszczuk/teaching/hhu-dl-wi20/data/UD_German-HDT-sample.zip "UD_German-HDT sample dataset" -->
+[dataset]: https://user.phil.hhu.de/~waszczuk/teaching/hhu-dl-wi20/data/UD_English_ParTUT-sample.zip "UD_English-ParTUT sample dataset"
 [UD_German-HDT-repo]: https://github.com/UniversalDependencies/UD_German-HDT
 [nn-lstm]: https://pytorch.org/docs/1.6.0/generated/torch.nn.LSTM.html?highlight=lstm#torch.nn.LSTM "LSTM nn.Module"
 [packed-seq]: https://pytorch.org/docs/1.6.0/generated/torch.nn.utils.rnn.PackedSequence.html?highlight=packedsequence#torch.nn.utils.rnn.PackedSequence "Packed sequence"

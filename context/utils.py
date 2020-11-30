@@ -1,7 +1,5 @@
 from typing import Iterable, TypeVar, Generic, Dict
 
-import torch
-
 
 T = TypeVar('T')
 class Encoder(Generic[T]):

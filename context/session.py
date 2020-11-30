@@ -43,11 +43,9 @@ baseline = nn.Sequential(
 # Use cross entropy loss as the objective function
 loss = nn.CrossEntropyLoss()
 
-def train(model, loss, epoch_num=10, learning_rate=0.001):
-    # Use Adam to adapt the baseline model's parameters
-    optim = torch.optim.Adagrad(baseline.parameters(), lr=learning_rate)
-    # optim = torch.optim.Adam(baseline.parameters(), lr=0.00005)
-
+def train(model, loss, epoch_num=10, learning_rate=0.001, report_rate=1):
+    # Create an optimizer to adapt the model's parameters
+    optim = torch.optim.Adam(baseline.parameters(), lr=learning_rate)
     # Perform SGD for 1000 epochs
     for k in range(epoch_num):
         # Put the model in the training mode at the beginning of each epoch
@@ -59,20 +57,20 @@ def train(model, loss, epoch_num=10, learning_rate=0.001):
             total_loss += z.item()
             z.backward()
             optim.step()
-        # if k == 0 or (k+1) % 5 == 0:
-        # Switch off gradient evaluation
-        with torch.no_grad():
-            model.eval() # Put the model in the evaluation mode
-            acc_train = accuracy(model, enc_train)
-            acc_dev = accuracy(model, enc_dev)
-            print(
-                f'@{k+1}: loss(train)={total_loss:.3f}, '
-                f'acc(train)={acc_train:.3f}, '
-                f'acc(dev)={acc_dev:.3f}'
-        )
+        if k == 0 or (k+1) % report_rate == 0:
+            # Switch off gradient evaluation
+            with torch.no_grad():
+                model.eval() # Put the model in the evaluation mode
+                acc_train = accuracy(model, enc_train)
+                acc_dev = accuracy(model, enc_dev)
+                print(
+                    f'@{k+1}: loss(train)={total_loss:.3f}, '
+                    f'acc(train)={acc_train:.3f}, '
+                    f'acc(dev)={acc_dev:.3f}'
+                )
 
-train(baseline, loss, 10, learning_rate=0.01)
-train(baseline, loss, 4, learning_rate=0.001)
+train(baseline, loss, 6, learning_rate=0.0001)
+train(baseline, loss, 4, learning_rate=0.00001)
 
 # # Perform SGD for 1000 epochs
 # for k in range(10):

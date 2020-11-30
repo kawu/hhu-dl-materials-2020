@@ -120,7 +120,7 @@ called *out-of-vocabulary* (OOV) words.
 
 Contextualisation is a technique of transforming input embeddings to
 contextualized embeddings: vector representations which capture the context in
-which the input words<sup>[1](#footnote1)</sup>) occur.  Formally, a
+which the input words<sup>[1](#footnote1)</sup> occur.  Formally, a
 contextualisation module takes on input a sequence of embedding vectors, and
 outputs a sequence of contextualised embedding vectors.  The output sequence
 has *the same length* as the input sequence, but the *size of word embeddings

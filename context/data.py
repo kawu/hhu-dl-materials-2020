@@ -44,29 +44,15 @@ def parse_and_extract(conllu_path) -> List[Tuple[Inp, Out]]:
     return data
 
 ##################################################
-# Pre-processing
-##################################################
-
-# def preprocess(inp: Inp) -> Inp:
-#     """Lower-case all words in the input sentence."""
-#     return [x.lower() for x in inp]
-# 
-# # Apply the pre-processing function to the dataset
-# for i in range(len(data)):
-#     inp, out = data[i]
-#     data[i] = preprocess(inp), out
-
-##################################################
 # Encoding
 ##################################################
 
-
 def create_encoders(data: List[Tuple[Inp, Out]]) \
         -> Tuple[Encoder[Word], Encoder[POS]]:
+    """Create a pair of encoders, for words and POS tags respectively."""
     word_enc = Encoder(word for inp, _ in data for word in inp)
     pos_enc = Encoder(pos for _, out in data for pos in out)
     return (word_enc, pos_enc)
-
 
 def encode_with(
     data: List[Tuple[Inp, Out]],
@@ -74,9 +60,10 @@ def encode_with(
     pos_enc: Encoder[POS]
 ) -> List[Tuple[Tensor, Tensor]]:
     # An internal function to handle encoding exceptions
-    def encode(word, enc):
+    # TODO: replace with enc.encode(x) for the session
+    def encode(x, enc):
         try:
-            return enc.encode(word)
+            return enc.encode(x)
         except KeyError:
             return enc.size()
 
@@ -86,28 +73,3 @@ def encode_with(
         enc_out = torch.tensor([encode(pos, pos_enc) for pos in out])
         enc_data.append((enc_inp, enc_out))
     return enc_data
-
-
-# class EncData(TypedDict):
-#     '''
-#     Encoded dataset, together with the corresponding
-#     encoders for the words and the POS tags
-#     '''
-#     data: List[Tuple[Tensor, Tensor]]
-#     word_enc: Encoder[Word]
-#     pos_enc: Encoder[POS]
-
-# def encode(data: List[Tuple[Inp, Out]]) -> EncData:
-#     """Encode a dataset as tensors."""
-#     word_enc = Encoder(word for inp, _ in data for word in inp)
-#     pos_enc = Encoder(pos for _, out in data for pos in out)
-#     enc_data = []
-#     for inp, out in data:
-#         enc_inp = torch.tensor([word_enc.encode(word) for word in inp])
-#         enc_out = torch.tensor([pos_enc.encode(pos) for pos in out])
-#         enc_data.append((enc_inp, enc_out))
-#     return EncData(
-#         data=enc_data,
-#         word_enc=word_enc,
-#         pos_enc=pos_enc
-#     )

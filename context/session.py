@@ -2,7 +2,7 @@ import torch
 # import torch.nn as nn
 # import torch.nn.functional as F
 
-from utils import accuracy
+from utils import accuracy, train
 from data import parse_and_extract, create_encoders, encode_with
 from modules import *
 
@@ -25,72 +25,30 @@ enc_dev = encode_with(dev_data, word_enc, pos_enc)
 # Let's create the baseline model
 baseline = nn.Sequential(
     Forget(word_enc.size(), p=0.0),
-    nn.Embedding(word_enc.size()+1, 50, padding_idx=word_enc.size()),
+    nn.Embedding(word_enc.size()+1, 100, padding_idx=word_enc.size()),
     # nn.Dropout(p=0.25),
-    SimpleBiLSTM(50, 50),
+    # SimpleBiLSTM(50, 50),
     # Concat2d(
     #     SimpleBiLSTM(25, 50),
     #     nn.Identity()
     # ),
-    # SimpleTransformer(24),
+    SimpleTransformer(100),
     # SimpleConv(24, 24, kernel_size=2),
     # nn.Linear(60, 30),
     # nn.LeakyReLU(),
-    nn.Linear(50, pos_enc.size()),
+    nn.Linear(100, pos_enc.size()),
     # nn.Linear(10, pos_enc.size())
 )
 
 # Use cross entropy loss as the objective function
 loss = nn.CrossEntropyLoss()
 
-def train(model, loss, epoch_num=10, learning_rate=0.001, report_rate=1):
-    # Create an optimizer to adapt the model's parameters
-    optim = torch.optim.Adam(baseline.parameters(), lr=learning_rate)
-    # Perform SGD for 1000 epochs
-    for k in range(epoch_num):
-        # Put the model in the training mode at the beginning of each epoch
-        model.train()
-        total_loss: float = 0.0
-        for i in torch.randperm(len(enc_train)):
-            x, y = enc_train[i]
-            z = loss(model(x), y)
-            total_loss += z.item()
-            z.backward()
-            optim.step()
-        if k == 0 or (k+1) % report_rate == 0:
-            # Switch off gradient evaluation
-            with torch.no_grad():
-                model.eval() # Put the model in the evaluation mode
-                acc_train = accuracy(model, enc_train)
-                acc_dev = accuracy(model, enc_dev)
-                print(
-                    f'@{k+1}: loss(train)={total_loss:.3f}, '
-                    f'acc(train)={acc_train:.3f}, '
-                    f'acc(dev)={acc_dev:.3f}'
-                )
+# train(baseline, loss, 6, learning_rate=0.0001)
+# train(baseline, loss, 4, learning_rate=0.00001)
 
-train(baseline, loss, 6, learning_rate=0.0001)
-train(baseline, loss, 4, learning_rate=0.00001)
+# train(baseline, loss, enc_train, enc_dev, 6, learning_rate=0.0001, report_rate=1)
+# train(baseline, loss, enc_train, enc_dev, 4, learning_rate=0.00001, report_rate=1)
 
-# # Perform SGD for 1000 epochs
-# for k in range(10):
-#     # Put the model in the training mode at the beginning of each epoch
-#     baseline.train()
-#     total_loss: float = 0.0
-#     for i in torch.randperm(len(enc_train)):
-#         x, y = enc_train[i]
-#         z = loss(baseline(x), y)
-#         total_loss += z.item()
-#         z.backward()
-#         optim.step()
-#     # if k == 0 or (k+1) % 5 == 0:
-#     # Switch off gradient evaluation
-#     with torch.no_grad():
-#         baseline.eval() # Put the model in the evaluation mode
-#         acc_train = accuracy(baseline, enc_train)
-#         acc_dev = accuracy(baseline, enc_dev)
-#         print(
-#             f'@{k+1}: loss(train)={total_loss:.3f}, '
-#             f'acc(train)={acc_train:.3f}, '
-#             f'acc(dev)={acc_dev:.3f}'
-#     )
+train(baseline, loss, enc_train, enc_dev, 10, learning_rate=0.0001, report_rate=5)
+# train(baseline, loss, enc_train, enc_dev, 20, learning_rate=0.00005, report_rate=5)
+train(baseline, loss, enc_train, enc_dev, 20, learning_rate=0.00001, report_rate=5)

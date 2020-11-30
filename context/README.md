@@ -9,11 +9,10 @@
 - [Dataset](#dataset)
 - [Baseline](#baseline)
 - [Accuracy](#accuracy)
+- [Development set](#development-set)
+- [OOV words](#oov-words)
 - [Contextualisation](#contextualisation)
-  - [Convolution](#convolution)
-  - [Recurent networks](#recurent-networks)
-  - [Transformer](#transformer)
-- [Footnotes](#footnotes)
+  - [LSTM](#lstm)
 
 <!-- END doctoc generated TOC please keep comment here to allow auto update -->
 
@@ -93,7 +92,7 @@ so that the accuracy of the baseline model is reported every `K` epochs.  Train 
 
 **Exercise**: In addition to accuracy on the training set, report the total loss on the training set (every `K` epochs).
 
-### Development set
+## Development set
 
 Currently we only check the loss/accuracy of the model on the training set, but
 in practice we want to make sure the model generalises well to data unseen

@@ -101,7 +101,7 @@ during training.  To this end, we can:
 
 **Exercise**: Extract and encode the dev set from the `dev.conllu` file.  To
 make encoding work, you may need to modify the `encode_with` function in
-`data.py`, since some words/POS tags preset in `dev.conllu` may not be present
+`data.py`, since some words/POS tags present in `dev.conllu` may not be present
 in `train.conllu`.
 
 **Exercise**: Report the accuracy on the dev set together with the accuracy on
@@ -176,7 +176,7 @@ class SimpleLSTM(nn.Module):
 **Note**: The `forward` method of the [nn.LSTM][nn-lstm] module takes a
 3-dimensional tensor on input.  Its second dimension is the *batch size* and it
 allows to process several input sentences in parallel.  In practice, input
-sentences have different lengths, and may be easier to be processed when stored
+sentences have different lengths, and may be easier to process when stored
 in a [packed sequence][packed-seq] (which [nn.LSTM][nn-lstm] also accepts on
 input).
 

@@ -34,9 +34,15 @@ TODO:
   <!-- <sup>[1](#footnote1)</sup>) from [here][dataset] -->
 1. The [data.py](data.py) module allows to read and encode the downloaded
    dataset
-
 ```python
-TODO: Parse, extract, and examine the training data set.
+from data import parse_and_extract, create_encoders, encode_with
+
+# Extract the training set
+train_data = parse_and_extract("UD_English-ParTUT/en_partut-ud-train.conllu")
+# Create the encoders for input words and POS tags
+word_enc, pos_enc = create_encoders(train_data)
+# Encode the dataset
+enc_train = encode_with(train_data, word_enc, pos_enc)
 ```
 
 

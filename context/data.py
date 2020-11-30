@@ -59,6 +59,7 @@ def encode_with(
     word_enc: Encoder[Word],
     pos_enc: Encoder[POS]
 ) -> List[Tuple[Tensor, Tensor]]:
+    """Encode a dataset using given input word and output POS tag encoders."""
     enc_data = []
     for inp, out in data:
         enc_inp = torch.tensor([word_enc.encode(word) for word in inp])

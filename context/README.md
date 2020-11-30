@@ -31,14 +31,13 @@ TODO:
 
 1. Download and unzip the [`UD_English-ParTUT`][UD_English-ParTUT] dataset (v.2.2)
   <!-- <sup>[1](#footnote1)</sup>) from [here][dataset] -->
-1. The [data.py](data.py) module allows to read and encode the downloaded
-   dataset
+1. Use [data.py](data.py) to read and encode the dataset
 ```python
 from data import parse_and_extract, create_encoders, encode_with
 
 # Extract the training set
 train_data = parse_and_extract("UD_English-ParTUT/en_partut-ud-train.conllu")
-# Create the encoders for input words and POS tags
+# Create the encoders for input words and output POS tags
 word_enc, pos_enc = create_encoders(train_data)
 # Encode the dataset
 enc_train = encode_with(train_data, word_enc, pos_enc)
@@ -56,8 +55,8 @@ import torch.nn as nn
 import data
 from data import enc_data
 
-# For reproducibility
-torch.manual_seed(0)
+# # Uncomment for reproducibility
+# torch.manual_seed(0)
 
 baseline = nn.Sequential(
     nn.Embedding(data.word_enc.size(), 10),

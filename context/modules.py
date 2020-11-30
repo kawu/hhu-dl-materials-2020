@@ -56,11 +56,10 @@ class SimpleBiLSTM(nn.Module):
 
 class SimpleTransformer(nn.Module):
 
-    def __init__(self, dim_size: int):
+    def __init__(self, dim_size: int, num_layers: int, **kwargs):
         super().__init__()
-        encoder_layer = nn.TransformerEncoderLayer(
-            d_model=dim_size, nhead=4, dim_feedforward=64, dropout=0.0)
-        self.transformer_encoder = nn.TransformerEncoder(encoder_layer, num_layers=1)
+        encoder_layer = nn.TransformerEncoderLayer(d_model=dim_size, **kwargs)
+        self.transformer_encoder = nn.TransformerEncoder(encoder_layer, num_layers=num_layers)
 
     def forward(self, x):
         # print(f'x: {x.shape}')

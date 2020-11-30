@@ -37,7 +37,7 @@ TODO:
    dataset
 
 ```python
-TODO
+TODO: Parsed, extract, and examine the training data set.
 ```
 
 
@@ -65,18 +65,22 @@ baseline = nn.Sequential(
 
 TODO:
 * Explain and implement accuracy
-* Show the result of the baseline model on the dev set
+* Show the result of the baseline model on the (dev->)train set
 
 POS tagging accuracy is defined as the percentage of words for which the
 classifier predicts the correct POS tag.  One way to implement it is:
 
 ## Contextualisation
 
+### LSTM
+
+<!--
 ### Convolution
 
 ### Recurent networks
 
 ### Transformer
+-->
 
 
 ## Footnotes

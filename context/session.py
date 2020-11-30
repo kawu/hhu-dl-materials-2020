@@ -43,29 +43,56 @@ baseline = nn.Sequential(
 # Use cross entropy loss as the objective function
 loss = nn.CrossEntropyLoss()
 
-# Use Adam to adapt the baseline model's parameters
-optim = torch.optim.Adagrad(baseline.parameters())
-# optim = torch.optim.Adam(baseline.parameters(), lr=0.00005)
+def train(model, loss, epoch_num=10, learning_rate=0.001):
+    # Use Adam to adapt the baseline model's parameters
+    optim = torch.optim.Adagrad(baseline.parameters(), lr=learning_rate)
+    # optim = torch.optim.Adam(baseline.parameters(), lr=0.00005)
 
-# Perform SGD for 1000 epochs
-for k in range(150):
-    # Put the model in the training mode at the beginning of each epoch
-    baseline.train()
-    total_loss: float = 0.0
-    for i in torch.randperm(len(enc_train)):
-        x, y = enc_train[i]
-        z = loss(baseline(x), y)
-        total_loss += z.item()
-        z.backward()
-        optim.step()
-    if k == 0 or (k+1) % 5 == 0:
+    # Perform SGD for 1000 epochs
+    for k in range(epoch_num):
+        # Put the model in the training mode at the beginning of each epoch
+        model.train()
+        total_loss: float = 0.0
+        for i in torch.randperm(len(enc_train)):
+            x, y = enc_train[i]
+            z = loss(model(x), y)
+            total_loss += z.item()
+            z.backward()
+            optim.step()
+        # if k == 0 or (k+1) % 5 == 0:
         # Switch off gradient evaluation
         with torch.no_grad():
-            baseline.eval() # Put the model in the evaluation mode
-            acc_train = accuracy(baseline, enc_train)
-            acc_dev = accuracy(baseline, enc_dev)
+            model.eval() # Put the model in the evaluation mode
+            acc_train = accuracy(model, enc_train)
+            acc_dev = accuracy(model, enc_dev)
             print(
                 f'@{k+1}: loss(train)={total_loss:.3f}, '
                 f'acc(train)={acc_train:.3f}, '
                 f'acc(dev)={acc_dev:.3f}'
         )
+
+train(baseline, loss, 10, learning_rate=0.01)
+train(baseline, loss, 4, learning_rate=0.001)
+
+# # Perform SGD for 1000 epochs
+# for k in range(10):
+#     # Put the model in the training mode at the beginning of each epoch
+#     baseline.train()
+#     total_loss: float = 0.0
+#     for i in torch.randperm(len(enc_train)):
+#         x, y = enc_train[i]
+#         z = loss(baseline(x), y)
+#         total_loss += z.item()
+#         z.backward()
+#         optim.step()
+#     # if k == 0 or (k+1) % 5 == 0:
+#     # Switch off gradient evaluation
+#     with torch.no_grad():
+#         baseline.eval() # Put the model in the evaluation mode
+#         acc_train = accuracy(baseline, enc_train)
+#         acc_dev = accuracy(baseline, enc_dev)
+#         print(
+#             f'@{k+1}: loss(train)={total_loss:.3f}, '
+#             f'acc(train)={acc_train:.3f}, '
+#             f'acc(dev)={acc_dev:.3f}'
+#     )

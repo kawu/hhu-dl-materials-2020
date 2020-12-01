@@ -7,7 +7,7 @@ class Encoder(Generic[T]):
     """Mapping between classes and the corresponding indices.
 
     >>> classes = ["English", "German", "French"]
-    >>> enc = Encoding(classes)
+    >>> enc = Encoder(classes)
     >>> assert "English" == enc.decode(enc.encode("English"))
     >>> assert "German" == enc.decode(enc.encode("German"))
     >>> assert "French" == enc.decode(enc.encode("French"))
@@ -15,7 +15,7 @@ class Encoder(Generic[T]):
     True
     >>> for cl in classes:
     ...     ix = enc.encode(cl)
-    ...     assert 0 <= ix <= enc.class_num
+    ...     assert 0 <= ix <= enc.size()
     ...     assert cl == enc.decode(ix)
     """
 

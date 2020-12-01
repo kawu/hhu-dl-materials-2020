@@ -1,6 +1,6 @@
 # Contextualization
 
-### :construction: Work In Progress :construction:
+<!-- ### :construction: Work In Progress :construction: -->
 
 The code developed during the session will be placed in
 [session.py](session.py).

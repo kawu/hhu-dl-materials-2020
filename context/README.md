@@ -128,11 +128,11 @@ can change*.
 
 ### LSTM
 
-A popular contextualisation technique is based on *recurrent neural networks*
-(RNNs) in general, and *long short-term memory* ([LSTM][nn-lstm]) RNNs in
-particular.  Here's an `nn.Module` which encapsulates an LSTM transforming
-embeddings of a given input size to contextualised embeddings of a given output
-size.
+A popular contextualisation technique is based on [*recurrent neural
+networks*][RNN] (RNNs) in general, and [*long short-term memory*][LSTM] (LSTM)
+RNNs in particular.  Here's an `nn.Module` which encapsulates the PyTorch's
+[nn.LSTM][nn-lstm] module transforming embeddings of a given input size to
+contextualised embeddings of a given output size.
 ```python
 class SimpleLSTM(nn.Module):
 
@@ -214,6 +214,8 @@ available hyper-parameters.  See if it improves the performance of the model.
 <!-- [dataset]: https://user.phil.hhu.de/~waszczuk/teaching/hhu-dl-wi20/data/UD_German-HDT-sample.zip "UD_German-HDT sample dataset" -->
 [UD_English-ParTUT]: https://user.phil.hhu.de/~waszczuk/teaching/hhu-dl-wi20/data/UD_English-ParTUT.zip "UD_English-ParTUT sample dataset"
 [UD_German-HDT-repo]: https://github.com/UniversalDependencies/UD_German-HDT
+[RNN]: https://en.wikipedia.org/wiki/Recurrent_neural_network#/media/File:Recurrent_neural_network_unfold.svg "RNN"
+[LSTM]: https://colah.github.io/posts/2015-08-Understanding-LSTMs "LSTM"
 [nn-lstm]: https://pytorch.org/docs/1.6.0/generated/torch.nn.LSTM.html?highlight=lstm#torch.nn.LSTM "LSTM nn.Module"
 [packed-seq]: https://pytorch.org/docs/1.6.0/generated/torch.nn.utils.rnn.PackedSequence.html?highlight=packedsequence#torch.nn.utils.rnn.PackedSequence "Packed sequence"
 

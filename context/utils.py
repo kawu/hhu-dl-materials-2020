@@ -32,7 +32,10 @@ class Encoder(Generic[T]):
         return len(self.class_to_ix)
 
     def encode(self, cl: T) -> int:
-        return self.class_to_ix[cl]
+        try:
+            return self.class_to_ix[cl]
+        except KeyError:
+            return self.size()
 
     def decode(self, ix: int) -> T:
         return self.ix_to_class[ix]

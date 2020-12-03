@@ -12,7 +12,7 @@ The code developed during the session will be placed in
 - [Accuracy](#accuracy)
 - [Development set](#development-set)
 - [OOV words](#oov-words)
-- [Contextualisation](#contextualisation)
+- [Contextualisation methods](#contextualisation-methods)
   - [LSTM](#lstm)
 - [Footnotes](#footnotes)
 
@@ -118,7 +118,7 @@ called *out-of-vocabulary* (OOV) words.
 
 **Exercise**: Improve support for the OOV words in the baseline model.
 
-## Contextualisation
+## Contextualisation methods
 
 ### :construction: Work In Progress :construction:
 

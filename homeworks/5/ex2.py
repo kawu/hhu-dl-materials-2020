@@ -12,7 +12,7 @@ class Replace(nn.Module):
     
     Create the module with replacement probability 0.5 and the special
     index equal to 5
-    >>> frg = Forget(p=0.5, ix=5)
+    >>> frg = Replace(p=0.5, ix=5)
 
     Check if the module preserves the shape of the input matrix
     >>> x = torch.tensor([0, 1, 0, 3, 4, 2, 3])
@@ -20,26 +20,26 @@ class Replace(nn.Module):
     True
 
     When `p` is set to 0, the module should behave as an identity function
-    >>> frg = Forget(p=0.0, ix=5)
+    >>> frg = Replace(p=0.0, ix=5)
     >>> (frg(x) == x).all().item()
     True
 
     When `p` is set to 1, all values in the input tensor should
     be replaced by `ix`
-    >>> frg = Forget(p=1.0, ix=5)
+    >>> frg = Replace(p=1.0, ix=5)
     >>> (frg(x) == 5).all().item()
     True
 
     In the evaluation mode, the module should also behave as an identity,
     whatever the probability `p`
-    >>> frg = Forget(p=0.5, ix=5)
+    >>> frg = Replace(p=0.5, ix=5)
     >>> _ = frg.eval()
     >>> (frg(x) == x).all().item()
     True
 
     Make sure the module is actually non-deterministic and returns
     different results for different applications
-    >>> frg = Forget(p=0.5, ix=5)
+    >>> frg = Replace(p=0.5, ix=5)
     >>> x = torch.randint(5, (20,))    # length 20, values in [0, 5)
     >>> results = set()
     >>> for _ in range(1000):

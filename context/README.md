@@ -1,6 +1,4 @@
-# Contextualization
-
-<!-- ### :construction: Work In Progress :construction: -->
+# Contextualisation
 
 The code developed during the session will be placed in
 [session.py](session.py).
@@ -16,6 +14,7 @@ The code developed during the session will be placed in
 - [OOV words](#oov-words)
 - [Contextualisation](#contextualisation)
   - [LSTM](#lstm)
+- [Footnotes](#footnotes)
 
 <!-- END doctoc generated TOC please keep comment here to allow auto update -->
 
@@ -121,8 +120,10 @@ called *out-of-vocabulary* (OOV) words.
 
 ## Contextualisation
 
+### :construction: Work In Progress :construction:
+
 Contextualisation is a technique of transforming input embeddings to
-contextualized embeddings: vector representations which capture the context in
+contextualised embeddings: vector representations which capture the context in
 which the input words<sup>[1](#footnote1)</sup> occur.  Formally, a
 contextualisation module takes on input a sequence of embedding vectors, and
 outputs a sequence of contextualised embedding vectors.  The output sequence

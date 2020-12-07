@@ -256,11 +256,24 @@ input).
 recurrent/sequential nature of the computation it performs, which inhibits
 effective parallelisation.
 
-
-
-<!--
 ### Convolution
 
+```python
+class SimpleConv(nn.Module):
+    def __init__(self, inp_size: int, out_size: int, kernel_size=1):
+        super().__init__()
+        self.kernel_size = kernel_size
+        self.conv = nn.Conv1d(inp_size, out_size, kernel_size)
+
+    def forward(self, x):
+        x = x.view(1, x.shape[1], x.shape[0])
+        padding = (self.kernel_size - 1, 0)
+        out = self.conv(F.pad(x, padding))
+        out_reshaped = out.view(out.shape[2], out.shape[1])
+        return out_reshaped
+```
+
+<!--
 ### Recurent networks
 
 ### Transformer

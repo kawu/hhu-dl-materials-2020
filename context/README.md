@@ -184,10 +184,10 @@ class SimpleLSTM(nn.Module):
         ys = []
         for x in xs:
             # Compute the new hidden and cell states
-            h, c = self.cell(x.view(1, -1), h, c)
+            h, c = self.cell(x.view(1, -1), (h, c))
             # Emit the hidden state on output; the cell state will only by
             # used to calculate the subsequent states
-            ys.append(h)
+            ys.append(h.view(-1))
         return torch.stack(ys)
 ```
 

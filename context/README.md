@@ -151,9 +151,9 @@ class SimpleLSTM(nn.Module):
 
     Example:
 
-    >>> lstm = SimpleLSTM(3, 5) # input size 3, output size 5
-    >>> xs = torch.randn(10, 3)	# input sequence of length 10
-    >>> ys = lstm(xs)	        # equivalent to: lstm.forward(xs)
+    >>> lstm = SimpleLSTM(3, 5)   # input size 3, output size 5
+    >>> xs = torch.randn(10, 3)   # input sequence of length 10
+    >>> ys = lstm(xs)             # equivalent to: lstm.forward(xs)
     >>> list(ys.shape)
     [10, 5]
     '''
@@ -162,17 +162,17 @@ class SimpleLSTM(nn.Module):
         super().__init__()
 	self.lstm = nn.LSTM(input_size=inp_size, hidden_size=out_size)
 
-    def forward(self, x):
+    def forward(self, xs):
         '''Apply the LSTM to the input sequence.
 
         Arguments:
-        * x: a tensor of shape N x Din, where N is the input sequence length
+        * xs: a tensor of shape N x Din, where N is the input sequence length
             and Din is the embedding size
 
         Output: a tensor of shape N x Dout, where Dout is the output size
         '''
         # Apply the LSTM, extract the first value of the result tuple only
-        out, _ = self.lstm(x.view(x.shape[0], 1, x.shape[1]))
+        out, _ = self.lstm(xs.view(xs.shape[0], 1, xs.shape[1]))
         # Reshape and return
         return out.view(out.shape[0], out.shape[2])
 ```
@@ -187,6 +187,53 @@ input).
 **Note**: LSTM is relatively slow when applied to a single sentence, due to the
 recurrent/sequential nature of the computation it performs, which inhibits
 effective parallelisation.
+
+It can be easier to understand how RNNs work by implementing them on top of a
+computation cell, e.g.
+[LSTMCell](https://pytorch.org/docs/1.6.0/generated/torch.nn.LSTMCell.html?highlight=lstm%20cell#torch.nn.LSTMCell):
+```python
+class SimpleLSTM(nn.Module):
+
+    '''
+    Contextualise the input sequence of embedding vectors using unidirectional
+    LSTM.
+
+    Type: Tensor[N x Din] -> Tensor[N x Dout], where
+    * `N` is is the length of the input sequence
+    * `Din` is the input embedding size
+    * `Dout` is the output embedding size
+
+    Example:
+
+    >>> lstm = SimpleLSTM(3, 5)   # input size 3, output size 5
+    >>> xs = torch.randn(10, 3)   # input sequence of length 10
+    >>> ys = lstm(xs)             # equivalent to: lstm.forward(xs)
+    >>> list(ys.shape)
+    [10, 5]
+    '''
+
+    def __init__(self, inp_size: int, out_size: int):
+        super().__init__()
+        self.h0 = torch.randn(out_size).view(1, -1)
+        self.c0 = torch.randn(out_size).view(1, -1)
+	      self.cell = nn.LSTMCell(input_size=inp_size, hidden_size=out_size)
+
+    def forward(self, xs):
+        '''Apply the LSTM to the input sequence.
+
+        Arguments:
+        * x: a tensor of shape N x Din, where N is the input sequence length
+            and Din is the embedding size
+
+        Output: a tensor of shape N x Dout, where Dout is the output size
+        '''
+        h, c = self.h0, self.c0
+        out = []
+        for x in xs:
+            y = self.cell(x.view(1, -1), h, c)
+            out.append(y)
+        return out
+```
 
 **Exercise**: Extend the baseline model with the `SimpleLSTM` module and see if
 you can obtain better performance on the dev set.

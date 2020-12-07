@@ -201,7 +201,7 @@ Have a look at the list of the [nn.LSTM][nn-lstm] module's available
 hyper-parameters.  See if it improves the performance of the model.
 -->
 
-In practice, you can use a higher-level [nn.LSTM][nn-lstm] module.  Here's a
+In practice, you can use a higher-level [nn.LSTM][nn-lstm] module to integrate a (Bi)LSTM in your PyTorch application.  Here's a
 `nn.Module` which encapsulates the PyTorch's [nn.LSTM][nn-lstm] module
 transforming embeddings of a given input size to contextualised embeddings of a
 given output size.

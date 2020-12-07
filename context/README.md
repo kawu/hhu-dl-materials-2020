@@ -330,10 +330,10 @@ contextualisation layer and check how this impacts (a) the final accuracy and
 ### For the record: Transformer
 
 A more modern technique (and often performing better than RNNs) is based on the
-so-called ,,transformer'' architecture.  Originally proposed for neural machine
-translation, the ,,encoding'' component this architecture allows to
-contextualise the individual word embeddings in the input sentence.  In
-PyTorch, the
+so-called ,,transformer'' architecture.  Originally proposed for [neural machine
+translation](https://arxiv.org/abs/1706.03762), the ,,encoding'' component this
+architecture allows to contextualise the individual word embeddings in the
+input sentence.  In PyTorch, the
 [nn.TransformerEncoderLayer](https://pytorch.org/docs/1.6.0/generated/torch.nn.TransformerEncoderLayer.html?highlight=transformerencoder#torch.nn.TransformerEncoderLayer)
 and
 [nn.TransformerEncoder](https://pytorch.org/docs/1.6.0/generated/torch.nn.TransformerEncoder.html?highlight=transformerencoder#torch.nn.TransformerEncoder)

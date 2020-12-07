@@ -258,14 +258,22 @@ effective parallelisation.
 
 ### Convolution
 
+Convolution (in particular, 1-dimensional convolution) is another technique
+that can be used to capture the context in which the individual word embeddings
+occur.  An important hyper-parameter of convolution is the *kernel size*, which
+determines the size of the context of each input embedding that the convolution
+captures.  See [this visual
+example](https://github.com/vdumoulin/conv_arithmetic/blob/master/README.md#convolution-animations)
+for the 2-dimensional case (especiall the ,,Half padding, no strides''
+configuration).
 ```python
 import torch.nn.functional as F
 
 class SimpleConv(nn.Module):
 
-    """The class implements the so-called "same" variant of a 1-dimensional
-    convolution, in which the length of the output sequence is the same as
-    the length of the input sequence.
+    """The class implements the so-called ,,same'' variant of a 1-dimensional
+    convolution, in which the length of the output sequence is the same as the
+    length of the input sequence.
 
     The embedding size, often called the number of ,,channels'' in the context
     of convolution, can change (as specified by the hyper-parameters).
@@ -291,6 +299,16 @@ class SimpleConv(nn.Module):
         out_reshaped = out.view(out.shape[2], out.shape[1])
         return out_reshaped
 ```
+In contrast to RNNs, convolution as implemented above does not assume any bias
+as to the importance of the individual words in the context window.  Put
+differently, if the kernel size is 3 and the input sentence is *a dog scared
+the cat*, the construction of the contextualised embedding for the word
+*scared* will (a priori) consider the words *dog*, *scared*, and *the* as
+equally important.
+
+**Exercise**: Replace the LSTM module with the Convolution module as the
+contextualisation layer and check how this impacts (a) the final accuracy and
+(b) the training speed.
 
 <!--
 ### Recurent networks

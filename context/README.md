@@ -14,6 +14,8 @@ The code developed during the session will be placed in
 - [OOV words](#oov-words)
 - [Contextualisation methods](#contextualisation-methods)
   - [LSTM](#lstm)
+  - [Comparative example: Convolution](#comparative-example-convolution)
+  - [For the record: Transformer](#for-the-record-transformer)
 - [Footnotes](#footnotes)
 
 <!-- END doctoc generated TOC please keep comment here to allow auto update -->
@@ -120,7 +122,9 @@ called *out-of-vocabulary* (OOV) words.
 
 ## Contextualisation methods
 
+<!--
 ### :construction: Work In Progress :construction:
+-->
 
 Contextualisation is a technique of transforming input embeddings to
 contextualised embeddings: vector representations which capture the context in
@@ -256,16 +260,23 @@ input).
 recurrent/sequential nature of the computation it performs, which inhibits
 effective parallelisation.
 
-### Convolution
+### Comparative example: Convolution
 
 Convolution (in particular, 1-dimensional convolution) is another technique
 that can be used to capture the context in which the individual word embeddings
 occur.  An important hyper-parameter of convolution is the *kernel size*, which
-determines the size of the context of each input embedding that the convolution
+determines the size of the context of each input word that the convolution
 captures.  See [this visual
 example](https://github.com/vdumoulin/conv_arithmetic/blob/master/README.md#convolution-animations)
-for the 2-dimensional case (especiall the ,,Half padding, no strides''
-configuration).
+for the 2-dimensional case (especially the ,,Half padding, no strides''
+configuration) as well as [this blog post](http://www.davidsbatista.net/blog/2018/03/31/SentenceClassificationConvNets/)
+for the 1-dimensional case (find the ,,1-D Convolutions over text'' section).
+<!--
+The second link provides a very useful figure adapted from the Yoav Goldberg
+book "Neural Network Methods for NLP" (in the book: Figure 13.1).  If the link
+is not valid anymore, it should be possible to find a similar example, or draw
+one.
+-->
 ```python
 import torch.nn.functional as F
 
@@ -306,15 +317,29 @@ the cat*, the construction of the contextualised embedding for the word
 *scared* will (a priori) consider the words *dog*, *scared*, and *the* as
 equally important.
 
+**Note**: While convolution can be in principle very useful in some
+(more-or-less sequential) tagging tasks (e.g., named entity recognition,
+multiword expression identification), it is also often used for feature
+extraction for [text classification
+tasks](https://cezannec.github.io/CNN_Text_Classification/).
+
 **Exercise**: Replace the LSTM module with the Convolution module as the
 contextualisation layer and check how this impacts (a) the final accuracy and
 (b) the training speed.
 
-<!--
-### Recurent networks
+### For the record: Transformer
 
-### Transformer
--->
+A more modern technique (and often performing better than RNNs) is based on the
+so-called ,,transformer'' architecture.  Originally proposed for neural machine
+translation, the ,,encoding'' component this architecture allows to
+contextualise the individual word embeddings in the input sentence.  In
+PyTorch, the
+[nn.TransformerEncoderLayer](https://pytorch.org/docs/1.6.0/generated/torch.nn.TransformerEncoderLayer.html?highlight=transformerencoder#torch.nn.TransformerEncoderLayer)
+and
+[nn.TransformerEncoder](https://pytorch.org/docs/1.6.0/generated/torch.nn.TransformerEncoder.html?highlight=transformerencoder#torch.nn.TransformerEncoder)
+modules can be used to this end.  As this is a more advanced topic, we will get
+back to it later.
+
 
 ## Footnotes
 

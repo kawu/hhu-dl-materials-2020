@@ -195,8 +195,7 @@ class SimpleLSTM(nn.Module):
 **Exercise**: Extend the baseline model with the `SimpleLSTM` module and see if
 you can obtain better performance on the dev set.
 
-**Exercise**: Imlement a bidirectional variant of `SimpleLSTM` (you can call it
-`SimpleBiLSTM`).
+**Exercise**: Imlement a bidirectional LSTM (BiLSTM).  A BiLSTM is a combination of two LSTMs: forward LSTM and backward LSTM.  The forward LSTM is applied from left to right, the backward LSTM: from right to left.  The former capture the left context, the latter -- the right context.  On output of BiLSTM, the respective outputs of both underlying LSTMs are concatenated.
 <!--
 Have a look at the list of the [nn.LSTM][nn-lstm] module's available
 hyper-parameters.  See if it improves the performance of the model.

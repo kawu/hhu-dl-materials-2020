@@ -214,25 +214,28 @@ class SimpleLSTM(nn.Module):
 
     def __init__(self, inp_size: int, out_size: int):
         super().__init__()
+        # Initial ,,hidden state''
         self.h0 = torch.randn(out_size).view(1, -1)
+        # Initial ,,cell state''
         self.c0 = torch.randn(out_size).view(1, -1)
-	      self.cell = nn.LSTMCell(input_size=inp_size, hidden_size=out_size)
+        # LSTM computation cell
+        self.cell = nn.LSTMCell(input_size=inp_size, hidden_size=out_size)
 
     def forward(self, xs):
         '''Apply the LSTM to the input sequence.
 
         Arguments:
-        * x: a tensor of shape N x Din, where N is the input sequence length
+        * xs: a tensor of shape N x Din, where N is the input sequence length
             and Din is the embedding size
 
         Output: a tensor of shape N x Dout, where Dout is the output size
         '''
         h, c = self.h0, self.c0
-        out = []
+        ys = []
         for x in xs:
             y = self.cell(x.view(1, -1), h, c)
-            out.append(y)
-        return out
+            ys.append(y)
+        return torch.stack(ys)
 ```
 
 **Exercise**: Extend the baseline model with the `SimpleLSTM` module and see if

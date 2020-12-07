@@ -232,7 +232,7 @@ class SimpleLSTM(nn.Module):
 
     def __init__(self, inp_size: int, out_size: int):
         super().__init__()
-	self.lstm = nn.LSTM(input_size=inp_size, hidden_size=out_size)
+        self.lstm = nn.LSTM(input_size=inp_size, hidden_size=out_size)
 
     def forward(self, xs):
         '''Apply the LSTM to the input sequence.

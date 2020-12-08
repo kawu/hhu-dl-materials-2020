@@ -96,15 +96,17 @@ def predict(model, name: str) -> str:
 
 # First show the results for a selection of person names
 print('# PREDICTION FOR SELECTED NAMES')
-for name in ["Watson", "Simson", "Kräll", "Filipchenko", "Au-Yong", "Prescott", "Ngo", "Hakimi"]:
-    lang = predict(model, name)
-    print(f'{name}: {lang}')
+for name, gold_lang in raw_dev[:50]:
+    pred_lang = predict(model, name)
+    print(f'{name} =>\t{pred_lang}\t(gold: {gold_lang})')
 
 # NOTE: Do not change the code below!
 print('# FINAL EVALUATION')
 dev_acc = accuracy(model, enc_dev)
 if dev_acc > 0.8:
     print(f'PERFECT: acc(dev) = {dev_acc} (> 0.8)')
+elif dev_acc > 0.75:
+    print(f'VERY GOOD: acc(dev) = {dev_acc} (> 0.75)')
 elif dev_acc > 0.7:
     print(f'GOOD: acc(dev) = {dev_acc} (> 0.7)')
 elif dev_acc > 0.6:

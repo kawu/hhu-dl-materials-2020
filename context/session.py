@@ -1,7 +1,8 @@
-from data import parse_and_extract, create_encoders, encode_with
-
 import torch
 import torch.nn as nn
+
+from data import parse_and_extract, create_encoders, encode_with
+from modules import *
 
 # Uncomment for reproducibility
 torch.manual_seed(0)
@@ -16,8 +17,9 @@ enc_train = encode_with(train_data, word_enc, pos_enc)
 enc_dev = encode_with(dev_data, word_enc, pos_enc)
 
 baseline = nn.Sequential(
-    # TODO: Make sure `padding_idx` is necessary
+    Replace(p=0.1, ix=word_enc.size()),
     nn.Embedding(word_enc.size()+1, 10, padding_idx=word_enc.size()),
+    # SimpleLSTM(10, 10),
     nn.Linear(10, pos_enc.size())
 )
 
@@ -41,27 +43,30 @@ def train(
     report_rate=10,
 ):
     """SGD training function."""
-    # Use Adam to adapt the baseline model's parameters
-    optim = torch.optim.Adam(baseline.parameters(), lr=learning_rate)
+    # Use Adam to adapt the model's parameters
+    optim = torch.optim.Adam(model.parameters(), lr=learning_rate)
     for k in range(epoch_num):
+        # Turn on the training mode
+        model.train()
         # Variable to store the total loss on the training set
         total_loss = 0
         # Optional: use random dataset permutation in each epoch
         for i in torch.randperm(len(train_data)):
             x, y = train_data[i]
-            z = loss(baseline(x), y)
+            z = loss(model(x), y)
             total_loss += z.item()
             z.backward()
             optim.step()
         if k == 0 or (k+1) % report_rate == 0:
-            # TODO: enter the evaluation mode
-            # TODO: consider switching off gradient calculation
-            train_acc = accuracy(model, train_data)
-            dev_acc = accuracy(model, dev_data)
-            print(f'@{k+1}: loss(train)={total_loss:.3f}, acc(train)={train_acc:.3f}, acc(dev)={dev_acc:.3f}')
+            with torch.no_grad():
+                model.eval()
+                train_acc = accuracy(model, train_data)
+                dev_acc = accuracy(model, dev_data)
+                print(f'@{k+1}: loss(train)={total_loss:.3f}, acc(train)={train_acc:.3f}, acc(dev)={dev_acc:.3f}')
 
 # Report size of the training data
 print("# Train size =", len(enc_train))
+print("# Dev size =", len(enc_dev))
 
 loss = nn.CrossEntropyLoss()
 train(baseline, enc_train, enc_dev, loss, epoch_num=50, learning_rate=0.00005, report_rate=5)

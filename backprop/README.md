@@ -133,6 +133,44 @@ assert (x1.grad == x2.grad).all()
 assert (y1.grad == y2.grad).all()
 ```
 
+### Product
+
+Let's take another example: element-wise product (multiplication).  Using the
+chain rule, we can determine that:
+* `dz/dx1` = `dz/dy * x2`
+* `dz/dx2` = `dz/dy * x1`
+
+In contrast with addition, to determine the partial derivatives `dz/dx1` and
+`dz/dx2`, we need to have access to `x2` and `x1`, respectively, even though
+they are not arguments of the `backward` method.
+
+In the `forward` and `backward` methods, `ctx` is a context object that can be
+used to stash information for the backward computation.  You can cache
+arbitrary objects for use in the backward pass using the
+`ctx.save_for_backward` method.  In our case, we can use it to stash `x1` and
+`x2`:
+```python
+class Product(Function):
+
+    @staticmethod
+    def forward(ctx, x1: Tensor, x2: Tensor) -> Tensor:
+        y = x1 * x2
+        ctx.save_for_backward(x1, x2)
+        return y
+
+    @staticmethod
+    def backward(ctx, dzdy: Tensor) -> Tuple[Tensor, Tensor]:
+        x1, x2 = ctx.saved_tensors
+        return dzdy*x2, dzdy*x1
+
+mul = Product.apply
+```
+
+Again, we can make sure the results are the same as with regular, element-wise
+`*`: TODO
+
+
+<!--
 ### Sigmoid
 
 Let's see another example: the sigmoid (logistic) function.
@@ -194,32 +232,35 @@ diff = x1.grad - x2.grad
 assert (-1e-7 < diff).all()
 assert (diff  < 1e-7).all()
 ```
+-->
 
 ### Composition
 
-As we can combine neural functions (packaged in neural modules), the underlying
-forward and backward methods compose as well.
+As we can combine neural functions and modules, the underlying forward and
+backward methods compose as well.
 
-Let `x` and `y` be two tensors of the same shape.  Then, if we perform:
+Let `a`, `b` and `c` be tensors of the same shape (scalar tensors in the
+simplest case), with `requires_grad=True`. (TODO: add footnote about what
+happens is `requires_grad=False`).
+Then, if we perform:
 ```python
-sigmoid(add(x, y)).sum().backward()
+mul(c, add(a, b)).sum().backward()
 ```
 the order of computations is as follows:
-* Forward: `a = add(x, y)`
-* Forward: `b = sigmoid(a)`
-* Forward: `c = b.sum()`
-* At this point, `c.backward()` is used
-* Backward: `dc/db` is calculated using `backward` from `sum`
-  <!--- (from `b`, `c`) -->
-* Backward: `dc/da` is calculated using `backward` from `sigmoid`
-  <!--- (from `a`, `b`, and `dc/db`) -->
-* Backward: `dc/dx` and `dc/dy` are calculated using `backward` from `add`
-  <!--- (from `x`, `y`, and `dc/da`) -->
+* Forward: `d = add(a, b)`
+* Forward: `e = mul(c, d)`
+* Forward: `f = e.sum()`
+* At this point, `f.backward()` is used
+* Backward: `df/de` is calculated using `backward` from `sum`
+* Backward: `df/dc` and `df/dd` are calculated using `backward` from `mul`
+* Backward: `df/da` and `df/db` are calculated using `backward` from `add`
 
 All this generalizes to arbitrary tensor-based computations, via the
 abstraction called a *computation graph*.  More information on this can be
-found on http://colah.github.io/posts/2015-08-Backprop and, hopefully, in the
-script.
+found at http://colah.github.io/posts/2015-08-Backprop.
+<!--
+and, hopefully, in the script.
+-->
 
 <!---
 TODO: computation graph?
@@ -228,18 +269,28 @@ TODO: computation graph?
 
 # Exercises
 
-**Note**: for all the exercises, you can use the functions already provided in
+**Note**: For all the exercises, you can use the functions already provided in
 PyTorch in the forward computation.  For instance, in the `sum` exercise below,
 you can use `torch.sum` in the `forward` method.  We focus here on the
 implementations of the `backward` methods.
 
-**Note**: to solve some of the exercises below, you may need primitive
+<!--
+**Note**: To solve some of the exercises below, you may need primitive
 functions from the PyTorch library that we didn't use yet.
+-->
 
 ### Sum
 
 Re-implement `torch.sum` as a custom autograd function.  Verify that the
 backpropagation results are the same as with the `torch.sum` function.
+
+### Sigmoid
+
+Re-implement [`sigmoid`](https://en.wikipedia.org/wiki/Sigmoid_function) as a
+custom autograd function.  Verify that the backpropagation results are the same
+as with the `torch.sigmoid` function.  Note that the derivative of sigmoid has
+a rather [simple
+form](https://math.stackexchange.com/questions/78575/derivative-of-sigmoid-function-sigma-x-frac11e-x).
 
 ### Dot product
 

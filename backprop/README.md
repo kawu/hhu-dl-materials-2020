@@ -1,4 +1,4 @@
-# Backpropagation
+## Backpropagation
 
 *Backpropagation* is an algorithm that allows to methodically compute the
 gradients of a complex expression using the chain rule, while caching
@@ -15,8 +15,27 @@ necessary, for instance:
 * Automatically derived backward calculation may be not optimal for certain
   combinations of neural functions
 
+<!-- START doctoc generated TOC please keep comment here to allow auto update -->
+<!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
 
-### Useful links
+
+- [Useful links](#useful-links)
+- [Preparation](#preparation)
+- [Examples](#examples)
+  - [Addition](#addition)
+  - [Product](#product)
+  - [Composition](#composition)
+- [Exercises](#exercises)
+  - [Sum](#sum)
+  - [Sigmoid](#sigmoid)
+  - [Dot product](#dot-product)
+  - [Matrix-vector product](#matrix-vector-product)
+- [Footnotes](#footnotes)
+
+<!-- END doctoc generated TOC please keep comment here to allow auto update -->
+
+
+## Useful links
 
 The PyTorch documentation page which contains more detailed information about
 writing custom autograd functions can be found at
@@ -34,7 +53,7 @@ https://pytorch.org/tutorials/beginner/examples_autograd/two_layer_net_custom_fu
 -->
 
 
-### Preparation
+## Preparation
 
 <!-- 
 The commands and code fragments shown below are intended to be used
@@ -59,7 +78,7 @@ However, you may want to perform the exercises below iteractivelly in IPython.
 -->
 
 
-# Examples
+## Examples
 
 ### Addition
 
@@ -166,8 +185,38 @@ class Product(Function):
 mul = Product.apply
 ```
 
-Again, we can make sure the results are the same as with regular, element-wise
-`*`: TODO
+Again, we can make sure the results are the same as with the regular,
+element-wise operator `*`:
+```python
+# Using the regular element-wise multiplication operator
+x1 = torch.tensor(3.0, requires_grad=True)
+y1 = torch.tensor(2.0, requires_grad=True)
+(x1 * y1).backward()
+
+# Using the custom multiplication function
+x2 = torch.tensor(3.0, requires_grad=True)
+y2 = torch.tensor(2.0, requires_grad=True)
+mul(x2, y2).backward()
+
+# Verify that the computed gradients are the same
+assert x1.grad == x2.grad
+assert y1.grad == y2.grad
+```
+As with addition, this generalises to higher-dimensional tensors:
+```python
+x1 = torch.randn(3, 3, requires_grad=True)
+y1 = torch.randn(3, 3, requires_grad=True)
+(x1 * y1).sum().backward()
+
+# We use `clone` and `detach` to get the exact, separate copies of x1 and y1.
+x2 = x1.clone().detach().requires_grad_(True)
+y2 = y1.clone().detach().requires_grad_(True)
+mul(x2, y2).sum().backward()
+
+assert (x1.grad == x2.grad).all()
+assert (y1.grad == y2.grad).all()
+```
+
 
 
 <!--
@@ -240,8 +289,7 @@ As we can combine neural functions and modules, the underlying forward and
 backward methods compose as well.
 
 Let `a`, `b` and `c` be tensors of the same shape (scalar tensors in the
-simplest case), with `requires_grad=True`. (TODO: add footnote about what
-happens is `requires_grad=False`).
+simplest case), with `requires_grad=True`.<sup>[1](#footnote1)</sup>
 Then, if we perform:
 ```python
 mul(c, add(a, b)).sum().backward()
@@ -267,7 +315,7 @@ TODO: computation graph?
 -->
 
 
-# Exercises
+## Exercises
 
 **Note**: For all the exercises, you can use the functions already provided in
 PyTorch in the forward computation.  For instance, in the `sum` exercise below,
@@ -306,3 +354,26 @@ efficient.
 Re-implement `torch.mv` as a custom autograd function.
 
 **WARNING**. This one may be more difficult to solve.
+
+
+## Footnotes
+
+<a name="footnote1">1</a>: Our autograd functions `add` and `mul` do not
+currently handle input arguments with `requires_grad=False`.  Support for such
+cases can be added using the `ctx.needs_input_grad` attribute, for instance:
+```python
+class Addition(Function):
+
+    @staticmethod
+    def forward(ctx, x1: Tensor, x2: Tensor) -> Tensor:
+        y = x1 + x2
+        return y
+
+    @staticmethod
+    def backward(ctx, dzdy: Tensor) -> Tuple[Tensor, Tensor]:
+        r1, r2 = ctx.needs_input_grad
+        return dzdy if r1 else None, dzdy if r2 else None
+```
+See [extending
+torch.autograd](https://pytorch.org/docs/master/notes/extending.html#extending-torch-autograd)
+for more information.

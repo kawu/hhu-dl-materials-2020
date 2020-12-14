@@ -167,9 +167,9 @@ class SimpleLSTM(nn.Module):
     def __init__(self, inp_size: int, out_size: int):
         super().__init__()
         # Initial ,,hidden state''
-        self.h0 = torch.randn(out_size).view(1, -1)
+        self.h0 = nn.Parameter(torch.randn(out_size).view(1, -1))
         # Initial ,,cell state''
-        self.c0 = torch.randn(out_size).view(1, -1)
+        self.c0 = nn.Parameter(torch.randn(out_size).view(1, -1))
         # LSTM computation cell
         self.cell = nn.LSTMCell(input_size=inp_size, hidden_size=out_size)
 

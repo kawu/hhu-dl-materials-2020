@@ -36,11 +36,10 @@ https://pytorch.org/tutorials/beginner/examples_autograd/two_layer_net_custom_fu
 
 ### Preparation
 
-The commands and code fragments shown below are intended to be used
-iteractivelly in the Python interpreter.
 <!-- 
-The code for this session can be also found in the [backprop.py](backprop.py)
-file.
+The commands and code fragments shown below are intended to be used
+iteractivelly in the Python interpreter.  The code for this session can be also
+found in the [backprop.py](backprop.py) file.
 -->
 
 We will use the following preamble:

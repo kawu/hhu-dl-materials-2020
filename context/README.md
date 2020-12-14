@@ -7,6 +7,7 @@ The code developed during the session will be placed in
 <!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
 
 
+- [Changelog](#changelog)
 - [Dataset](#dataset)
 - [Baseline](#baseline)
 - [Accuracy](#accuracy)
@@ -16,9 +17,15 @@ The code developed during the session will be placed in
   - [LSTM](#lstm)
   - [Comparative example: Convolution](#comparative-example-convolution)
   - [For the record: Transformer](#for-the-record-transformer)
+- [Digression: In-place modification of input tensors](#digression-in-place-modification-of-input-tensors)
 - [Footnotes](#footnotes)
 
 <!-- END doctoc generated TOC please keep comment here to allow auto update -->
+
+## Changelog
+
+**14/12/2020**:
+* Add digression about [in-place modification of input tensors](#digression-in-place-modification-of-input-tensors)
 
 ## Dataset
 

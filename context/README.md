@@ -61,7 +61,7 @@ import torch.nn as nn
 
 baseline = nn.Sequential(
     nn.Embedding(data.word_enc.size(), 10),
-    nn.Linear(10, data.tag_enc.size())
+    nn.Linear(10, pos_enc.size())
 )
 ```
 
@@ -339,6 +339,55 @@ and
 [nn.TransformerEncoder](https://pytorch.org/docs/1.6.0/generated/torch.nn.TransformerEncoder.html?highlight=transformerencoder#torch.nn.TransformerEncoder)
 modules can be used to this end.  As this is a more advanced topic, we will get
 back to it later.
+
+
+## Digression: In-place modification of input tensors
+
+It is sometimes possible and/or natural to modify the input argument(s) of a
+tensor operation in-place (cf. the [5th
+homework](https://github.com/kawu/hhu-dl-materials-2020/blob/main/homeworks/5/ex2.py)).
+* **Advantage**: Decreased memory usage
+* **Disadvantage**: In certain situations, in-place modification will simply
+  break your code
+
+*Situation 1*: Try to modify the `Replace` module (see
+[modules.py](modules.py)) to make it modify the input tensor in-place.  Will
+the baseline model with random replacement of word indices (for the sake of OOV
+words) still work?
+```python
+baseline = nn.Sequential(
+    Replace(p=0.1, ix=word_enc.size()),
+    nn.Embedding(word_enc.size()+1, 10, padding_idx=word_enc.size()),
+    nn.Linear(10, pos_enc.size())
+)
+```
+
+*Situation 2*: Consider the following model, in which (i) the score is an
+average of the results of two linear scoring components, and (ii) each linear
+scoring component is preceded by
+[nn.Dropout](https://pytorch.org/docs/1.6.0/generated/torch.nn.Dropout.html?highlight=dropout#torch.nn.Dropout).
+```python
+class Avg(nn.Module):
+    def __init__(self, m1: nn.Module, m2: nn.Module):
+        super().__init__()
+        self.m1 = m1
+        self.m2 = m2
+    def forward(self, x):
+        return (self.m1(x) + self.m2(x)) / 2
+
+
+mk_scorer = lambda: nn.Sequential(
+    nn.Dropout(p=0.5, inplace=True),
+    nn.Linear(10, pos_enc.size())
+)
+
+baseline = nn.Sequential(
+    Replace(p=0.1, ix=word_enc.size()),
+    nn.Embedding(word_enc.size()+1, 10, padding_idx=word_enc.size()),
+    Avg(mk_scorer(), mk_scorer()),
+)
+```
+Try to train it on our POS tagging dataset.  Why doesn't it work?
 
 
 ## Footnotes

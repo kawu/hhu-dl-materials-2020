@@ -15,14 +15,15 @@ necessary, for instance:
 * Automatically derived backward calculation may be not optimal for certain
   combinations of neural functions
 
+### Table of Contents
+
 <!-- START doctoc generated TOC please keep comment here to allow auto update -->
 <!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
 
-### Table of Contents
 
 - [Useful links](#useful-links)
-- [Preparation](#preparation)
 - [Examples](#examples)
+  - [Preparation](#preparation)
   - [Addition](#addition)
   - [Product](#product)
   - [Composition](#composition)

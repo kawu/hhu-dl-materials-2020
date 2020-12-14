@@ -54,7 +54,9 @@ https://pytorch.org/tutorials/beginner/examples_autograd/two_layer_net_custom_fu
 -->
 
 
-## Preparation
+## Examples
+
+### Preparation
 
 <!-- 
 The commands and code fragments shown below are intended to be used
@@ -77,9 +79,6 @@ autograd functions in PyTorch.
 <!---
 However, you may want to perform the exercises below iteractivelly in IPython.
 -->
-
-
-## Examples
 
 ### Addition
 

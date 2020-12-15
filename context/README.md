@@ -360,11 +360,10 @@ the cat*, the construction of the contextualised embedding for the word
 *scared* will (a priori) consider the words *dog*, *scared*, and *the* as
 equally important.
 
-**Note**: While convolution can be in principle very useful in some
-(more-or-less sequential) tagging tasks (e.g., named entity recognition,
-multiword expression identification), it is also often used for feature
-extraction for [text classification
-tasks](https://cezannec.github.io/CNN_Text_Classification/).
+**Note**: While convolution can be in principle useful in some (more-or-less
+sequential) tagging tasks (e.g., named entity recognition, multiword expression
+identification), it is also often used for feature extraction for [text
+classification tasks](https://cezannec.github.io/CNN_Text_Classification/).
 
 **Exercise**: Replace the LSTM module with the Convolution module as the
 contextualisation layer and check how this impacts (a) the final accuracy and

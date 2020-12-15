@@ -359,6 +359,9 @@ differently, if the kernel size is 3 and the input sentence is *a dog scared
 the cat*, the construction of the contextualised embedding for the word
 *scared* will (a priori) consider the words *dog*, *scared*, and *the* as
 equally important.
+Furthermore, the POS tags assigned to the individual words are *conditionally
+independent* given the input embeddings in case of convolution, while in case
+RNN they are not.
 
 **Note**: While convolution can be in principle useful in some (more-or-less
 sequential) tagging tasks (e.g., named entity recognition, multiword expression

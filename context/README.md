@@ -24,6 +24,9 @@ The code developed during the session will be placed in
 
 ## Changelog
 
+**15/12/2020**:
+* Add a possible implementation of a BiLSTM (see the [LSTM](#lstm) section)
+
 **14/12/2020**:
 * Add digression about [in-place modification of input tensors](#digression-in-place-modification-of-input-tensors)
 
@@ -211,6 +214,39 @@ you can obtain better performance on the dev set.
 Have a look at the list of the [nn.LSTM][nn-lstm] module's available
 hyper-parameters.  See if it improves the performance of the model.
 -->
+**Solution**:
+```python
+class SimpleBiLSTM(nn.Module):
+
+    '''Bidirectional LSTM: a combination of a forward and a backward LSTM.
+
+    Type: Tensor[N x Din] -> Tensor[N x Dout], where
+    * `N` is is the length of the input sequence
+    * `Din` is the input embedding size
+    * `Dout` is the output embedding size
+
+    WARNING: the output size is required to be divisible by 2!
+
+    Example:
+
+    >>> lstm = SimpleBiLSTM(3, 6) # input size 3, output size 6
+    >>> xs = torch.randn(10, 3)   # input sequence of length 10
+    >>> ys = lstm(xs)             # equivalent to: lstm.forward(xs)
+    >>> list(ys.shape)
+    [10, 6]
+    '''
+
+    def __init__(self, inp_size: int, out_size: int):
+        super().__init__()
+        assert out_size % 2 == 0, "Output size have to be even"
+        self.f = SimpleLSTM(inp_size, out_size // 2)
+        self.b = SimpleLSTM(inp_size, out_size // 2)
+
+    def forward(self, xs):
+        ys1 = self.f(xs)
+        ys2 = reversed(self.b(reversed(xs)))
+        return torch.cat((ys1, ys2), dim=-1)
+```
 
 In practice, you can use a higher-level [nn.LSTM][nn-lstm] module to integrate a (Bi)LSTM in your PyTorch application.  Here's a
 `nn.Module` which encapsulates the PyTorch's [nn.LSTM][nn-lstm] module

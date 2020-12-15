@@ -17,10 +17,10 @@ enc_train = encode_with(train_data, word_enc, pos_enc)
 enc_dev = encode_with(dev_data, word_enc, pos_enc)
 
 baseline = nn.Sequential(
-    Replace(p=0.1, ix=word_enc.size()),
-    nn.Embedding(word_enc.size()+1, 10, padding_idx=word_enc.size()),
-    # SimpleLSTM(10, 10),
-    nn.Linear(10, pos_enc.size())
+    # Replace(p=0.1, ix=word_enc.size()),
+    nn.Embedding(word_enc.size()+1, 50, padding_idx=word_enc.size()),
+    SimpleBiLSTM(50, 50),
+    nn.Linear(50, pos_enc.size())
 )
 
 def accuracy(model, data):
@@ -69,4 +69,4 @@ print("# Train size =", len(enc_train))
 print("# Dev size =", len(enc_dev))
 
 loss = nn.CrossEntropyLoss()
-train(baseline, enc_train, enc_dev, loss, epoch_num=50, learning_rate=0.00005, report_rate=5)
+train(baseline, enc_train, enc_dev, loss, epoch_num=10, learning_rate=0.00005, report_rate=1)

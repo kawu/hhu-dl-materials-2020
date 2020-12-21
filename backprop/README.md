@@ -290,7 +290,7 @@ assert (diff  < 1e-7).all()
 As we can combine neural functions and modules, the underlying forward and
 backward methods compose as well.
 
-Let `a`, `b` and `c` be tensors of the same shape (scalar tensors in the
+Let `a`, `b` and `c` be float tensors of the same shape (scalar tensors in the
 simplest case), with `requires_grad=True`.<sup>[3](#footnote3)</sup>
 Then, if we perform:
 ```python
@@ -319,10 +319,10 @@ TODO: computation graph?
 
 ## Exercises
 
-**Note**: For all the exercises, you can use the functions already provided in
-PyTorch in the forward computation.  For instance, in the `sum` exercise below,
-you can use `torch.sum` in the `forward` method.  We focus here on the
-implementations of the `backward` methods.
+**Note**: For all the exercises, you can use the *forward variants* of the
+functions/methods already provided by PyTorch.  For instance, in the `sum`
+exercise below, you can use `torch.sum` in the `forward` method.  We focus here
+on the implementations of the `backward` methods.
 
 <!--
 **Note**: To solve some of the exercises below, you may need primitive
@@ -333,6 +333,8 @@ functions from the PyTorch library that we didn't use yet.
 
 Re-implement `torch.sum` as a custom autograd function.  Verify that the
 backpropagation results are the same as with the `torch.sum` function.
+
+**Hint**: To obtain a concise solution, *broadcasting* may turn out useful.
 
 ### Sigmoid
 
@@ -346,17 +348,19 @@ form](https://math.stackexchange.com/questions/78575/derivative-of-sigmoid-funct
 
 Re-implement `torch.dot` as a custom autograd function.
 
-**Hint**: it may be simpler to first express the dot product as a composition
-of two more primitive functions and implement their autograd variants instead.
-However, the dot product implemented as a primitive autograd function is more
+**Hint**: You can either represent dot product as a composition of two more
+primitive functions and implement their autograd variants instead.  However,
+the dot product implemented as a primitive autograd function may be more
 efficient.
 
 ### Matrix-vector product
 
 Re-implement `torch.mv` as a custom autograd function.
 
-**WARNING**. This one may be more difficult to solve.
-
+**Hint**. Use the multivariate chaine rule to solve this exercise on paper
+first (you should actually do the calculations on paper first for other
+exercises, too; the matrix-vector product exercise is simply more difficult to
+solve, especially without proper preparations).
 
 ## Footnotes
 

@@ -365,9 +365,13 @@ solve, especially without proper preparations).
 ## Footnotes
 
 <a name="footnote1">1</a>: Note that the addition operation (`x + y`) is
-already backpropagation-enabled.  The corresponding backward method is
-overridden, though.  You can make sure about that by using `torch.no_grad()` in
-the `forward` method.
+already backpropagation-enabled.  However, both autograd methods (`forward` and
+`backward`) work in a setting where the gradient calculation is disabled (cf.
+`torch.no_grad()`).
+<!--
+You can verify that by checking that no gradients are calculated in those two
+methods.
+-->
 
 <a name="footnote2">2</a>: To show this formally, use the multivariate chaine
 rule, which leads to the same formula as in the scalar case due to the

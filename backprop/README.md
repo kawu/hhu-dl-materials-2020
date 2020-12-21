@@ -91,23 +91,23 @@ implemenations work as intended.
 class Addition(Function):
 
     @staticmethod
-    def forward(ctx, x1: Tensor, x2: Tensor) -> Tensor:
-        y = x1 + x2
-        return y
-        
+    def forward(ctx, x: Tensor, y: Tensor) -> Tensor:
+        z = x + y
+        return z
+
     @staticmethod
-    def backward(ctx, dzdy: Tensor) -> Tuple[Tensor, Tensor]:
-        return dzdy, dzdy
+    def backward(ctx, dldz: Tensor) -> Tuple[Tensor, Tensor]:
+        return dldz, dldz
 ```
-In the `forward` pass, we receive two tensors that we want to add together:
-`x1` and `x2`.  To get the result of the forward method, we simply add them and
-return the result.
+In the `forward` pass, we receive two tensors that we want to add together: `x`
+and `y`.  To get the result of the forward method, we simply add them and
+return the result.<sup>[1](#footnote1)</sup>
 
 In the `backward` pass we receive a Tensor containing the gradient of the loss
-`z` (whatever it is!) w.r.t the addition result `y`.  We call it `dzdy`.  Now,
-we need to calculate the gradients for `x1` and `x2` and return them as a
+`l` (whatever it is!) w.r.t the addition result `z`.  We call it `dldz`.  Now,
+we need to calculate the gradients for `x` and `y` and return them as a
 tuple, in the same order as in the `forward` method.  Using the chain rule, we
-can determine that this is just `dzdy` for both `x1` and `x2` (take a moment to
+can determine that this is just `dldz` for both `x` and `y` (take a moment to
 verify this!).
 
 The addition function is now available via `Addition.apply`.  For brevity, it
@@ -157,31 +157,31 @@ assert (y1.grad == y2.grad).all()
 
 Let's take another example: element-wise product (multiplication).  Using the
 chain rule, we can determine that:
-* `dz/dx1` = `dz/dy * x2`
-* `dz/dx2` = `dz/dy * x1`
+* `dl/dx` = `dl/dz * y`
+* `dl/dy` = `dl/dz * x`
 
-In contrast with addition, to determine the partial derivatives `dz/dx1` and
-`dz/dx2`, we need to have access to `x2` and `x1`, respectively, even though
-they are not arguments of the `backward` method.
+In contrast with addition, to determine the partial derivatives `dl/dx` and
+`dl/dy`, we need to have access to `y` and `x`, respectively, even though they
+are not arguments of the `backward` method.
 
 In the `forward` and `backward` methods, `ctx` is a context object that can be
 used to stash information for the backward computation.  You can cache
 arbitrary objects for use in the backward pass using the
-`ctx.save_for_backward` method.  In our case, we can use it to stash `x1` and
-`x2`:
+`ctx.save_for_backward` method.  In our case, we can use it to stash `x` and
+`y`:
 ```python
 class Product(Function):
 
     @staticmethod
-    def forward(ctx, x1: Tensor, x2: Tensor) -> Tensor:
-        y = x1 * x2
-        ctx.save_for_backward(x1, x2)
-        return y
+    def forward(ctx, x: Tensor, y: Tensor) -> Tensor:
+        z = x * y
+        ctx.save_for_backward(x, y)
+        return z
 
     @staticmethod
-    def backward(ctx, dzdy: Tensor) -> Tuple[Tensor, Tensor]:
-        x1, x2 = ctx.saved_tensors
-        return dzdy*x2, dzdy*x1
+    def backward(ctx, dldz: Tensor) -> Tuple[Tensor, Tensor]:
+        x, y = ctx.saved_tensors
+        return dldz*y, dldz*x
 
 mul = Product.apply
 ```
@@ -290,7 +290,7 @@ As we can combine neural functions and modules, the underlying forward and
 backward methods compose as well.
 
 Let `a`, `b` and `c` be tensors of the same shape (scalar tensors in the
-simplest case), with `requires_grad=True`.<sup>[1](#footnote1)</sup>
+simplest case), with `requires_grad=True`.<sup>[2](#footnote2)</sup>
 Then, if we perform:
 ```python
 mul(c, add(a, b)).sum().backward()
@@ -359,7 +359,12 @@ Re-implement `torch.mv` as a custom autograd function.
 
 ## Footnotes
 
-<a name="footnote1">1</a>: Our autograd functions `add` and `mul` do not
+<a name="footnote1">1</a>: Note that the addition operation (`x + y`) is
+already backpropagation-enabled.  The corresponding backward method is
+overridden, though.  You can make sure about that by using `torch.no_grad()` in
+the `forward` method.
+
+<a name="footnote2">2</a>: Our autograd functions `add` and `mul` do not
 currently handle input arguments with `requires_grad=False`.  Support for such
 cases can be added using the `ctx.needs_input_grad` attribute, for instance:
 ```python

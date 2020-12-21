@@ -138,7 +138,8 @@ assert y1.grad == y2.grad
 ```
 
 The nice part is that, since addition is element-wise, this should work also
-for complex tensors, and not only for one-element tensors!  Let's see:
+for complex tensors, and not only for one-element
+tensors!<sup>[2](#footnote2)</sup>  Let's see:
 ```python
 x1 = torch.randn(3, 3, requires_grad=True)
 y1 = torch.randn(3, 3, requires_grad=True)
@@ -290,7 +291,7 @@ As we can combine neural functions and modules, the underlying forward and
 backward methods compose as well.
 
 Let `a`, `b` and `c` be tensors of the same shape (scalar tensors in the
-simplest case), with `requires_grad=True`.<sup>[2](#footnote2)</sup>
+simplest case), with `requires_grad=True`.<sup>[3](#footnote3)</sup>
 Then, if we perform:
 ```python
 mul(c, add(a, b)).sum().backward()
@@ -364,7 +365,11 @@ already backpropagation-enabled.  The corresponding backward method is
 overridden, though.  You can make sure about that by using `torch.no_grad()` in
 the `forward` method.
 
-<a name="footnote2">2</a>: Our autograd functions `add` and `mul` do not
+<a name="footnote2">2</a>: To show this formally, use the multivariate chaine
+rule, which leads to the same formula as in the scalar case due to the
+element-wise nature of the operation.
+
+<a name="footnote3">3</a>: Our autograd functions `add` and `mul` do not
 currently handle input arguments with `requires_grad=False`.  Support for such
 cases can be added using the `ctx.needs_input_grad` attribute, for instance:
 ```python

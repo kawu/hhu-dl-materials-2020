@@ -257,7 +257,7 @@ this setting, as mentioned before (**TODO**).
 To benefit from the LSTM's parallelization capabilities, we have to apply it to
 all the words in a sentence in parallel<sup>[1](#footnote1)</sup>.  This can be
 achieved by using `PackedSequence`s, for example: 
-```
+```python
 class MapLSTM(nn.Module):
     """Variant of SimpleLSTM which works with packed sequence representations.
 

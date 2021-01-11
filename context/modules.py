@@ -13,25 +13,30 @@ class Replace(nn.Module):
     Create the module with replacement probability 0.5 and the special
     index equal to 5
     >>> frg = Replace(p=0.5, ix=5)
+
     Check if the module preserves the shape of the input matrix
     >>> x = torch.tensor([0, 1, 0, 3, 4, 2, 3])
     >>> frg(x).shape == x.shape
     True
+
     When `p` is set to 0, the module should behave as an identity function
     >>> frg = Replace(p=0.0, ix=5)
     >>> (frg(x) == x).all().item()
     True
+
     When `p` is set to 1, all values in the input tensor should
     be replaced by `ix`
     >>> frg = Replace(p=1.0, ix=5)
     >>> (frg(x) == 5).all().item()
     True
+
     In the evaluation mode, the module should also behave as an identity,
     whatever the probability `p`
     >>> frg = Replace(p=0.5, ix=5)
     >>> _ = frg.eval()
     >>> (frg(x) == x).all().item()
     True
+
     Make sure the module is actually non-deterministic and returns
     different results for different applications
     >>> frg = Replace(p=0.5, ix=5)
@@ -40,6 +45,7 @@ class Replace(nn.Module):
     >>> for _ in range(1000):
     ...     results.add(frg(x))
     >>> assert len(results) > 100
+
     See if the number of special index values the resulting tensor
     contains on average is actually close to 0.5 * len(x)
     >>> special_ix_num = [(y == 5).sum().item() for y in results]
@@ -154,6 +160,26 @@ class SimpleConv(nn.Module):
 
     The embedding size, often called the number of ,,channels'' in the context
     of convolution, can change (as specified by the hyper-parameters).
+
+    Property 1. A 1-dimensional convolution with kernel size 1 is equivalent to
+    a linear transformation:
+
+    # Create a convolution and a linear layer...
+    >>> c = SimpleConv(5, 5, kernel_size=1)
+    >>> l = nn.Linear(5, 5)
+
+    # ...sharing the same parameter values
+    >>> l.weight.data = c.conv.weight.data.squeeze(2)
+    >>> l.bias.data = c.conv.bias.data
+
+    # Create a sample input tensor of length 3
+    >>> x = torch.randn(3, 5)
+
+    # Apply the convolution and the linear layer and make sure the results are
+    # sufficiently close to each other
+    >>> diff = torch.abs(c(x) - l(x))
+    >>> (diff < 1e-5).all().item()
+    True
     """
 
     def __init__(self, inp_size: int, out_size: int, kernel_size=1):

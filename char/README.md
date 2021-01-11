@@ -9,6 +9,17 @@ character-based LSTM (or convolution) to capture word representations.
 <!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
 
 
+- [Encoding characters](#encoding-characters)
+  - [Implementation](#implementation)
+  - [Example](#example)
+- [Embedding characters](#embedding-characters)
+- [From characters to words](#from-characters-to-words)
+  - [CBOW](#cbow)
+  - [LSTM](#lstm)
+    - [Optimization](#optimization)
+  - [Convolution](#convolution)
+- [Footnotes](#footnotes)
+
 <!-- END doctoc generated TOC please keep comment here to allow auto update -->
 
 <!--
@@ -16,7 +27,7 @@ character-based LSTM (or convolution) to capture word representations.
 -->
 
 
-## Embedding characters
+## Encoding characters
 
 First you can introduce a new type for characters in `data.py`:
 ```python
@@ -242,8 +253,8 @@ model = nn.Sequential(
 )
 ```
 Training this model on the training should also bring perceptible performance
-improvements (accuracy of `~90%` vs. previous `~88-89%`), provided that you
-take enough time and epochs to train it...
+improvements (accuracy of `~90%` vs. `~88-89%` achieved previously), provided
+that you take enough time and epochs to train it...
 
 **TODO**: Make sure about the accuracy improvements!
 
@@ -251,12 +262,12 @@ take enough time and epochs to train it...
 
 At this point the code will have become quite sluggish.  One of the reasons is
 that we apply an LSTM to each word in a sentence separately (that's what
-`Map(SimpleLSTM(...))` basically means) and it doesn't parallelize well in
-this setting, as mentioned before (**TODO**).
+`Map(SimpleLSTM(...))` basically means) and it doesn't parallelize well in this
+setting, as mentioned before.
 
 To benefit from the LSTM's parallelization capabilities, we have to apply it to
 all the words in a sentence in parallel<sup>[1](#footnote1)</sup>.  This can be
-achieved by using `PackedSequence`s, for example: 
+achieved by using `PackedSequence`s, like this for example:
 ```python
 class MapLSTM(nn.Module):
     """Variant of SimpleLSTM which works with packed sequence representations.
@@ -299,10 +310,31 @@ model = nn.Sequential(
 
 ### Convolution
 
-**TODO**: Use 1d convolution instead of LSTM to obtain word representations.
-TODO: use max rather than CBOW to aggregate the feature representations of a
-word, as described in this **TODO**: blog post.
+We can also use 1d convolution instead of LSTM to obtain word representations.
+Let's use *maxpooling* (as described [here][maxpool]) instead of CBOW on top of
+the feature vectors extracted by the convolution module.  Maxpooling means here
+we take the maximum value along each dimension of the feature space (just as
+CBOW simply means we take the sum, or average, along each dimension).
+```python
+class MaxPool(nn.Module):
+    def forward(self, xs):
+        return torch.max(xs, dim=0).values
 
+model = nn.Sequential(
+    Map(nn.Embedding(char_enc.size()+1, 200, padding_idx=char_enc.size())),
+    Map(SimpleConv(200, 200, kernel_size=5)),
+    Map(MaxPool()),
+    SimpleBiLSTM(200, 200),
+    nn.Linear(200, pos_enc.size())
+)
+```
+
+<!--
+#### Optimization
+
+Just as with LSTM, it is faster (although theoretically equicalent) to process
+all the words in a sentence in parallel with the convolution module.
+-->
 
 ## Footnotes
 
@@ -312,8 +344,8 @@ enables this possibility (but also requires significant changes in the code)
 later on.
 
 
-
 [context]: https://github.com/kawu/hhu-dl-materials-2020/tree/main/context#contextualisation "Contextualization"
+[maxpool]: https://cezannec.github.io/CNN_Text_Classification/#maxpooling-over-time "Maxpooling"
 <!--
 [linear]: https://pytorch.org/docs/1.6.0/generated/torch.nn.Linear.html?highlight=linear#torch.nn.Linear "Linear nn.Module"
 [UD_English-ParTUT]: https://user.phil.hhu.de/~waszczuk/teaching/hhu-dl-wi20/data/UD_English-ParTUT.zip "UD_English-ParTUT sample dataset"

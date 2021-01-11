@@ -1,9 +1,9 @@
 # Character-level modeling
 
 This documents summarizes the modifications in the [POS tagging code][context]
-required to make use of character-level modeling.  Instead of (or in addition
-to) embedding entire words, we will embed characters, and use a word-level
-character-based LSTM (or convolution) to capture word representations.
+required to make use of character-level modeling.  Instead of embedding entire
+words, we will embed characters, and use a word-level character-based LSTM (or
+convolution) to capture word representations.
 
 <!-- START doctoc generated TOC please keep comment here to allow auto update -->
 <!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
@@ -29,14 +29,14 @@ character-based LSTM (or convolution) to capture word representations.
 
 ## Encoding characters
 
-First you can introduce a new type for characters in `data.py`:
+First let's introduce a new type to represent characters in `data.py`:
 ```python
 # Single character
 Char = NewType('Char', str)
 ```
-The next step is to replace the word-\>embedding encoders with
-character-\>embedding encoders in `data.py`.  Put differently, you should
-implement functions with the following types:
+The next step is to replace the word&#8594;index encoders with
+character&#8594;index encoders in `data.py`.  Put differently, we need to
+implement encoding-related functions with the following types:
 ```python
 def create_encoders(
     data: List[Tuple[Inp, Out]]
@@ -95,12 +95,12 @@ def encode_with(
 
 **Note**: It may be tempting to make `encode_with` return a list of tensor
 pairs (`List[Tuple[Tensor, Tensor]]`), but that's actually not possible since
-each word has a different length, so we cannot `torch.stack` their tensor
+each word has a different length, so we cannot `torch.stack` the words' tensor
 representations easily (see below).
 
 ### Example
 
-You can now test the encoding implementation:
+We can now test the encoding implementation:
 ```python
 # Parse the training data and create the character/POS encoders
 train_data = parse_and_extract("UD_English-ParTUT/en_partut-ud-train.conllu")
@@ -131,7 +131,7 @@ for word, enc_word in zip(train_data[0][0], enc_train[0][0]):
 
 ## Embedding characters
 
-You can now adapt the implementation of the neural model by taking care of the
+We can now adapt the implementation of the neural model by taking care of the
 following two points:
 * Each word is now represented as a tensor of character indices rather than a
   word index; we need to adapt the embedding functionality to account for that
@@ -139,7 +139,7 @@ following two points:
   rather than a vector tensor; so we will need one additional module to
   transform character vector representations to word representations
 
-To handle the first point in a simple and modular way, you can introduce the
+To handle the first point in a simple and modular way, we can introduce the
 following ,,higher-order'' mapping module:
 ```python
 class Map(nn.Module):
@@ -153,7 +153,7 @@ class Map(nn.Module):
             ys.append(self.f(x))
         return ys
 ```
-Example of its usage in combination with character-level embeddings:
+Here's an example of its usage in combination with character-level embeddings:
 ```python
 import torch.nn as nn
 
@@ -188,13 +188,13 @@ assert (ys[0] == emb(enc_train[0][0][0])).all()
 
 Each word in the current architecture is represented as a tensor matrix, with
 one row vector per character.  To plug this in the remaining of the existing
-architecture for POS tagging we need to cast the current word representasions
+architecture for POS tagging we need to cast the word representations
 (matrices) to word embeddings (vectors).  We already know several techniques
 which allow for that: CBOW, LSTM, and convolution.
 
 ### CBOW
 
-The simplest choice -- perhaps overly simlistic, but satisfying all our
+The simplest choice -- perhaps overly simplistic, but satisfying all our
 interface constraints -- is CBOW, in which the character-level vectors are
 summed up to generate the word level representations.  Let's call the
 corresponding module `Sum` for a change:
@@ -203,9 +203,9 @@ class Sum(nn.Module):
     def forward(self, m: torch.Tensor) -> torch.Tensor:
         return torch.sum(m, dim=0)
 ```
-Since, in constrast with what we were doing before, we want to apply it at the
+Since, in contrast with what we were doing before, we want to apply it at the
 level of words and not entire sentences, we need to use `Map` to integrate it
-in the remaining architecture:
+with the remaining architecture:
 ```python
 model = nn.Sequential(
     Map(nn.Embedding(char_enc.size()+1, 10, padding_idx=char_enc.size())),
@@ -225,15 +225,13 @@ model = nn.Sequential(
     nn.Linear(10, pos_enc.size())
 )
 ```
-You can now fill in the remaining pieces (accuracy function, training
-procedure, etc. -- everything as it was before) and try to train an actual
-model.
+We can now fill in the remaining pieces (accuracy function, training procedure,
+etc. -- everything as it was before) and try to train an actual model.
 
 ### LSTM
 
-To use our `SimpleLSTM` (with hidden/output size of 50) instead of CBOW, we
-take the last output vector of a unidirectional LSTM as the representation of a
-word:
+To use our `SimpleLSTM` instead of CBOW, we take the last output vector of a
+unidirectional LSTM as the representation of a word:
 ```python
 class Apply(nn.Module):
     def __init__(self, f):
@@ -252,9 +250,9 @@ model = nn.Sequential(
     nn.Linear(200, pos_enc.size())
 )
 ```
-Training this model on the training should also bring perceptible performance
-improvements (accuracy of `~90%` vs. `~88-89%` achieved previously), provided
-that you take enough time and epochs to train it...
+Training this model should also bring perceptible accuracy improvements (`~90%`
+vs. `~88-89%` achieved previously on the dev set), provided that we take enough
+time and epochs.
 
 **TODO**: Make sure about the accuracy improvements!
 
@@ -267,7 +265,7 @@ setting, as mentioned before.
 
 To benefit from the LSTM's parallelization capabilities, we have to apply it to
 all the words in a sentence in parallel<sup>[1](#footnote1)</sup>.  This can be
-achieved by using `PackedSequence`s, like this for example:
+achieved by using `PackedSequence`s, for example like this:
 ```python
 class MapLSTM(nn.Module):
     """Variant of SimpleLSTM which works with packed sequence representations.
@@ -313,8 +311,8 @@ model = nn.Sequential(
 We can also use 1d convolution instead of LSTM to obtain word representations.
 Let's use *maxpooling* (as described [here][maxpool]) instead of CBOW on top of
 the feature vectors extracted by the convolution module.  Maxpooling means here
-we take the maximum value along each dimension of the feature space (just as
-CBOW simply means we take the sum, or average, along each dimension).
+that we take the maximum value along each dimension of the feature space (just
+as CBOW simply means we take the sum, or average, along each dimension).
 ```python
 class MaxPool(nn.Module):
     def forward(self, xs):
@@ -332,7 +330,7 @@ model = nn.Sequential(
 <!--
 #### Optimization
 
-Just as with LSTM, it is faster (although theoretically equicalent) to process
+Just as with LSTM, it is faster (although theoretically equivalent) to process
 all the words in a sentence in parallel with the convolution module.
 -->
 

@@ -3,9 +3,9 @@
 This documents summarizes the modifications in the [POS tagging code][context]
 required to make use of character-level modeling.  Instead of embedding entire
 words, we will embed characters, and use a word-level character-based LSTM (or
-convolution) to capture word representations. See this paper [this paper, Fig.
-1][cnn-char-paper], for a graphical representation of the idea of extracting
-character-level representations of words.
+convolution) to capture word representations. See for instance this paper [this
+paper (Fig. 1)][cnn-char-paper] for a graphical representation of the idea of
+extracting character-level representations of words.
 
 <!-- START doctoc generated TOC please keep comment here to allow auto update -->
 <!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
@@ -36,8 +36,8 @@ First let's introduce a new type to represent characters in `data.py`:
 # Single character
 Char = NewType('Char', str)
 ```
-The next step is to replace the word&#8594;index encoders with
-character&#8594;index encoders in `data.py`.  Put differently, we need to
+The next step is to replace the word&#8594;index encoding with
+character&#8594;index encoding in `data.py`.  Put differently, we need to
 implement encoding-related functions with the following types:
 ```python
 def create_encoders(

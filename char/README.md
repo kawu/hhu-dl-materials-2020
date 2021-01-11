@@ -3,7 +3,9 @@
 This documents summarizes the modifications in the [POS tagging code][context]
 required to make use of character-level modeling.  Instead of embedding entire
 words, we will embed characters, and use a word-level character-based LSTM (or
-convolution) to capture word representations.
+convolution) to capture word representations. See this paper [this paper, Fig.
+1][cnn-char-paper], for a graphical representation of the idea of extracting
+character-level representations of words.
 
 <!-- START doctoc generated TOC please keep comment here to allow auto update -->
 <!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
@@ -309,10 +311,11 @@ model = nn.Sequential(
 ### Convolution
 
 We can also use 1d convolution instead of LSTM to obtain word representations.
-Let's use *maxpooling* (as described [here][maxpool]) instead of CBOW on top of
-the feature vectors extracted by the convolution module.  Maxpooling means here
-that we take the maximum value along each dimension of the feature space (just
-as CBOW simply means we take the sum, or average, along each dimension).
+Let's use *maxpooling* (as described [here][maxpool] and used in [this
+paper][cnn-char], cf. Fig. 1) instead of CBOW on top of the feature vectors
+extracted by the convolution module.  Maxpooling means here that we take the
+maximum value along each dimension of the feature space (just as CBOW simply
+means we take the sum, or average, along each dimension).
 ```python
 class MaxPool(nn.Module):
     def forward(self, xs):
@@ -344,6 +347,7 @@ later on.
 
 [context]: https://github.com/kawu/hhu-dl-materials-2020/tree/main/context#contextualisation "Contextualization"
 [maxpool]: https://cezannec.github.io/CNN_Text_Classification/#maxpooling-over-time "Maxpooling"
+[cnn-char-paper]: https://www.aclweb.org/anthology/P16-1101.pdf "Paper using the convolution for extracting character-level representations of words"
 <!--
 [linear]: https://pytorch.org/docs/1.6.0/generated/torch.nn.Linear.html?highlight=linear#torch.nn.Linear "Linear nn.Module"
 [UD_English-ParTUT]: https://user.phil.hhu.de/~waszczuk/teaching/hhu-dl-wi20/data/UD_English-ParTUT.zip "UD_English-ParTUT sample dataset"

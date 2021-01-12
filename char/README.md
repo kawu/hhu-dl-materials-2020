@@ -237,7 +237,7 @@ summed up to generate the word level representations.  Let's call the
 corresponding module `Sum` for a change:
 ```python
 class Sum(nn.Module):
-    """Perform torch.sum along the first dimension."""
+    """Perform torch.sum w.r.t the first dimension."""
 
     def forward(self, m: torch.Tensor) -> torch.Tensor:
         return torch.sum(m, dim=0)
@@ -249,8 +249,8 @@ with the remaining architecture:
 model = nn.Sequential(
     Map(nn.Embedding(char_enc.size()+1, 50, padding_idx=char_enc.size())),
     Map(Sum()),
-    SimpleBiLSTM(50, 100),
-    nn.Linear(100, pos_enc.size())
+    SimpleBiLSTM(50, 200),
+    nn.Linear(200, pos_enc.size())
 )
 ```
 Alternatively (and equivalently):
@@ -260,8 +260,8 @@ model = nn.Sequential(
         nn.Embedding(char_enc.size()+1, 50, padding_idx=char_enc.size()),
         Sum(),
     )),
-    SimpleBiLSTM(50, 100),
-    nn.Linear(100, pos_enc.size())
+    SimpleBiLSTM(50, 200),
+    nn.Linear(200, pos_enc.size())
 )
 ```
 We can now fill in the remaining pieces (accuracy function, training procedure,
@@ -285,11 +285,11 @@ class Apply(nn.Module):
 model = nn.Sequential(
     Map(nn.Sequential(
         nn.Embedding(char_enc.size()+1, 50, padding_idx=char_enc.size()),
-        SimpleLSTM(50, 100),
+        SimpleLSTM(50, 200),
         Apply(lambda xs: xs[-1]),
     )),
-    SimpleBiLSTM(100, 100),
-    nn.Linear(100, pos_enc.size())
+    SimpleBiLSTM(200, 200),
+    nn.Linear(200, pos_enc.size())
 )
 ```
 Training this model should also bring perceptible accuracy improvements (`~90%`
@@ -343,10 +343,10 @@ Then:
 ```python
 model = nn.Sequential(
     Map(nn.Embedding(char_enc.size()+1, 50, padding_idx=char_enc.size())),
-    MapLSTM(100, 100),
+    MapLSTM(50, 200),
     Map(Apply(lambda xs: xs[-1])),
-    SimpleBiLSTM(100, 100),
-    nn.Linear(100, pos_enc.size())
+    SimpleBiLSTM(200, 200),
+    nn.Linear(200, pos_enc.size())
 )
 ```
 
@@ -357,18 +357,21 @@ Let's use *maxpooling* (as described [here][maxpool] and used in [this
 paper][cnn-char-paper], see Fig. 1) instead of CBOW on top of the feature
 vectors extracted by the convolution module.  Maxpooling means here that we
 take the maximum value along each dimension of the feature space (just as CBOW
-simply means we take the sum, or average, along each dimension).
+means we take the sum -- or average -- along each dimension of the feature
+space).
 ```python
 class MaxPool(nn.Module):
+    """Perform torch.max w.r.t the first dimension."""
+
     def forward(self, xs):
         return torch.max(xs, dim=0).values
 
 model = nn.Sequential(
     Map(nn.Embedding(char_enc.size()+1, 50, padding_idx=char_enc.size())),
-    Map(SimpleConv(50, 100, kernel_size=5)),
+    Map(SimpleConv(50, 200, kernel_size=5)),
     Map(MaxPool()),
-    SimpleBiLSTM(100, 100),
-    nn.Linear(100, pos_enc.size())
+    SimpleBiLSTM(200, 200),
+    nn.Linear(200, pos_enc.size())
 )
 ```
 

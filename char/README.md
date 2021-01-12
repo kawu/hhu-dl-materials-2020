@@ -292,11 +292,14 @@ model = nn.Sequential(
     nn.Linear(200, pos_enc.size())
 )
 ```
-Training this model should also bring perceptible accuracy improvements (`~90%`
-vs. `~88-89%` achieved previously on the dev set), provided that we take enough
-time and epochs.
-
-**TODO**: Make sure about the accuracy improvements!
+Training this model should also bring perceptible performance improvements
+(accuracy of `~89%` on the dev set, `~90%` with some hyperparameter finetuning,
+vs. `~88%` achieved previously).
+<!--
+Finetuning:
+* change the embedding size to 100 or 200
+* train first with learning rate of 0.00005, then with 0.00001
+-->
 
 #### Optimization
 

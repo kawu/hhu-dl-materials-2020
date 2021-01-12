@@ -14,6 +14,7 @@ extracting character-level representations of words.
 - [Encoding characters](#encoding-characters)
   - [Implementation](#implementation)
   - [Example](#example)
+    - [Padding](#padding)
 - [Embedding characters](#embedding-characters)
 - [From characters to words](#from-characters-to-words)
   - [CBOW](#cbow)
@@ -95,11 +96,6 @@ def encode_with(
     return enc_data
 ```
 
-**Note**: It may be tempting to make `encode_with` return a list of tensor
-pairs (`List[Tuple[Tensor, Tensor]]`), but that's actually not possible since
-each word has a different length, so we cannot `torch.stack` the words' tensor
-representations easily (see below).
-
 ### Example
 
 We can now test the encoding implementation:
@@ -111,9 +107,12 @@ char_enc, pos_enc = create_encoders(train_data)
 # Check encoding on sample characters
 char_enc.encode('a')    # => 15
 char_enc.encode('b')    # => 5
-char_enc.encode('c')    # => ?
+char_enc.encode('c')    # => 12
 
-# Encode the train set and inspect the the first input sentence
+# Encode the train set
+enc_train = encode_with(train_data, char_enc, pos_enc)
+
+# Inspect the first input sentence
 for word, enc_word in zip(train_data[0][0], enc_train[0][0]):
     print(word, "=>", enc_word)
 # => Distribution => tensor([0, 1, 2, 3, 4, 1, 5, 6, 3, 1, 7, 8])
@@ -129,6 +128,23 @@ for word, enc_word in zip(train_data[0][0], enc_train[0][0]):
 # => client => tensor([12, 11,  1, 13,  8,  3])
 # => relationship => tensor([ 4, 13, 11, 15,  3,  1,  7,  8,  2, 10,  1, 18])
 # => . => tensor([19])
+```
+
+#### Padding
+
+It may be tempting to make `encode_with` return a list of tensor pairs
+(`List[Tuple[Tensor, Tensor]]`), but that's actually not trivial since each
+word has a different length, so we cannot `torch.stack` the words' tensor
+representations.  A workaround is to use `pad_sequence`, but then we would need
+to carefully handle the padding value in the rest of the architecture.
+```python
+from torch.nn.utils.rnn import pad_sequence
+pad_sequence(xs, batch_first=True, padding_value=char_enc.size())
+# => tensor([[ 0,  1,  2,  3,  4,  1,  5,  6,  3,  1,  7,  8],
+# =>         [ 7,  9, 99, 99, 99, 99, 99, 99, 99, 99, 99, 99],
+# =>                                ...
+# =>         [ 4, 13, 11, 15,  3,  1,  7,  8,  2, 10,  1, 18],
+# =>         [19, 99, 99, 99, 99, 99, 99, 99, 99, 99, 99, 99]])
 ```
 
 ## Embedding characters
@@ -348,6 +364,7 @@ later on.
 [context]: https://github.com/kawu/hhu-dl-materials-2020/tree/main/context#contextualisation "Contextualization"
 [maxpool]: https://cezannec.github.io/CNN_Text_Classification/#maxpooling-over-time "Maxpooling"
 [cnn-char-paper]: https://www.aclweb.org/anthology/P16-1101.pdf "Paper using the convolution for extracting character-level representations of words"
+[pad-sequence]: https://pytorch.org/docs/1.6.0/generated/torch.nn.utils.rnn.pad_sequence.html?highlight=pad#torch.nn.utils.rnn.pad_sequence "Padding function"
 <!--
 [linear]: https://pytorch.org/docs/1.6.0/generated/torch.nn.Linear.html?highlight=linear#torch.nn.Linear "Linear nn.Module"
 [UD_English-ParTUT]: https://user.phil.hhu.de/~waszczuk/teaching/hhu-dl-wi20/data/UD_English-ParTUT.zip "UD_English-ParTUT sample dataset"

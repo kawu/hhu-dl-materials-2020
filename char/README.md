@@ -352,10 +352,10 @@ model = nn.Sequential(
 
 We can also use 1d convolution instead of LSTM to obtain word representations.
 Let's use *maxpooling* (as described [here][maxpool] and used in [this
-paper][cnn-char], cf. Fig. 1) instead of CBOW on top of the feature vectors
-extracted by the convolution module.  Maxpooling means here that we take the
-maximum value along each dimension of the feature space (just as CBOW simply
-means we take the sum, or average, along each dimension).
+paper][cnn-char-paper], see Fig. 1) instead of CBOW on top of the feature
+vectors extracted by the convolution module.  Maxpooling means here that we
+take the maximum value along each dimension of the feature space (just as CBOW
+simply means we take the sum, or average, along each dimension).
 ```python
 class MaxPool(nn.Module):
     def forward(self, xs):

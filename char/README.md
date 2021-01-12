@@ -152,20 +152,38 @@ pad_sequence(xs, batch_first=True, padding_value=char_enc.size())
 
 We can now adapt the implementation of the neural model by taking care of the
 following two points:
-* Each word is now represented as a tensor of character indices rather than a
-  word index; we need to adapt the embedding functionality to account for that
+* An input sentence is represented by a list of index tensors (one per word)
+  rather than a single index tensor; we need to adapt the embedding
+  functionality to account for that
 * Once we embed characters, each word will be represented by a matrix tensor
   rather than a vector tensor; so we will need one additional module to
   transform character vector representations to word representations
 
-To handle the first point in a simple and modular way, we can introduce the
+Concerning the first point, it is not possible to use the PyTorch
+`nn.Embedding` module with lists -- the argument must be a tensor.
+```python
+import torch.nn as nn
+
+# Create the neural embedding module
+emb = nn.Embedding(char_enc.size()+1, 10, padding_idx=char_enc.size())
+
+# Try to apply it to the first input sentence
+xs  # => [tensor([0, 1, 2, 3, 4, 1, 5, 6, 3, 1, 7, 8]), ..., tensor([19])]
+emb(xs)
+# => Traceback (most recent call last):
+# =>                    ...
+# => TypeError: embedding(): argument 'indices' (position 2) must be Tensor, not list
+```
+To handle this issue in a simple and modular way, we can introduce the
 following ,,higher-order'' mapping module:
 ```python
 class Map(nn.Module):
     """Apply a given module to each element in the list."""
+
     def __init__(self, f: nn.Module):
         super().__init__()
         self.f = f
+
     def forward(self, xs):
         ys = []
         for x in xs:
@@ -174,21 +192,19 @@ class Map(nn.Module):
 ```
 Here's an example of its usage in combination with character-level embeddings:
 ```python
-import torch.nn as nn
-
 # Create the embedding-related modules
 emb = nn.Embedding(char_enc.size()+1, 10, padding_idx=char_enc.size())
 map_emb = Map(emb)
 
-# Embeddings for "Distribution"
-emb(enc_train[0][0][0])
+# Embeddings for the word "Distribution"
+emb(xs[0])
 # => tensor([[ 1.5856, -1.2990,  0.5764, -1.2626, -1.2547],
 # =>                            ...
 # =>         [-1.0666,  0.0630, -0.8407, -0.4462, -0.9036]],
 # =>        grad_fn=<EmbeddingBackward>)
 
-# Embeddings for all word in the first input sentence
-ys = map_emb(enc_train[0][0])
+# Embeddings for all words in the first input sentence
+ys = map_emb(xs)
 type(ys)
 # => <class 'list'>
 type(ys[0])
@@ -200,7 +216,7 @@ ys[0]
 # =>                            ...
 # =>         [-1.0666,  0.0630, -0.8407, -0.4462, -0.9036]],
 # =>        grad_fn=<EmbeddingBackward>)
-assert (ys[0] == emb(enc_train[0][0][0])).all()
+assert (ys[0] == emb(xs[0])).all()
 ```
 
 ## From characters to words

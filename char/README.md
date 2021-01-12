@@ -139,6 +139,7 @@ representations.  A workaround is to use `pad_sequence`, but then we would need
 to carefully handle the padding value in the rest of the architecture.
 ```python
 from torch.nn.utils.rnn import pad_sequence
+xs = [enc_word for enc_word in enc_train[0][0]]
 pad_sequence(xs, batch_first=True, padding_value=char_enc.size())
 # => tensor([[ 0,  1,  2,  3,  4,  1,  5,  6,  3,  1,  7,  8],
 # =>         [ 7,  9, 99, 99, 99, 99, 99, 99, 99, 99, 99, 99],

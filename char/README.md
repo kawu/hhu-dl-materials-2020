@@ -100,6 +100,10 @@ def encode_with(
 
 We can now test the encoding implementation:
 ```python
+# PyTorch modules
+import torch
+import torch.nn as nn
+
 # Parse the training data and create the character/POS encoders
 train_data = parse_and_extract("UD_English-ParTUT/en_partut-ud-train.conllu")
 char_enc, pos_enc = create_encoders(train_data)
@@ -162,8 +166,6 @@ following two points:
 Concerning the first point, it is not possible to use the PyTorch
 `nn.Embedding` module with lists -- the argument must be a tensor.
 ```python
-import torch.nn as nn
-
 # Create the neural embedding module
 emb = nn.Embedding(char_enc.size()+1, 10, padding_idx=char_enc.size())
 
@@ -235,6 +237,8 @@ summed up to generate the word level representations.  Let's call the
 corresponding module `Sum` for a change:
 ```python
 class Sum(nn.Module):
+    """Perform torch.sum along the first dimension."""
+
     def forward(self, m: torch.Tensor) -> torch.Tensor:
         return torch.sum(m, dim=0)
 ```
@@ -243,21 +247,21 @@ level of words and not entire sentences, we need to use `Map` to integrate it
 with the remaining architecture:
 ```python
 model = nn.Sequential(
-    Map(nn.Embedding(char_enc.size()+1, 10, padding_idx=char_enc.size())),
+    Map(nn.Embedding(char_enc.size()+1, 50, padding_idx=char_enc.size())),
     Map(Sum()),
-    SimpleBiLSTM(10, 10),
-    nn.Linear(10, pos_enc.size())
+    SimpleBiLSTM(50, 100),
+    nn.Linear(100, pos_enc.size())
 )
 ```
 Alternatively (and equivalently):
 ```python
 model = nn.Sequential(
     Map(nn.Sequential(
-        nn.Embedding(char_enc.size()+1, 10, padding_idx=char_enc.size()),
+        nn.Embedding(char_enc.size()+1, 50, padding_idx=char_enc.size()),
         Sum(),
     )),
-    SimpleBiLSTM(10, 10),
-    nn.Linear(10, pos_enc.size())
+    SimpleBiLSTM(50, 100),
+    nn.Linear(100, pos_enc.size())
 )
 ```
 We can now fill in the remaining pieces (accuracy function, training procedure,
@@ -269,20 +273,23 @@ To use our `SimpleLSTM` instead of CBOW, we take the last output vector of a
 unidirectional LSTM as the representation of a word:
 ```python
 class Apply(nn.Module):
+    """Apply a given pure function or module."""
+
     def __init__(self, f):
         super().__init__()
         self.f = f
+
     def forward(self, x):
         return self.f(x)
 
 model = nn.Sequential(
     Map(nn.Sequential(
-        nn.Embedding(char_enc.size()+1, 200, padding_idx=char_enc.size()),
-        SimpleLSTM(200, 200),
+        nn.Embedding(char_enc.size()+1, 50, padding_idx=char_enc.size()),
+        SimpleLSTM(50, 100),
         Apply(lambda xs: xs[-1]),
     )),
-    SimpleBiLSTM(200, 200),
-    nn.Linear(200, pos_enc.size())
+    SimpleBiLSTM(100, 100),
+    nn.Linear(100, pos_enc.size())
 )
 ```
 Training this model should also bring perceptible accuracy improvements (`~90%`
@@ -333,11 +340,11 @@ class MapLSTM(nn.Module):
 Then:
 ```python
 model = nn.Sequential(
-    Map(nn.Embedding(char_enc.size()+1, 200, padding_idx=char_enc.size())),
-    MapLSTM(200, 200),
+    Map(nn.Embedding(char_enc.size()+1, 50, padding_idx=char_enc.size())),
+    MapLSTM(100, 100),
     Map(Apply(lambda xs: xs[-1])),
-    SimpleBiLSTM(200, 200),
-    nn.Linear(200, pos_enc.size())
+    SimpleBiLSTM(100, 100),
+    nn.Linear(100, pos_enc.size())
 )
 ```
 
@@ -355,11 +362,11 @@ class MaxPool(nn.Module):
         return torch.max(xs, dim=0).values
 
 model = nn.Sequential(
-    Map(nn.Embedding(char_enc.size()+1, 200, padding_idx=char_enc.size())),
-    Map(SimpleConv(200, 200, kernel_size=5)),
+    Map(nn.Embedding(char_enc.size()+1, 50, padding_idx=char_enc.size())),
+    Map(SimpleConv(50, 100, kernel_size=5)),
     Map(MaxPool()),
-    SimpleBiLSTM(200, 200),
-    nn.Linear(200, pos_enc.size())
+    SimpleBiLSTM(100, 100),
+    nn.Linear(100, pos_enc.size())
 )
 ```
 

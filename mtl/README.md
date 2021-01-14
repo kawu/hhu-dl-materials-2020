@@ -1,8 +1,8 @@
 # Multi-task learning
 
 The idea behind multi-task learning (MTL) is to design a model which tackles several
-tasks in parallel.  We show here its application to joint POS tagging and
-dependency parsing.
+tasks in parallel.  We show here the application of this technique to joint POS
+tagging and dependency parsing.
 
 
 ## Dependency parsing
@@ -103,7 +103,7 @@ def encode_with(
 ```
 
 At this point, we can extract and encode the dataset (in `session.py`) and make
-sure everything is in order.
+sure everything is in order. (**TODO**: inp\_enc -> char\_enc?)
 ```python
 # Parse the training data and create the character/POS encoders
 train_data = parse_and_extract("UD_English-ParTUT/en_partut-ud-train.conllu")
@@ -114,6 +114,64 @@ inp_enc, pos_enc = create_encoders(train_data)
 enc_train = encode_with(train_data, inp_enc, pos_enc)
 enc_dev = encode_with(dev_data, inp_enc, pos_enc)
 ```
+
+### Biaffine model
+
+We show here an implementation of a basic variant of the *biaffine* dependency
+parsing model (TODO: add link to the paper).  This model calculates a score
+`score(x, y)` for each pair of words `(x, y)` in a given sentence and, for each
+token `x` in the sentence, picks the head `y` which maximizes `score(x, y)`
+(`y` can be the dummy root note, represented by `0`).
+```python
+class Biaffine(nn.Module):
+    '''Calculate pairwise matching scores.
+
+    Type: Tensor[N x D] -> Tensor[N x (N + 1)]
+
+    For a given sequence (matrix) of word embeddings, calculate the matrix
+    of pairwise matching scores.
+    '''
+
+    def __init__(self, emb_size: int):
+        super().__init__()
+        self.depr = nn.Linear(emb_size, emb_size)
+        self.hedr = nn.Linear(emb_size, emb_size)
+        self.root = nn.Parameter(torch.randn(emb_size))
+
+    def forward(self, xs: Tensor):
+        deps = self.depr(xs)
+        heds = torch.cat((self.root.view(1, -1), self.hedr(xs)))
+        return deps @ heds.t()
+```
+TODO: the entire model.
+The definition of the end-to-end dependency parsing model is then:
+```python
+model = nn.Sequential(
+    nn.Embedding(inp_enc.size()+1, emb_size, padding_idx=inp_enc.size()),
+    SimpleLSTM(emb_size, hid_size),
+    Biaffine(hid_size)
+)
+```
+We can then adapt the implementation of the accuracy function:
+```python
+def dep_accuracy(model, data):
+    """Calculate the accuracy of the model on the given dataset
+    of (encoded) input/output pairs."""
+    correct, total = 0, 0
+    for x, y in data:
+        pred_y = torch.argmax(model(x), dim=1)
+        correct += (y.dep == pred_y).sum()
+        total += len(y.dep)
+    return float(correct) / total
+```
+and the loss:
+```python
+criterion = nn.CrossEntropyLoss()
+
+def loss(pred: Tensor, gold: EncOut) -> Tensor:
+    return criterion(pred, gold.dep)
+```
+and carry on to train the model.
 
 
 

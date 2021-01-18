@@ -357,9 +357,9 @@ algorithm][cle] to ensure that the resulting dependencies form a tree.
 Once the model is trained, we can use them as follows:
 ```python
 >>> model.tag("Only the Thought Police mattered .".split())
-TODO
+['ADV', 'DET', 'NOUN', 'PROPN', 'VERB', 'PUNCT']
 >>> model.parse("Only the Thought Police mattered .".split())
-TODO
+[5, 4, 5, 5, 0, 5]
 ```
 
 <!--

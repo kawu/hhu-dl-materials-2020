@@ -215,6 +215,10 @@ class Joint(nn.Module):
     ):
         super().__init__()
 
+        # Keep encoding objects for future use
+        self.inp_enc = inp_enc
+        self.pos_enc = pos_enc
+
         # Common part of the model: embedding and LSTM contextualization
         self.embed = nn.Sequential(
             Map(nn.Sequential(
@@ -277,12 +281,41 @@ def dep_accuracy(model, data):
 **NOTE**: At this point we could refactor the code to calculate both types of
 accuracies in a single pass, and the `train` function to report both of them.
 
-That's all, we can now apply the training procedure to train our joint model!
+That's all, we can now apply the training procedure to train our joint model:
 **TODO**: Add example output.
 ```python
 train(model, enc_train, enc_dev, loss, dep_accuracy, epoch_num=10, learning_rate=0.001, report_rate=1)
 ```
 
+
+## Processing original data
+
+To make the joint model more user-friendly, we can extend the `Joint` class
+with two methods for tagging and parsing data in the original form:
+```python
+    @torch.no_grad()
+    def tag(self, sent: List[Word]) -> List[POS]:
+        xs = encode_input(sent, self.inp_enc)
+        embs = self.embed(xs)
+        scores = self.score_pos(embs)
+        ys = torch.argmax(scores, dim=1)
+        return [self.pos_enc.decode(y.item()) for y in ys]
+
+    @torch.no_grad()
+    def parse(self, sent: List[Word]) -> List[DepHead]:
+        xs = encode_input(sent, self.inp_enc)
+        embs = self.embed(xs)
+        scores = self.score_dep(embs)
+        ys = torch.argmax(scores, dim=1)
+        return [y.item() for y in ys]
+```
+Once the model is trained, we can use them as follows:
+```python
+>>> model.tag("A dog chased a fast cat .".split())
+TODO
+>>> model.parse("A dog chased a fast cat .".split())
+TODO
+```
 
 
 **TODO**: Mention other ways of combining models, e.g. the RoundRobin trick?

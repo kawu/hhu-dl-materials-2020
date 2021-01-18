@@ -235,11 +235,11 @@ class Joint(nn.Module):
         # Biaffine dependency scoring module
         self.score_dep = Biaffine(hid_size)
 
-    def forward(self, xs: Tensor) -> Tuple[Tensor, Tensor]:
+    def forward(self, xs: EncInp) -> Tuple[Tensor, Tensor]:
         embs = self.embed(xs)
         return (self.score_pos(embs), self.score_dep(embs))
 
-model = Joint(char_enc, pos_enc, 50, 200)
+model = Joint(char_enc, pos_enc, emb_size=50, hid_size=200)
 ```
 The joint model calculates a pair of tensors (see the `forward` method): the
 POS scores and the dependency scores, respectively.  **TODO**: Add an

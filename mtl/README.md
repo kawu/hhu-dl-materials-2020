@@ -41,7 +41,10 @@ following sentence:
 The dependency heads selected for the individual tokens are `4, 4, 4, 5, 0, 5`,
 i.e. the head of `Only` is `Police`, the head of `Police` is `mattered`, etc.
 The dummy root of the sentence is represented by `0`.
-As another example, you can find the graphical representation of the first dependency tree in the training part of the English ParTUT treebank we use for our experiments [here](http://lindat.mff.cuni.cz/services/pmltq/#!/treebank/uden_partut22/query/IYWgdg9gJgpgBAbQGYQE4FsB+AiAIgSwGcAXVfAIwFdj8IxsBdAbiA/result/svg?filter=true&timeout=30&limit=100).
+As another example, you can find the graphical representation of the first
+dependency tree in the training part of the English ParTUT treebank (which we
+use for our experiments)
+[here](http://lindat.mff.cuni.cz/services/pmltq/#!/treebank/uden_partut22/query/IYWgdg9gJgpgBAbQGYQE4FsB+AiAIgSwGcAXVfAIwFdj8IxsBdAbiA/result/svg?filter=true&timeout=30&limit=100).
 
 To each dependency arc, the corresponding dependency label is assigned
 (`advmod`, `det`, `compound`, etc.).  We will not be concerned with dependency

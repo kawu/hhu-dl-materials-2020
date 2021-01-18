@@ -2,14 +2,16 @@
 
 The idea behind multi-task learning (MTL) is to design a model which tackles several
 tasks in parallel.  We show here the application of this technique to joint POS
-tagging and dependency parsing.
+tagging and dependency parsing, taking the code from the [last session](https://github.com/kawu/hhu-dl-materials-2020/tree/main/char) (after an
+important [bug fix](https://github.com/kawu/hhu-dl-materials-2020/commit/5d5b5b1902721a133ecb4df8b138870488c5943b))
+as the starting point.
 
 
 ## Dependency parsing
 
 Before we can apply MTL to POS tagging and dependency parsing, we need to
-develop a model which deals with the dependency parsing tasks alone.  Only then
-we will combine it with a POS tagger.
+develop a model which deals with the dependency parsing task alone.  Only then
+can we combine it with a POS tagger.
 
 The [CoNLL-U][conllu] dataset we were using for POS tagging contains dependency
 annotations, in particular *head* annotations: for each token in a sentence,
@@ -27,6 +29,7 @@ following sentence:
 The dependency heads selected for the individual tokens are `4, 4, 4, 5, 0, 5`,
 i.e. the head of `Only` is `Police`, the head of `Police` is `mattered`, etc.
 The dummy root of the sentence is represented by `0`.
+As another example, you can find the graphical representation of the first dependency tree in the training part of the English ParTUT treebank we use for our experiments [here](http://lindat.mff.cuni.cz/services/pmltq/#!/treebank/uden_partut22/query/IYWgdg9gJgpgBAbQGYQE4FsB+AiAIgSwGcAXVfAIwFdj8IxsBdAbiA/result/svg?filter=true&timeout=30&limit=100).
 
 To each dependency arc, the corresponding dependency label is assigned
 (`advmod`, `det`, `compound`, etc.).  We will not be concerned with dependency

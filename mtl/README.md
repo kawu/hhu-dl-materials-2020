@@ -343,7 +343,7 @@ The tagging/parsing methods can be then implemented as:
         return [self.pos_enc.decode(y.item()) for y in ys]
 
     @torch.no_grad()
-    def parse(self, sent: List[Word]) -> List[DepHead]:
+    def parse(self, sent: List[Word]) -> List[Head]:
         """Predicted a dependency head for each word in a sentence."""
         xs = encode_input(sent, self.char_enc)
         embs = self.embed(xs)

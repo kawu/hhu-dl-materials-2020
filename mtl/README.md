@@ -6,6 +6,18 @@ tagging and dependency parsing, taking the code from the [last session](https://
 important [bug fix](https://github.com/kawu/hhu-dl-materials-2020/commit/5d5b5b1902721a133ecb4df8b138870488c5943b))
 as the starting point.
 
+<!-- START doctoc generated TOC please keep comment here to allow auto update -->
+<!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
+**Table of Contents**  *generated with [DocToc](https://github.com/thlorenz/doctoc)*
+
+- [Dependency parsing](#dependency-parsing)
+  - [Types and encoding](#types-and-encoding)
+  - [Biaffine model](#biaffine-model)
+- [Joint model](#joint-model)
+- [Processing original data](#processing-original-data)
+
+<!-- END doctoc generated TOC please keep comment here to allow auto update -->
+
 
 ## Dependency parsing
 

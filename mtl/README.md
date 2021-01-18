@@ -311,9 +311,9 @@ with two methods for tagging and parsing data in the original form:
 ```
 Once the model is trained, we can use them as follows:
 ```python
->>> model.tag("A dog chased a fast cat .".split())
+>>> model.tag("Only the Thought Police mattered .".split())
 TODO
->>> model.parse("A dog chased a fast cat .".split())
+>>> model.parse("Only the Thought Police mattered .".split())
 TODO
 ```
 

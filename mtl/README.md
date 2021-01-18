@@ -336,7 +336,7 @@ The tagging/parsing methods can be then implemented as:
     @torch.no_grad()
     def tag(self, sent: List[Word]) -> List[POS]:
         """Tag a sentence with POS tags."""
-        xs = encode_input(sent, self.inp_enc)
+        xs = encode_input(sent, self.char_enc)
         embs = self.embed(xs)
         scores = self.score_pos(embs)
         ys = torch.argmax(scores, dim=1)
@@ -345,7 +345,7 @@ The tagging/parsing methods can be then implemented as:
     @torch.no_grad()
     def parse(self, sent: List[Word]) -> List[DepHead]:
         """Predicted a dependency head for each word in a sentence."""
-        xs = encode_input(sent, self.inp_enc)
+        xs = encode_input(sent, self.char_enc)
         embs = self.embed(xs)
         scores = self.score_dep(embs)
         ys = torch.argmax(scores, dim=1)

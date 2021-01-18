@@ -172,9 +172,8 @@ def dep_accuracy(model, data):
 ```
 and the loss:
 ```python
-criterion = nn.CrossEntropyLoss()
-
 def loss(pred: Tensor, gold: Tuple[Tensor, Tensor]) -> Tensor:
+    criterion = nn.CrossEntropyLoss()
     return criterion(pred, gold[1])
 ```
 and carry on to train the model.
@@ -259,6 +258,7 @@ def loss(
     pred: Tuple[Tensor, Tensor],
     gold: Tuple[Tensor, Tensor]
 ) -> Tensor:
+    criterion = nn.CrossEntropyLoss()
     return criterion(pred[0], gold[0]) + criterion(pred[1], gold[1])
 ```
 as well as the accuracy functions for the two tasks:

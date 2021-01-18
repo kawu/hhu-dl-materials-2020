@@ -93,7 +93,7 @@ def encode_with(
     data: List[Tuple[Inp, Out]],
     char_enc: Encoder[Char],
     pos_enc: Encoder[POS]
-) -> List[Tuple[Tensor, EncOut]]:
+) -> List[Tuple[EncInp, EncOut]]:
     """Encode a dataset using character and output POS tag encoders."""
     # TODO
     pass
@@ -289,6 +289,8 @@ train(model, enc_train, enc_dev, loss, dep_accuracy, epoch_num=10, learning_rate
 
 
 ## Processing original data
+
+**TODO**: `encode_input` below is not defined.
 
 To make the joint model more user-friendly, we can extend the `Joint` class
 with two methods for tagging and parsing data in the original form:

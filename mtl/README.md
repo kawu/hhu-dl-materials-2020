@@ -42,6 +42,7 @@ synonym to `int`:
 ```python
 # Dependency head
 Head = NewType('Head', int)
+# Think of the definition above as a more type-safe variant of `Head = int`
 ```
 Since we want to perform tagging and parsing in parallel, we extend information
 about POS tags in the dataset with information about the heads.
@@ -49,82 +50,75 @@ about POS tags in the dataset with information about the heads.
 # Output: a list of (POS tag, dependency head) pairs
 Out = List[Tuple[POS, Head]]
 ```
-This also means we need to update the `extract` function accordingly.
+This also means we need to update the `extract` function accordingly
+(**WARNING**: as you will see, we didn't account for one particularity of the
+dataset -- contractions).
 <!--
 ```python
 def extract(token_list: conllu.TokenList) -> Tuple[Inp, Out]:
     """Extract the input/output pair from a CoNLL-U sentence."""
     inp, out = [], []
     for tok in token_list:
-        upos = tok["upos"]
-        head = tok["head"]
         # NOTE: ignoring contractions
         if head is not None:
             inp.append(tok["form"])
-            out.append((upos, head))
+            out.append((tok["upos"], tok["head"]))
     return inp, out
 ```
 -->
 
 The encoded representation of the target output should include both POS tags
-and depednency heads.  We can use a `@dataclass` to capture both, called
-`EncOut` (standing for "Enc(oded) Out(put)").
+and depednency heads.  Let's capture that at the level of types, too:
 ```python
-@dataclass
-class EncOut:
-    pos: Tensor     # Target POS tags (encoded)
-    dep: Tensor     # Target dependency heads
+# Encoded input: list of tensors, one per word
+EncInp = List[Tensor]
+
+# Encoded output: pair (encoded POS tags, dependency heads)
+EncOut = Tuple[Tensor, Tensor]
 ```
 
-The next step is to update the encoding procedure.  Will will encode (and,
-consequently, embed) entire input words for simplicity.  Note that we do not
-need a separate `Encoder` for dependency heads -- this is because the heads are
+The next step is to update the encoding procedure.  Note that we do not need a
+separate `Encoder` for dependency heads -- this is because the heads are
 already represented as integers and have appropriate form for subsequent
 PyTorch processing.
 ```python
 def create_encoders(
     data: List[Tuple[Inp, Out]]
-) -> Tuple[Encoder[Word], Encoder[POS]]:
-    """Create a pair of encoders, for input words and POS tags respectively."""
-    word_enc = Encoder(word for inp, _ in data for word in inp)
-    pos_enc = Encoder(pos for _, out in data for pos, _head in out)
-    return (word_enc, pos_enc)
+) -> Tuple[Encoder[Char], Encoder[POS]]:
+    """Create encoders for input characters and POS tags."""
+    # TODO
+    pass
 
 def encode_with(
     data: List[Tuple[Inp, Out]],
-    word_enc: Encoder[Word],
+    char_enc: Encoder[Char],
     pos_enc: Encoder[POS]
 ) -> List[Tuple[Tensor, EncOut]]:
-    """Encode a dataset using given input word and output POS tag encoders."""
-    enc_data = []
-    for inp, out in data:
-        enc_inp = torch.tensor([word_enc.encode(word) for word in inp])
-        enc_pos = torch.tensor([pos_enc.encode(pos) for pos, _ in out])
-        enc_dep = torch.tensor([head for _, head in out])
-        enc_data.append((enc_inp, EncOut(enc_pos, enc_dep)))
-    return enc_data
+    """Encode a dataset using character and output POS tag encoders."""
+    # TODO
+    pass
 ```
 
 At this point, we can extract and encode the dataset (in `session.py`) and make
-sure everything is in order. (**TODO**: inp\_enc -> char\_enc?)
+sure everything is in order.
 ```python
 # Parse the training data and create the character/POS encoders
 train_data = parse_and_extract("UD_English-ParTUT/en_partut-ud-train.conllu")
 dev_data = parse_and_extract("UD_English-ParTUT/en_partut-ud-dev.conllu")
-inp_enc, pos_enc = create_encoders(train_data)
+char_enc, pos_enc = create_encoders(train_data)
 
 # Encode the train set
-enc_train = encode_with(train_data, inp_enc, pos_enc)
-enc_dev = encode_with(dev_data, inp_enc, pos_enc)
+enc_train = encode_with(train_data, char_enc, pos_enc)
+enc_dev = encode_with(dev_data, char_enc, pos_enc)
 ```
 
 ### Biaffine model
 
 We show here an implementation of a basic variant of the *biaffine* dependency
-parsing model (TODO: add link to the paper).  This model calculates a score
-`score(x, y)` for each pair of words `(x, y)` in a given sentence and, for each
-token `x` in the sentence, picks the head `y` which maximizes `score(x, y)`
-(`y` can be the dummy root note, represented by `0`).
+parsing model (see [here][biaffine-specs] for specs).  This model calculates a
+score `score(x, y)` for each pair of words `(x, y)` in a given sentence and,
+for each token `x` in the sentence, picks the head `y` which maximizes
+`score(x, y)` (`y` can be the dummy root note, represented by `0`).
 ```python
 class Biaffine(nn.Module):
     '''Calculate pairwise matching scores.
@@ -146,13 +140,21 @@ class Biaffine(nn.Module):
         heds = torch.cat((self.root.view(1, -1), self.hedr(xs)))
         return deps @ heds.t()
 ```
-TODO: the entire model.
-The definition of the end-to-end dependency parsing model is then:
+**TODO**: add a link to an alternative implementation, with MLPs and bias
+vector.
+
+The definition of the end-to-end dependency parsing model is then the same as
+that of the POS tagging model based on character-level embeddings, with the
+exception that the last component scores dependency arcs rather than POS tags.
 ```python
 model = nn.Sequential(
-    nn.Embedding(inp_enc.size()+1, emb_size, padding_idx=inp_enc.size()),
-    SimpleLSTM(emb_size, hid_size),
-    Biaffine(hid_size)
+    Map(nn.Sequential(
+        nn.Embedding(char_enc.size()+1, 50, padding_idx=char_enc.size()),
+        SimpleLSTM(50, 200),
+        Apply(lambda xs: xs[-1]),
+    )),
+    SimpleBiLSTM(200, 200),
+    Biaffine(200)
 )
 ```
 We can then adapt the implementation of the accuracy function:
@@ -163,20 +165,20 @@ def dep_accuracy(model, data):
     correct, total = 0, 0
     for x, y in data:
         pred_y = torch.argmax(model(x), dim=1)
-        correct += (y.dep == pred_y).sum()
-        total += len(y.dep)
+        # NOTE: Compare with the first element of the target pair
+        correct += (y[1] == pred_y).sum()
+        total += len(y[1])
     return float(correct) / total
 ```
 and the loss:
 ```python
 criterion = nn.CrossEntropyLoss()
 
-def loss(pred: Tensor, gold: EncOut) -> Tensor:
-    return criterion(pred, gold.dep)
+def loss(pred: Tensor, gold: Tuple[Tensor, Tensor]) -> Tensor:
+    return criterion(pred, gold[1])
 ```
 and carry on to train the model.
 
 
-
-
 [conllu]: https://universaldependencies.org/format.html "CoNLL-U format"
+[biaffine-specs]: https://user.phil.hhu.de/~waszczuk/teaching/hhu-dl-wi19/session12/u12_eng.pdf "Biaffine parser specification"

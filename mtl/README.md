@@ -140,9 +140,10 @@ class Biaffine(nn.Module):
         heds = torch.cat((self.root.view(1, -1), self.hedr(xs)))
         return deps @ heds.t()
 ```
+<!--
 **TODO**: add a link to an alternative implementation, with MLPs and bias
 vector.
-
+-->
 The definition of the end-to-end dependency parsing model is then the same as
 that of the POS tagging model based on character-level embeddings, with the
 exception that the last component scores dependency arcs rather than POS tags.
@@ -247,8 +248,8 @@ class Joint(nn.Module):
 model = Joint(char_enc, pos_enc, emb_size=50, hid_size=200)
 ```
 The joint model calculates a pair of tensors (see the `forward` method): the
-POS scores and the dependency scores, respectively.  **TODO**: Add an
-alternative implementation.
+POS scores and the dependency scores, respectively.
+<!-- **TODO**: Add an alternative implementation. -->
 
 We can now adapt the loss function so as to measure the quality of the model as
 a simple additive combination of its performance on POS tags and dependency
@@ -324,8 +325,9 @@ TODO
 TODO
 ```
 
-
+<!--
 **TODO**: Mention other ways of combining models, e.g. the RoundRobin trick?
+-->
 
 
 [conllu]: https://universaldependencies.org/format.html "CoNLL-U format"

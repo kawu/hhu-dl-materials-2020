@@ -193,11 +193,11 @@ contextualized word embeddings.  Here's a simple way to achieve that:
 class Joint(nn.Module):
     """Joint POS tagging / dependency parsing module.
 
-    Type: List[WordEmbedding] -> Tuple[PosScores, DepScores]
+    Type: List[EncInp] -> Tuple[PosScores, DepScores]
 
     where:
 
-    * WordEmbedding is a (possibly contextualized) word embedding tensor
+    * EncInp is an encoded input sentence (list of tensors)
     * PosScores is a Tensor[N x T] with POS-related scores,
       where T is the number of distinct POS tags.
     * DepScores is a Tensor[N x (N + 1)] of dependency-related scores,
@@ -216,7 +216,7 @@ class Joint(nn.Module):
         super().__init__()
 
         # Keep encoding objects for future use
-        self.inp_enc = inp_enc
+        self.char_enc = char_enc
         self.pos_enc = pos_enc
 
         # Common part of the model: embedding and LSTM contextualization

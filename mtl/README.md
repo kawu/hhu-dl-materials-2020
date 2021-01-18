@@ -304,13 +304,23 @@ pos_accuracy(model, enc_dev)
 
 ## Processing original data
 
-**TODO**: `encode_input` below is not defined.
-
 To make the joint model more user-friendly, we can extend the `Joint` class
-with two methods for tagging and parsing data in the original form:
+with two methods for tagging and parsing data in the original form.  Let's
+first extract the functionality of encoding the input sentence in a separate
+function (possibly in `data.py`):
+```python
+def encode_input(sent: List[Word], enc: Encoder[Char]) -> List[Tensor]:
+    """Encode an input sentence given a character encoder."""
+    return [
+        torch.tensor([enc.encode(Char(char)) for char in word])
+        for word in sent
+    ]
+```
+The tagging/parsing methods can be then implemented as:
 ```python
     @torch.no_grad()
     def tag(self, sent: List[Word]) -> List[POS]:
+        """Tag a sentence with POS tags."""
         xs = encode_input(sent, self.inp_enc)
         embs = self.embed(xs)
         scores = self.score_pos(embs)
@@ -319,12 +329,16 @@ with two methods for tagging and parsing data in the original form:
 
     @torch.no_grad()
     def parse(self, sent: List[Word]) -> List[DepHead]:
+        """Predicted a dependency head for each word in a sentence."""
         xs = encode_input(sent, self.inp_enc)
         embs = self.embed(xs)
         scores = self.score_dep(embs)
         ys = torch.argmax(scores, dim=1)
         return [y.item() for y in ys]
 ```
+The `parse` method could be further extended with the [Chu–Liu/Edmonds'
+algorithm][cle] to ensure that the resulting dependencies form a tree.
+
 Once the model is trained, we can use them as follows:
 ```python
 >>> model.tag("Only the Thought Police mattered .".split())
@@ -340,3 +354,4 @@ TODO
 
 [conllu]: https://universaldependencies.org/format.html "CoNLL-U format"
 [biaffine-specs]: https://user.phil.hhu.de/~waszczuk/teaching/hhu-dl-wi19/session12/u12_eng.pdf "Biaffine parser specification"
+[cle]: https://en.wikipedia.org/wiki/Edmonds%27_algorithm "Chu–Liu/Edmonds' algorithm"

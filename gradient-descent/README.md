@@ -302,7 +302,7 @@ baseline = nn.Sequential(
 loss = nn.CrossEntropyLoss()
 
 # Use Adam to adapt the baseline model's parameters
-optim = torch.optim.Adam(baseline.parameters(), lr=0.001)  # lr -> learning rate
+optim = torch.optim.Adam(baseline.parameters(), lr=0.1)  # lr -> learning rate
 
 # Perform SGD for 1000 epochs
 for k in range(1000):
@@ -310,15 +310,15 @@ for k in range(1000):
     for i in torch.randperm(len(enc_data)):
         x, y = enc_data[i]
         loss(baseline(x), y).backward()
-        optim.step()	# version of `nudge` provided by `Adam`
+        optim.step()        # version of `nudge` provided by `Adam`
+        optim.zero_grad()   # reset to zero all the gradients
 
 # Let's verify the final losses
 for x, y in enc_data:
     print(loss(baseline(x), y))
-# => tensor(3.6871e-05, grad_fn=<NllLossBackward>)
-# => tensor(1.0520, grad_fn=<NllLossBackward>)
-# => tensor(0., grad_fn=<NllLossBackward>)
-
+# => tensor(0.0980, grad_fn=<NllLossBackward>)
+# => tensor(0.1017, grad_fn=<NllLossBackward>)
+# => tensor(0.0001, grad_fn=<NllLossBackward>)
 ```
 
 **Exercise**: The final loss for the second dataset element is not as close to

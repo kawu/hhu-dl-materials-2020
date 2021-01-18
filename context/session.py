@@ -57,6 +57,7 @@ def train(
             total_loss += z.item()
             z.backward()
             optim.step()
+            optim.zero_grad()
         if k == 0 or (k+1) % report_rate == 0:
             with torch.no_grad():
                 model.eval()
@@ -69,4 +70,14 @@ print("# Train size =", len(enc_train))
 print("# Dev size =", len(enc_dev))
 
 loss = nn.CrossEntropyLoss()
-train(baseline, enc_train, enc_dev, loss, epoch_num=10, learning_rate=0.00005, report_rate=1)
+train(baseline, enc_train, enc_dev, loss, epoch_num=10, learning_rate=0.001, report_rate=1)
+# => @1: loss(train)=2135.324, acc(train)=0.775, acc(dev)=0.744
+# => @2: loss(train)=1108.957, acc(train)=0.857, acc(dev)=0.800
+# => @3: loss(train)=768.808, acc(train)=0.899, acc(dev)=0.825
+# => @4: loss(train)=552.067, acc(train)=0.932, acc(dev)=0.846
+# => @5: loss(train)=395.307, acc(train)=0.952, acc(dev)=0.857
+# => @6: loss(train)=282.418, acc(train)=0.968, acc(dev)=0.866
+# => @7: loss(train)=199.932, acc(train)=0.979, acc(dev)=0.872
+# => @8: loss(train)=137.422, acc(train)=0.986, acc(dev)=0.871
+# => @9: loss(train)=95.575, acc(train)=0.991, acc(dev)=0.880
+# => @10: loss(train)=65.386, acc(train)=0.994, acc(dev)=0.878

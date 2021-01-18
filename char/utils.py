@@ -69,6 +69,7 @@ def train(
             total_loss += z.item()
             z.backward()
             optim.step()
+            optim.zero_grad()
         if k == 0 or (k+1) % report_rate == 0:
             with torch.no_grad():
                 model.eval()

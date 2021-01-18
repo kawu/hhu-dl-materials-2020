@@ -125,8 +125,8 @@ class Biaffine(nn.Module):
 
     Type: Tensor[N x D] -> Tensor[N x (N + 1)]
 
-    For a given sequence (matrix) of word embeddings, calculate the matrix
-    of pairwise matching scores.
+    For a given sequence (matrix) of word embeddings, calculate the matrix of
+    pairwise matching scores.
     '''
 
     def __init__(self, emb_size: int):
@@ -207,13 +207,18 @@ class Joint(nn.Module):
     on a common contextualized embedding representation.
     """
 
-    def __init__(self, emb_size: int, hid_size: int):
+    def __init__(self,
+        char_enc: Encoder[Char],    # Encoder for input characters
+        pos_enc: Encoder[POS],      # Encoder for POS tags
+        emb_size: int,              # Embedding size
+        hid_size: int               # Hidden size used in LSTMs
+    ):
         super().__init__()
 
         # Common part of the model: embedding and LSTM contextualization
         self.embed = nn.Sequential(
             Map(nn.Sequential(
-                nn.Embedding(inp_enc.size()+1, emb_size, padding_idx=inp_enc.size()),
+                nn.Embedding(char_enc.size()+1, emb_size, padding_idx=char_enc.size()),
                 SimpleLSTM(emb_size, hid_size),
                 Apply(lambda xs: xs[-1]),
             )),
@@ -229,11 +234,16 @@ class Joint(nn.Module):
     def forward(self, xs: Tensor) -> Tuple[Tensor, Tensor]:
         embs = self.embed(xs)
         return (self.score_pos(embs), self.score_dep(embs))
+
+model = Joint(char_enc, pos_enc, 50, 200)
 ```
 The joint model calculates a pair of tensors (see the `forward` method): the
-POS scores and the dependency scores, respectively.  We can now adapt the loss
-function so as to measure the quality of the model as a simple additive
-combination of its performance on POS tags and dependency heads:
+POS scores and the dependency scores, respectively.  **TODO**: Add an
+alternative implementation.
+
+We can now adapt the loss function so as to measure the quality of the model as
+a simple additive combination of its performance on POS tags and dependency
+heads:
 ```python
 def loss(
     pred: Tuple[Tensor, Tensor],

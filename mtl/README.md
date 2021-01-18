@@ -288,9 +288,17 @@ def dep_accuracy(model, data):
 accuracies in a single pass, and the `train` function to report both of them.
 
 That's all, we can now apply the training procedure to train our joint model:
-**TODO**: Add example output.
 ```python
 train(model, enc_train, enc_dev, loss, dep_accuracy, epoch_num=10, learning_rate=0.001, report_rate=1)
+# => @1: loss(train)=4367.376, acc(train)=0.654, acc(dev)=0.633
+# =>                            ...
+# => @10: loss(train)=437.589, acc(train)=0.943, acc(dev)=0.760
+train(model, enc_train, enc_dev, loss, dep_accuracy, epoch_num=10, learning_rate=0.0001, report_rate=1)
+# => @1: loss(train)=222.822, acc(train)=0.984, acc(dev)=0.781
+# =>                            ...
+# => @10: loss(train)=17.223, acc(train)=0.999, acc(dev)=0.789
+pos_accuracy(model, enc_dev)
+# => 0.9232182218956649
 ```
 
 

@@ -278,7 +278,7 @@ def dep_accuracy(model, data):
     of (encoded) input/output pairs."""
     correct, total = 0, 0
     for x, y in data:
-        pred_y = torch.argmax(model(x), dim=1)
+        pred_y = torch.argmax(model(x)[1], dim=1)
         correct += (y[1] == pred_y).sum()
         total += len(y[1])
     return float(correct) / total

@@ -193,10 +193,11 @@ contextualized word embeddings.  Here's a simple way to achieve that:
 class Joint(nn.Module):
     """Joint POS tagging / dependency parsing module.
 
-    Type: List[Word] -> Tuple[PosScores, DepScores]
+    Type: List[WordEmbedding] -> Tuple[PosScores, DepScores]
 
     where:
 
+    * WordEmbedding is a (possibly contextualized) word embedding tensor
     * PosScores is a Tensor[N x T] with POS-related scores,
       where T is the number of distinct POS tags.
     * DepScores is a Tensor[N x (N + 1)] of dependency-related scores,
@@ -230,7 +231,7 @@ class Joint(nn.Module):
         return (self.score_pos(embs), self.score_dep(embs))
 ```
 The joint model calculates a pair of tensors (see the `forward` method): the
-POS scores and the dependency scores, respectively.  We can then adapt the loss
+POS scores and the dependency scores, respectively.  We can now adapt the loss
 function so as to measure the quality of the model as a simple additive
 combination of its performance on POS tags and dependency heads:
 ```python
@@ -240,14 +241,7 @@ def loss(
 ) -> Tensor:
     return criterion(pred[0], gold[0]) + criterion(pred[1], gold[1])
 ```
-This is all, we can now apply the training procedure to train our joint model!  **TODO**: Add example output.
-```python
-train(model, enc_train, enc_dev, loss, dep_accuracy, epoch_num=10, learning_rate=0.001, report_rate=1)
-```
-However, if we want to see how MTL affects the POS tagging quality, we need
-another function to measure the POS tagging accuracy (we already had it, but it
-needs to be adapted so as to account for the change in the structure of
-input/output data).
+as well as the accuracy functions for the two tasks:
 ```python
 def pos_accuracy(model, data):
     """Calculate the POS tagging accuracy of the model on the given dataset
@@ -258,9 +252,27 @@ def pos_accuracy(model, data):
         correct += (y[0] == pred_y).sum()
         total += len(y[0])
     return float(correct) / total
+
+def dep_accuracy(model, data):
+    """Calculate the head prediction accuracy of the model on the given dataset
+    of (encoded) input/output pairs."""
+    correct, total = 0, 0
+    for x, y in data:
+        pred_y = torch.argmax(model(x), dim=1)
+        # NOTE: Use the first element of the target pair for comparison
+        correct += (y[1] == pred_y).sum()
+        total += len(y[1])
+    return float(correct) / total
 ```
 **NOTE**: At this point we could refactor the code to calculate both types of
 accuracies in a single pass, and the `train` function to report both of them.
+
+That's all, we can now apply the training procedure to train our joint model!
+**TODO**: Add example output.
+```python
+train(model, enc_train, enc_dev, loss, dep_accuracy, epoch_num=10, learning_rate=0.001, report_rate=1)
+```
+
 
 
 **TODO**: Mention other ways of combining models, e.g. the RoundRobin trick?

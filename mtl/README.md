@@ -160,12 +160,12 @@ model = nn.Sequential(
 We can then adapt the implementation of the accuracy function:
 ```python
 def dep_accuracy(model, data):
-    """Calculate the accuracy of the model on the given dataset
+    """Calculate the head prediction accuracy of the model on the given dataset
     of (encoded) input/output pairs."""
     correct, total = 0, 0
     for x, y in data:
         pred_y = torch.argmax(model(x), dim=1)
-        # NOTE: Compare with the first element of the target pair
+        # NOTE: Use the first element of the target pair for comparison
         correct += (y[1] == pred_y).sum()
         total += len(y[1])
     return float(correct) / total
@@ -178,6 +178,92 @@ def loss(pred: Tensor, gold: Tuple[Tensor, Tensor]) -> Tensor:
     return criterion(pred, gold[1])
 ```
 and carry on to train the model.
+```python
+train(model, enc_train, enc_dev, loss, dep_accuracy, epoch_num=10, learning_rate=0.001, report_rate=1)
+```
+**TODO**: Add example output.
+
+
+## Joint model
+
+Combining the POS tagging model with the dependency parsing model is rather
+straightforward, thanks to the fact that both models rely on the same
+contextualized word embeddings.  Here's a simple way to achieve that:
+```python
+class Joint(nn.Module):
+    """Joint POS tagging / dependency parsing module.
+
+    Type: List[Word] -> Tuple[PosScores, DepScores]
+
+    where:
+
+    * PosScores is a Tensor[N x T] with POS-related scores,
+      where T is the number of distinct POS tags.
+    * DepScores is a Tensor[N x (N + 1)] of dependency-related scores,
+      one score vector of size (N + 1) per word.
+
+    The two components (POS tagging and dependency parsing) are based
+    on a common contextualized embedding representation.
+    """
+
+    def __init__(self, emb_size: int, hid_size: int):
+        super().__init__()
+
+        # Common part of the model: embedding and LSTM contextualization
+        self.embed = nn.Sequential(
+            Map(nn.Sequential(
+                nn.Embedding(inp_enc.size()+1, emb_size, padding_idx=inp_enc.size()),
+                SimpleLSTM(emb_size, hid_size),
+                Apply(lambda xs: xs[-1]),
+            )),
+            SimpleBiLSTM(hid_size, hid_size),
+        )
+
+        # Scoring module for the POS tagging task
+        self.score_pos = nn.Linear(hid_size, pos_enc.size())
+
+        # Biaffine dependency scoring module
+        self.score_dep = Biaffine(hid_size)
+
+    def forward(self, xs: Tensor) -> Tuple[Tensor, Tensor]:
+        embs = self.embed(xs)
+        return (self.score_pos(embs), self.score_dep(embs))
+```
+The joint model calculates a pair of tensors (see the `forward` method): the
+POS scores and the dependency scores, respectively.  We can then adapt the loss
+function so as to measure the quality of the model as a simple additive
+combination of its performance on POS tags and dependency heads:
+```python
+def loss(
+    pred: Tuple[Tensor, Tensor],
+    gold: Tuple[Tensor, Tensor]
+) -> Tensor:
+    return criterion(pred[0], gold[0]) + criterion(pred[1], gold[1])
+```
+This is all, we can now apply the training procedure to train our joint model!  **TODO**: Add example output.
+```python
+train(model, enc_train, enc_dev, loss, dep_accuracy, epoch_num=10, learning_rate=0.001, report_rate=1)
+```
+However, if we want to see how MTL affects the POS tagging quality, we need
+another function to measure the POS tagging accuracy (we already had it, but it
+needs to be adapted so as to account for the change in the structure of
+input/output data).
+```python
+def pos_accuracy(model, data):
+    """Calculate the POS tagging accuracy of the model on the given dataset
+    of (encoded) input/output pairs."""
+    correct, total = 0, 0
+    for x, y in data:
+        pred_y = torch.argmax(model(x)[0], dim=1)
+        correct += (y[0] == pred_y).sum()
+        total += len(y[0])
+    return float(correct) / total
+```
+**NOTE**: At this point we could refactor the code to calculate both types of
+accuracies in a single pass, and the `train` function to report both of them.
+
+
+**TODO**: Mention other ways of combining models, e.g. the RoundRobin trick?
 
 
 [conllu]: https://universaldependencies.org/format.html "CoNLL-U format"

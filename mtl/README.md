@@ -180,8 +180,14 @@ def loss(pred: Tensor, gold: Tuple[Tensor, Tensor]) -> Tensor:
 and carry on to train the model.
 ```python
 train(model, enc_train, enc_dev, loss, dep_accuracy, epoch_num=10, learning_rate=0.001, report_rate=1)
+# => @1: loss(train)=2881.698, acc(train)=0.607, acc(dev)=0.602
+# =>                            ...
+# => @10: loss(train)=270.933, acc(train)=0.939, acc(dev)=0.717
+train(model, enc_train, enc_dev, loss, dep_accuracy, epoch_num=10, learning_rate=0.0001, report_rate=1)
+# => @1: loss(train)=161.488, acc(train)=0.982, acc(dev)=0.733
+# =>                            ...
+# => @10: loss(train)=2.678, acc(train)=1.000, acc(dev)=0.741
 ```
-**TODO**: Add example output.
 
 
 ## Joint model

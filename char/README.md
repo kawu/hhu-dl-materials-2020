@@ -25,10 +25,10 @@ extracting character-level representations of words.
 
 <!-- END doctoc generated TOC please keep comment here to allow auto update -->
 
-<!--
 ## Changelog
--->
 
+**18/01/2021**:
+* Mention the improved results due to [#11][i11]
 
 ## Encoding characters
 
@@ -293,8 +293,9 @@ model = nn.Sequential(
 )
 ```
 Training this model should also bring perceptible performance improvements
-(accuracy of `~89%` on the dev set, `~90%` with some hyperparameter finetuning,
-vs. `~88%` achieved previously).
+(accuracy of ~~`~89%` on the dev set, `~90%` with some hyperparameter
+finetuning,~~ `~92%` on the dev set -- see issue [#11][i11] -- vs. `~88%`
+achieved previously).
 <!--
 Finetuning:
 * change the embedding size to 100 or 200
@@ -397,6 +398,7 @@ later on.
 [maxpool]: https://cezannec.github.io/CNN_Text_Classification/#maxpooling-over-time "Maxpooling"
 [cnn-char-paper]: https://www.aclweb.org/anthology/P16-1101.pdf "Paper using the convolution for extracting character-level representations of words"
 [pad-sequence]: https://pytorch.org/docs/1.6.0/generated/torch.nn.utils.rnn.pad_sequence.html?highlight=pad#torch.nn.utils.rnn.pad_sequence "Padding function"
+[i11]: https://github.com/kawu/hhu-dl-materials-2020/issues/11 "Issue 11"
 <!--
 [linear]: https://pytorch.org/docs/1.6.0/generated/torch.nn.Linear.html?highlight=linear#torch.nn.Linear "Linear nn.Module"
 [UD_English-ParTUT]: https://user.phil.hhu.de/~waszczuk/teaching/hhu-dl-wi20/data/UD_English-ParTUT.zip "UD_English-ParTUT sample dataset"

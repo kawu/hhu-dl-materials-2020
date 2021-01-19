@@ -157,6 +157,12 @@ class Biaffine(nn.Module):
         heds = torch.cat((self.root.view(1, -1), self.hedr(xs)))
         return deps @ heds.t()
 ```
+Here's a graphical representation of the scores that the biaffine module may
+produce (once trained) on an example sentence:
+<p align="center">
+  <img src="imgs/thought_police_dependency_scores.png?raw=true" alt="Dependency parsing scores"/>
+</p>
+
 The definition of the end-to-end dependency parsing model is then the same as
 that of the POS tagging model based on character-level embeddings, with the
 exception that the last component scores dependency arcs rather than POS tags.

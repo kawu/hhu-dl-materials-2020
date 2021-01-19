@@ -1,9 +1,11 @@
 # Multi-task learning
 
-The idea behind multi-task learning (MTL) is to design a model which tackles several
-tasks in parallel.  We show here the application of this technique to joint POS
-tagging and dependency parsing, taking the code from the [last session](https://github.com/kawu/hhu-dl-materials-2020/tree/main/char) (after an
-important [bug fix](https://github.com/kawu/hhu-dl-materials-2020/commit/5d5b5b1902721a133ecb4df8b138870488c5943b))
+The idea behind multi-task learning (MTL) is to design a model which tackles
+several related tasks in parallel.  We show here the application of this
+technique to joint POS tagging and dependency parsing, taking the code from the
+[last session](https://github.com/kawu/hhu-dl-materials-2020/tree/main/char)
+(after an important [bug
+fix](https://github.com/kawu/hhu-dl-materials-2020/commit/5d5b5b1902721a133ecb4df8b138870488c5943b))
 as the starting point.
 
 <!-- START doctoc generated TOC please keep comment here to allow auto update -->

@@ -129,11 +129,12 @@ enc_dev = encode_with(dev_data, char_enc, pos_enc)
 
 ### Biaffine model
 
-We show here an implementation of a basic variant of the *biaffine* dependency
-parsing model (see [here][biaffine-specs] for specs).  This model calculates a
-score `score(x, y)` for each pair of words `(x, y)` in a given sentence and,
-for each token `x` in the sentence, picks the head `y` which maximizes
-`score(x, y)` (`y` can be the dummy root note, represented by `0`).
+We show here an implementation of a basic variant<sup>[1](#footnote1)</sup> of
+the [*biaffine* dependency parsing model][biaffine-paper] (see
+[here][biaffine-specs] for specs).  This model calculates a score `score(x, y)`
+for each pair of words `(x, y)` in a given sentence and, for each token `x` in
+the sentence, picks the head `y` which maximizes `score(x, y)` (`y` can be
+the dummy root note, represented by `0`).
 ```python
 class Biaffine(nn.Module):
     '''Calculate pairwise matching scores.
@@ -155,10 +156,6 @@ class Biaffine(nn.Module):
         heds = torch.cat((self.root.view(1, -1), self.hedr(xs)))
         return deps @ heds.t()
 ```
-<!--
-**TODO**: add a link to an alternative implementation, with MLPs and bias
-vector.
--->
 The definition of the end-to-end dependency parsing model is then the same as
 that of the POS tagging model based on character-level embeddings, with the
 exception that the last component scores dependency arcs rather than POS tags.
@@ -366,7 +363,37 @@ Once the model is trained, we can use them as follows:
 **TODO**: Mention other ways of combining models, e.g. the RoundRobin trick?
 -->
 
+## Footnotes
+
+<a name="footnote1">1</a>: Here is a more robust variant which includes a bias
+factor of a word being a head, regardless of a dependent:
+```python
+class Biaffine(nn.Module):
+    '''Calculate pairwise matching scores.
+
+    Type: Tensor[N x D] -> Tensor[N x (N + 1)]
+
+    For a given sequence (matrix) of word embeddings, calculate the matrix of
+    pairwise matching scores.
+    '''
+
+    def __init__(self, emb_size: int):
+        super().__init__()
+        self.depr = nn.Linear(emb_size, emb_size)
+        self.hedr = nn.Linear(emb_size, emb_size)
+        self.root = nn.Parameter(torch.randn(emb_size))
+        self.bias = nn.Parameter(torch.randn(emb_size))
+
+    def forward(self, xs: Tensor):
+        deps = self.depr(xs)
+        heds = torch.cat((self.root.view(1, -1), self.hedr(xs))).t()
+        return (deps @ heds) + (self.bias.view(1, -1) @ heds)
+```
+Multi-layered perceptrons are also often used for the `depr` and `hedr`
+components instead of `nn.Linear`.
+
 
 [conllu]: https://universaldependencies.org/format.html "CoNLL-U format"
 [biaffine-specs]: https://user.phil.hhu.de/~waszczuk/teaching/hhu-dl-wi19/session12/u12_eng.pdf "Biaffine parser specification"
+[biaffine-paper]: https://arxiv.org/pdf/1611.01734.pdf "Biaffine dependency parser"
 [cle]: https://en.wikipedia.org/wiki/Edmonds%27_algorithm "Chu–Liu/Edmonds' algorithm"

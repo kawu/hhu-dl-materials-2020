@@ -191,7 +191,7 @@ class SimpleConv(nn.Module):
         # As usual, we have to account for the batch dimension.  On top
         # of that, the convolution requires that the sentence dimension and
         # the embedding dimension are swapped.
-        x = x.view(1, x.shape[1], x.shape[0])
+        x = x.t().view(1, x.shape[1], x.shape[0])
         # Pad the input tensor on the left and right with 0's.  If the kernel
         # size is odd, the padding on the left is larger by 1.
         padding = (
@@ -199,5 +199,5 @@ class SimpleConv(nn.Module):
             (self.kernel_size - 1) // 2,
         )
         out = self.conv(F.pad(x, padding))
-        out_reshaped = out.view(out.shape[2], out.shape[1])
+        out_reshaped = out.view(out.shape[1], out.shape[2]).t()
         return out_reshaped

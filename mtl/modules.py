@@ -1,6 +1,27 @@
 import torch
 import torch.nn as nn
+from torch import Tensor
 from torch.nn.utils.rnn import pad_sequence
+
+class Biaffine(nn.Module):
+    '''Calculate pairwise matching scores.
+
+    Type: Tensor[N x D] -> Tensor[N x (N + 1)]
+
+    For a given sequence (matrix) of word embeddings, calculate the matrix of
+    pairwise matching scores.
+    '''
+
+    def __init__(self, emb_size: int):
+        super().__init__()
+        self.depr = nn.Linear(emb_size, emb_size)
+        self.hedr = nn.Linear(emb_size, emb_size)
+        self.root = nn.Parameter(torch.randn(emb_size))
+
+    def forward(self, xs: Tensor):
+        deps = self.depr(xs)
+        heds = torch.cat((self.root.view(1, -1), self.hedr(xs)))
+        return deps @ heds.t()
 
 class Apply(nn.Module):
     """Apply a given pure function or module."""

@@ -20,11 +20,20 @@ Char = NewType('Char', str)
 # POS tag
 POS = NewType('POS', str)
 
+# Dependency head
+Head = NewType('Head', int)
+
 # Input: a list of words
 Inp = List[Word]
 
-# Output: a list of POS tags
-Out = List[POS]
+# Output: a list of (POS tag, dependency head) pairs
+Out = List[Tuple[POS, Head]]
+
+# Encoded input: list of tensors, one per word
+EncInp = List[Tensor]
+
+# Encoded output: pair (encoded POS tags, dependency heads)
+EncOut = Tuple[Tensor, Tensor]
 
 ##################################################
 # Parsing and extraction
@@ -34,8 +43,13 @@ def extract(token_list: conllu.TokenList) -> Tuple[Inp, Out]:
     """Extract the input/output pair from a CoNLL-U sentence."""
     inp, out = [], []
     for tok in token_list:
-        inp.append(tok["form"])
-        out.append(tok["upos"])
+        form: Word = tok["form"]
+        upos: POS = tok["upos"]
+        head: Head = tok["head"]
+        # Ignore contractions (we assume tokenization is solved)
+        if head is not None:
+            inp.append(form)
+            out.append((upos, head))
     return inp, out
 
 def parse_and_extract(conllu_path) -> List[Tuple[Inp, Out]]:
@@ -70,22 +84,35 @@ def create_encoders(
     # Enumerate all input characters present in the dataset
     # and create the encoder out of the resulting iterable
     char_enc = Encoder(
-        char
+        Char(char)
         for inp, _ in data
         for word in inp
         for char in word
     )
     # Enumerate all POS tags in the dataset and create
     # the corresponding encoder
-    pos_enc = Encoder(pos for _, out in data for pos in out)
+    pos_enc = Encoder(pos for _, out in data for pos, head in out)
     return (char_enc, pos_enc)
+
+def encode_input(sent: Inp, char_enc: Encoder[Char]) -> EncInp:
+    """Encode input sentence given a character encoder."""
+    return [
+        torch.tensor([char_enc.encode(Char(char)) for char in word])
+        for word in sent
+    ]
+
+def encode_output(out: Out, pos_enc: Encoder[POS]) -> EncOut:
+    """Encode output pair given a POS encoder."""
+    enc_pos = torch.tensor([pos_enc.encode(pos) for pos, head in out])
+    enc_head = torch.tensor([head for pos, head in out])
+    return (enc_pos, enc_head)
 
 def encode_with(
     data: List[Tuple[Inp, Out]],
     char_enc: Encoder[Char],
     pos_enc: Encoder[POS]
-) -> List[Tuple[List[Tensor], Tensor]]:
-    """Encode a dataset using given input word and output POS tag encoders.
+) -> List[Tuple[EncInp, EncOut]]:
+    """Encode a dataset using given input character and output POS tag encoders.
 
     Parameters
     ----------
@@ -98,7 +125,7 @@ def encode_with(
 
     Returns
     -------
-    enc_data : List[Tuple[List[Tensor], Tensor]]
+    enc_data : List[Tuple[EncInp, EncOut]]
         List of encoded input/output pairs
 
     If there are no unknown (OOV) symbols in the `data` parmeter, then
@@ -108,10 +135,7 @@ def encode_with(
     """
     enc_data = []
     for inp, out in data:
-        enc_inp = [
-            torch.tensor([char_enc.encode(char) for char in word])
-            for word in inp
-        ]
-        enc_out = torch.tensor([pos_enc.encode(pos) for pos in out])
+        enc_inp = encode_input(inp, char_enc)
+        enc_out = encode_output(out, pos_enc)
         enc_data.append((enc_inp, enc_out))
     return enc_data

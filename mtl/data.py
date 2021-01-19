@@ -53,13 +53,30 @@ def parse_and_extract(conllu_path) -> List[Tuple[Inp, Out]]:
 def create_encoders(
     data: List[Tuple[Inp, Out]]
 ) -> Tuple[Encoder[Char], Encoder[POS]]:
-    """Create a pair of encoders, for words and POS tags respectively."""
+    """Create a pair of encoders, for words and POS tags respectively.
+
+    Parameters
+    ----------
+    data : List[Tuple[Inp, Out]]
+        List of input/output pairs based on which the encoders
+        will be created; this parameter should only contain the
+        training pairs, and not development or evaluation pairs.
+
+    Returns
+    -------
+    (char_enc, pos_enc) : Tuple[Encoder[Char], Encoder[POS]]
+        Pair of encoders for input characters and output POS tags.
+    """
+    # Enumerate all input characters present in the dataset
+    # and create the encoder out of the resulting iterable
     char_enc = Encoder(
         char
         for inp, _ in data
         for word in inp
         for char in word
     )
+    # Enumerate all POS tags in the dataset and create
+    # the corresponding encoder
     pos_enc = Encoder(pos for _, out in data for pos in out)
     return (char_enc, pos_enc)
 
@@ -68,7 +85,27 @@ def encode_with(
     char_enc: Encoder[Char],
     pos_enc: Encoder[POS]
 ) -> List[Tuple[List[Tensor], Tensor]]:
-    """Encode a dataset using given input word and output POS tag encoders."""
+    """Encode a dataset using given input word and output POS tag encoders.
+
+    Parameters
+    ----------
+    data : List[Tuple[Inp, Out]]
+        List of input/output pairs to encode
+    char_enc : Encoder[Char]
+        Encoder able to encode (as integers) input characters
+    pos_enc : Encoder[POS]
+        Encoder able to encode (as integers) output POS tags
+
+    Returns
+    -------
+    enc_data : List[Tuple[List[Tensor], Tensor]]
+        List of encoded input/output pairs
+
+    If there are no unknown (OOV) symbols in the `data` parmeter, then
+    the resulting encoded dataset `enc_data` is isomorphic to `data`,
+    i.e. it can be decoded back to `data` using the `decode` method
+    of the `char_enc` and `pos_enc` encoders.
+    """
     enc_data = []
     for inp, out in data:
         enc_inp = [

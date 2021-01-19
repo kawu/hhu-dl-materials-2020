@@ -6,7 +6,6 @@ from typing import Iterable, TypeVar, Generic, Dict
 
 T = TypeVar('T')
 class Encoder(Generic[T]):
-
     """Mapping between classes and the corresponding indices.
 
     >>> classes = ["English", "German", "French"]
@@ -54,7 +53,41 @@ def train(
     learning_rate=0.001,
     report_rate=10,
 ):
-    """SGD training function."""
+    """Training function based on stochastic gradient descent.
+
+    Parameters
+    ----------
+    model : nn.Module
+        PyTorch module to train
+    train_data : list
+        List of encoded input/output pairs; the model is trained
+        to minimize the loss (see the `loss` parameter) over this
+        dataset
+    dev_data : list
+        List of encoded input/output pairs used for development;
+        The function reports the accuracy of the model on the dev_data
+        every couple of epochs (see `report_rate`)
+    loss : function
+        Function which takes two arguments -- the output of the model
+        on a given input, and the target output (both in encoded form)
+        -- and returns a float scalar tensor.  The model is trained
+        to minimize the cumulative loss over the entire training set
+        (see `train_data`).
+    accuracy : function
+        Helper function with two arguments -- a PyTorch model and a
+        dataset -- which calculates the accuracy of the model.
+        Used exclusively for reporting (see also `report_rate`).
+    epoch_num : int
+        The number of epochs, i.e., the number of passes of the algorithm
+        over the entire training set (`train_data`).
+    learning_rate : float
+        Learning rate, determines the size of the step in each iteration
+        of the algorithm.
+    report_rate : int
+        Determines the frequency of reporting the `loss` on the
+        training set (`train_data`) and accuracy on both datasets
+        (`train_data` and `dev_data`)
+    """
     # Use Adam to adapt the model's parameters
     optim = torch.optim.Adam(model.parameters(), lr=learning_rate)
     for k in range(epoch_num):
@@ -64,14 +97,26 @@ def train(
         total_loss = 0
         # Optional: use random dataset permutation in each epoch
         for i in torch.randperm(len(train_data)):
+            # Pick a dataset pair on position i
             x, y = train_data[i]
+            # Calculate the loss between the output of the model
+            # and the target output
             z = loss(model(x), y)
+            # Update the total loss on the training set (used
+            # for reporting)
             total_loss += z.item()
+            # Calculate the gradients using backpropagation
             z.backward()
+            # Update the parameters along the gradients
             optim.step()
+            # Zero-out the gradients
             optim.zero_grad()
+        # Report the loss and accuracy values after the first epoch
+        # and every `report_rate` epochs
         if k == 0 or (k+1) % report_rate == 0:
+            # No need to calculate the gradients during evaluation
             with torch.no_grad():
+                # Enter evaluation mode, important in case dropout is used
                 model.eval()
                 train_acc = accuracy(model, train_data)
                 dev_acc = accuracy(model, dev_data)

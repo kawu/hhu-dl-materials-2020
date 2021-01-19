@@ -15,6 +15,7 @@ as the starting point.
   - [Biaffine model](#biaffine-model)
 - [Joint model](#joint-model)
 - [Processing original data](#processing-original-data)
+- [Footnotes](#footnotes)
 
 <!-- END doctoc generated TOC please keep comment here to allow auto update -->
 

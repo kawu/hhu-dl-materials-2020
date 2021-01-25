@@ -220,7 +220,7 @@ contextualized word embeddings.  Here's a simple way to achieve that:
 class Joint(nn.Module):
     """Joint POS tagging / dependency parsing module.
 
-    Type: List[EncInp] -> Tuple[PosScores, DepScores]
+    Type: EncInp -> Tuple[PosScores, DepScores]
 
     where:
 

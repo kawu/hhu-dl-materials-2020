@@ -21,6 +21,11 @@ neural model.
 <!-- START doctoc generated TOC please keep comment here to allow auto update -->
 <!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
 
+- [fastText](#fasttext)
+  - [Setup](#setup)
+  - [Basic usage](#basic-usage)
+  - [Integration](#integration)
+    - [Embedding during pre-processing](#embedding-during-pre-processing)
 
 <!-- END doctoc generated TOC please keep comment here to allow auto update -->
 
@@ -45,19 +50,19 @@ wget https://dl.fbaipublicfiles.com/fasttext/vectors-crawl/cc.en.300.bin.gz
 ```
 Note the file is relatively large (4.2 GB) so the download can take some time.
 
+**WARNING**: The model is quite memory greedy and I wouldn't recommend using it
+if you haven't at least 16 GB of RAM on your personal computer.  An alternative
+is to use a `fastText` model with [reduced
+dimensionality][fasttext-reduce-dim] (note that this typically lowers the
+results, though).  You can download a reduced English model from
+[here][fasttext-en-100] (the reduced model provides embeddings of size 100).
+
+
 ### Basic usage
 
 To test the setup, open the Python interpreter, import the `fasttext` library,
-and try embedding some English words.
-
-**WARNING**: The model is quite memory greedy and I wouldn't recommend trying
-to use it if you haven't at least 16 GB of RAM on your personal computer.  An
-alternative is to use a `fastText` model with [reduced
-dimensionality][fasttext-reduce-dim].  **TODO**: Provide a link to one such
-model for EN.
-
-You can find the overview of the usage of the Python `fasttext` module
-[here][fasttext-python-usage-overview].
+and try embedding some English words.  You can find the overview of the usage
+of the Python `fasttext` module [here][fasttext-python-usage-overview].
 ```python
 model = fasttext.load_model("cc.en.300.bin")
 model['asparagus']
@@ -65,6 +70,8 @@ model['asparagus']
 # =>                                        ...
 # =>        -1.08037302e-02,  9.83848721e-02,  3.61668691e-02,  8.09734687e-03],
 # =>       dtype=float32)
+model['asparagus'].size
+# => 300
 ```
 The output vector is a numpy array.
 ```python
@@ -106,7 +113,7 @@ follow one of two strategies:
 In both cases, it is no longer necessary to encode the input words as integers
 (since the fastText model takes strings on input).  The second strategy is the
 only one that can be used if you want to adapt the embeddings (i.e. make them
-parameters of the neural model).  Below we describe the implementation of the
+parameters of the neural model).  Below we describe an implementation of the
 first strategy.
 
 #### Embedding during pre-processing
@@ -115,6 +122,7 @@ first strategy.
 
 
 [fasttext-models]: https://fasttext.cc/docs/en/crawl-vectors.html#models "Official fastText models for 157 languages"
+[fasttext-en-100]: https://user.phil.hhu.de/~waszczuk/treegrasp/fasttext/cc.en.100.bin.gz
 [fasttext-python-usage-overview]: https://fasttext.cc/docs/en/python-module.html#usage-overview
 [fasttext-reduce-dim]: https://fasttext.cc/docs/en/crawl-vectors.html#adapt-the-dimension
 

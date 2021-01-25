@@ -21,11 +21,13 @@ neural model.
 <!-- START doctoc generated TOC please keep comment here to allow auto update -->
 <!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
 
+
 - [fastText](#fasttext)
   - [Setup](#setup)
   - [Basic usage](#basic-usage)
   - [Integration](#integration)
     - [Embedding during pre-processing](#embedding-during-pre-processing)
+- [BERT](#bert)
 
 <!-- END doctoc generated TOC please keep comment here to allow auto update -->
 
@@ -70,11 +72,10 @@ model['asparagus']
 # =>                                        ...
 # =>        -1.08037302e-02,  9.83848721e-02,  3.61668691e-02,  8.09734687e-03],
 # =>       dtype=float32)
-model['asparagus'].size
-# => 300
 ```
-The output vector is a numpy array.
+The output vector is a numpy array of size 300:
 ```python
+model['asparagus'].size     # => 300
 type(model['asparagus'])    # => <class 'numpy.ndarray'>
 ```
 You can transform it easily to a PyTorch tensor as follows:
@@ -118,6 +119,71 @@ first strategy.
 
 #### Embedding during pre-processing
 
+Embedding during pre-processing means that we want to apply the fastText model
+to replace the words on input (strings):
+```python
+# Input: a list of words
+Inp = List[Word]
+```
+with the corresponding fastText embeddings (tensors) once in advance.  We can
+reuse the `EncInp` type to express that we want to perform embedding during the
+stage of encoding (which is performed only once and hence makes part of
+pre-processing).
+```
+# Encoded input: a matrix of pre-trained embeddings
+EncInp = Tensor
+```
+This will lead to a typing error in the `encode_input` function:
+```bash
+pre-trained $ mypy data.py
+data.py:99: error: Incompatible return value type (got "List[Tensor]", expected "Tensor")
+```
+which we can update to use a fastText model instead of a character-level
+encoder.
+```python
+def encode_input(sent: Inp, ft_model) -> EncInp:
+    """Embed an input sentence given a fastText model."""
+    return torch.tensor(ft_model[word] for word in sent)
+```
+The type-checker will not complain at this point, since `ft_model` in the code
+above is not type-annotated, but to keep the code clean the types and docstring
+of the `encode_with` function should be updated as well.
+
+The next step is to modify the main script (`session.py`) in order to account
+for the change of the encoding and embedding strategy.  First of all, we can
+underscore to mark the character encoder as unused (this is just a convention)
+and load the desired fastText model:
+```
+...
+import fasttext # type: ignore
+...
+_char_enc, pos_enc = create_encoders(train_data)
+
+# Load a fastText model
+fastText = fasttext.load("cc.en.300.bin")   # or "cc.en.100.bin"
+
+# Encode the train and dev sets, using fastText and the POS encoder
+enc_train = encode_with(train_data, fastText, pos_enc)
+enc_dev = encode_with(dev_data, fastText, pos_enc)
+...
+```
+At this point, we can re-define the model, taking into account that we don't
+need the embedding-related components any more:
+```python
+model = nn.Sequential(
+    SimpleBiLSTM(300, 200),     # or `SimpleBiLSTM(100, 200)` if using
+                                # reduced embeddings
+    Biaffine(200),
+)
+```
+These are all the changes needed to adapt the model to use pre-trained fastText
+embeddings.  We can now proceed to train the model and see the impact on the
+resulting accuracy.
+
+
+## BERT
+
+:construction: work in progress :construction:
 
 
 

@@ -129,13 +129,13 @@ with the corresponding fastText embeddings (tensors) once in advance.  We can
 reuse the `EncInp` type to express that we want to perform embedding during the
 stage of encoding (which is performed only once and hence makes part of
 pre-processing).
-```
+```python
 # Encoded input: a matrix of pre-trained embeddings
 EncInp = Tensor
 ```
 This will lead to a typing error in the `encode_input` function:
 ```bash
-pretrained $ mypy data.py
+pretrained$ mypy data.py
 data.py:99: error: Incompatible return value type (got "List[Tensor]", expected "Tensor")
 ```
 which we can update to use a fastText model instead of a character-level
@@ -153,7 +153,7 @@ The next step is to modify the main script (`session.py`) in order to account
 for the change of the encoding and embedding strategy.  First of all, we can
 underscore to mark the character encoder as unused (this is just a convention)
 and load the desired fastText model:
-```
+```python
 ...
 import fasttext # type: ignore
 ...

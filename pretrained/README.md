@@ -135,7 +135,7 @@ EncInp = Tensor
 ```
 This will lead to a typing error in the `encode_input` function:
 ```bash
-pre-trained $ mypy data.py
+pretrained $ mypy data.py
 data.py:99: error: Incompatible return value type (got "List[Tensor]", expected "Tensor")
 ```
 which we can update to use a fastText model instead of a character-level
@@ -143,7 +143,7 @@ encoder.
 ```python
 def encode_input(sent: Inp, ft_model) -> EncInp:
     """Embed an input sentence given a fastText model."""
-    return torch.tensor(ft_model[word] for word in sent)
+    return torch.tensor([ft_model[word] for word in sent])
 ```
 The type-checker will not complain at this point, since `ft_model` in the code
 above is not type-annotated, but to keep the code clean the types and docstring

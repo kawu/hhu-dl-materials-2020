@@ -39,11 +39,11 @@ preferably one of the [models officially distributed on the
 website][fasttext-models].  The models are available in two formats: textual
 and binary.  In practice the latter is easier to use in a PyTorch application.
 In the following we use the official binary model for English, which can be
-also downloaded from command line:
+downloaded on Linux from the command line using:
 ```bash
-https://dl.fbaipublicfiles.com/fasttext/vectors-crawl/cc.en.300.bin.gz
+wget https://dl.fbaipublicfiles.com/fasttext/vectors-crawl/cc.en.300.bin.gz
 ```
-Note the file is large (4.2 GB) so its download can take some time.
+Note the file is relatively large (4.2 GB) so the download can take some time.
 
 ### Basic usage
 
@@ -78,15 +78,15 @@ Note that the resulting tensor does not ,,require gradient'' by default:
 ```python
 x.requires_grad             # => False
 ```
-which means that they won't be adapted during training of a PyTorch model using
-them (which is most often the intended behavior, in contrast with the custom
-embeddings we were using so far).
+which means that it won't get adapted during training (which is most often the
+intended behavior, in contrast with the custom embeddings we were using so
+far).
 
 An important advantage of fastText embeddings in contrast with custom
 word-level embeddings is that you no longer have to worry about spelling
 mistakes or OOV words, thanks to fastText using sub-word information to produce
-the embedding vectors (admittedly, using a character-level model to produce
-word embeddings also alleviates this issue).
+the resulting vectors (admittedly, using a character-level model to produce
+word embeddings also alleviates these issues).
 <!--
 ```python
 model['asparags']
@@ -102,6 +102,7 @@ To integrate the fastText model in our dependency parser / POS tagger, we can
 follow one of two strategies:
 * Produce the fastText embeddings as part of the pre-processing
 * Calculate the fastText embeddings as part of the model
+
 In both cases, it is no longer necessary to encode the input words as integers
 (since the fastText model takes strings on input).  The second strategy is the
 only one that can be used if you want to adapt the embeddings (i.e. make them
@@ -114,6 +115,6 @@ first strategy.
 
 
 [fasttext-models]: https://fasttext.cc/docs/en/crawl-vectors.html#models "Official fastText models for 157 languages"
-[fastext-python-usage-overview]: https://fasttext.cc/docs/en/python-module.html#usage-overview
+[fasttext-python-usage-overview]: https://fasttext.cc/docs/en/python-module.html#usage-overview
 [fasttext-reduce-dim]: https://fasttext.cc/docs/en/crawl-vectors.html#adapt-the-dimension
 

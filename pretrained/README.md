@@ -1,5 +1,7 @@
 # Pre-trained embeddings
 
+:construction: work in progress :construction:
+
 So far we were using custom (word- or character-level) embeddings, trained as
 part of the network in a task-specific way.  An alternative is to use
 embeddings pre-trained on large quantities of un-annotated texts in an
@@ -235,8 +237,6 @@ pos_accuracy(model, enc_dev)
 
 ## BERT
 
-:construction: work in progress :construction:
-
 This sections shows how to use [bert-as-service][bert-as-service].
 
 ### Setup
@@ -384,6 +384,9 @@ def encode_input(sent: Inp, bc: BertClient) -> EncInp:
 * Update the `encode_with` function (in particular its docstring)
 * Update the main script to replace the embedding model with BERT
 
+**Results**: Using the [BERT-Medium model][bert-small-models] allows to reach
+the POS accuracy of around 89.5\% and UAS (dependency accuracy) of around
+81.5\% on the dev set.
 
 
 [fasttext-models]: https://fasttext.cc/docs/en/crawl-vectors.html#models "Official fastText models for 157 languages"
@@ -391,3 +394,4 @@ def encode_input(sent: Inp, bc: BertClient) -> EncInp:
 [fasttext-python-usage-overview]: https://fasttext.cc/docs/en/python-module.html#usage-overview
 [fasttext-reduce-dim]: https://fasttext.cc/docs/en/crawl-vectors.html#adapt-the-dimension
 [bert-as-service]: https://github.com/hanxiao/bert-as-service
+[bert-models]: https://github.com/google-research/bert/#bert

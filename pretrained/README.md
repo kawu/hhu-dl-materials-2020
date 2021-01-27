@@ -384,9 +384,9 @@ def encode_input(sent: Inp, bc: BertClient) -> EncInp:
 * Update the `encode_with` function (in particular its docstring)
 * Update the main script to replace the embedding model with BERT
 
-**Results**: Using the [BERT-Medium model][bert-small-models] allows to reach
-the POS accuracy of around 89.5\% and UAS (dependency accuracy) of around
-81.5\% on the dev set.
+**Results**: Using the [BERT-Base model][bert-small-models] embeddings in the
+joint model allows to reach the POS accuracy of around 90\% and UAS (dependency
+accuracy) of around 82.5\% on the dev set.
 
 
 [fasttext-models]: https://fasttext.cc/docs/en/crawl-vectors.html#models "Official fastText models for 157 languages"

@@ -115,10 +115,12 @@ follow one of two strategies:
 In any case, it is no longer necessary to encode input words as integers
 (fastText models take strings on input).  The second strategy is the only one
 that can be used if you want to adapt the embeddings (i.e. make them parameters
-of the neural model).  Below we describe an implementation of the first
+of the neural model).  Here we describe an implementation of the first
 strategy.
 
+<!--
 #### Embedding during pre-processing
+-->
 
 Embedding during pre-processing means that we want to apply the fastText model
 to replace the words on input:
@@ -228,10 +230,157 @@ pos_accuracy(model, enc_dev)
 
 :construction: work in progress :construction:
 
+This sections shows how to use [bert-as-service][bert-as-service].
+
+### Setup
+
+#### Server
+
+The server can be installed in a separate conda environment, in order to avoid
+dependency issues.
+* Create a dedicated conda environment (`bert-as-service` requires tensorflow
+  v1, which in turn makes it necessary to downgrade to Python 3.7)
+    * `conda create --name bert-service python=3.7`
+    * `conda activate bert-service`
+* Install tensorflow 1.15 (a dependency of `bert-as-service`)
+    * `pip install tensorflow==1.15`
+* Install the server, as explained
+  [here](https://github.com/hanxiao/bert-as-service#install)
+    * `pip install bert-serving-server`
+
+The next step is to download a BERT model.  The
+[google-research/bert](https://github.com/google-research/bert/) github
+repository provides several pre-trained models.
+* Download and extract the ,,tiny'' model (`uncased_L-2_H-128_A-2`); this model
+  is very small so it can be used on a standard personal computer without
+  problems
+* Start the server
+    * `bert-serving-start -model_dir uncased_L-2_H-128_A-2 -num_worker=4`
+
+<!--
+* Download a tiny BERT model:
+    * See `https://huggingface.co/google/bert_uncased_L-4_H-128_A-2#bert-miniatures`
+    * And `https://github.com/google-research/bert/`
+    * Unpack: `unzip uncased_L-2_H-128_A-2.zip -d uncased_L-2_H-128_A-2`
+-->
+
+#### Client
+
+The client should be installed in the main `dlnlp` conda environment with the
+following command:
+```bash
+pip install bert-serving-client
+```
+
+### Usage
+
+Once the server is running and the client is installed, you can use it to, for
+instance, encode sentences as vectors:
+```python
+from bert_serving.client import BertClient
+
+# Create the client instance
+bc = BertClient()
+
+# Encode three sentences to three vectors
+bc.encode(['First do it', 'then do it right', 'then do it better'])
+# => array([[-2.19040513e+00,  6.67692840e-01, -1.93513811e+00,
+# =>                                 ...
+# =>         -1.93510860e-01,  1.02745548e-01],
+# =>        [-1.74784052e+00,  7.03274667e-01, -1.61399996e+00,
+# =>                                 ...
+# =>          4.40993279e-01,  6.39024019e-01],
+# =>        [-1.99619067e+00,  8.95147741e-01, -1.73543727e+00,
+# =>                                 ...
+# =>          2.13959828e-01,  4.03461665e-01]], dtype=float32)
+```
+In this case, the resulting vectors are numpy arrays of size 128 (due to the
+selected model), which can be converted to PyTorch tensors using
+`torch.tensor`.
+```python
+type(bc.encode(['First do it']))        # => <class 'numpy.ndarray'>
+bc.encode(['then do it right']).size    # => 128
+```
+
+See [the
+documentation](https://github.com/hanxiao/bert-as-service#server-and-client-api)
+for a full description of the client/server API.
+
+
+#### Contextualized embeddings
+
+BERT allows to retrieve the contextualized embeddings of the individual words
+in a sentence.  To this end, the server has to be started with
+`pooling_strategy` set to `NONE` (remember to do that in the `bert-as-service`
+environment if you followed the [server setup instructions](#setup2) above!):
+```bash
+bert-serving-start -pooling_strategy NONE -model_dir uncased_L-2_H-128_A-2 -num_worker=4
+```
+The BERT client will then output separate vectors for the individual words:
+```python
+torch.tensor(bc.encode(['then do it better']).copy()).shape
+# => torch.Size([1, 25, 128])
+```
+The first dimension of the result is the batch-size and the second is the
+maximum sequence length (see [below](#sentence-length).  Additionally, the
+input sentence is implicitely padded on the left and right with special
+symbols:
+```python
+xs = torch.tensor(bc.encode(['then do it better']).copy()).squeeze(0)
+xs[0]   # embedding for '[CLS]'
+xs[1]   # embedding for 'then'
+xs[2]   # embedding for 'do'
+xs[3]   # embedding for 'it'
+xs[4]   # embedding for 'better'
+xs[5]   # embedding for '[SEP]'
+xs[6]   # embedding for padding symbol
+```
+See [the corresponding
+documentation](https://github.com/hanxiao/bert-as-service#getting-elmo-like-contextual-word-embedding)
+for more details.
+
+#### Sentence length
+
+By default all sentences are trimmed on the right to a maximum sequence length.
+To avoid that, set the `max_seq_len` server option to `NONE`, or to an actual
+maximum sentence length in your dataset.
+
+#### Processing tokenized sentence
+
+See https://github.com/hanxiao/bert-as-service#using-your-own-tokenizer.
+Beware of tokenization mismatches.
+
+
+### Integration
+
+Integration of the BERT model (with no pooling strategy, see
+[above](#contextualized-embeddings)) is similar to the process of integrating
+`fastText`:
+* Reuse the `EncInp` type to express that we want to perform embedding during
+  pre-processing:
+```python
+# Encoded input: a matrix of pre-trained embeddings
+EncInp = Tensor
+```
+* Update the `encode_input` function to use BERT:
+```python
+def encode_input(sent: Inp, bc: BertClient) -> EncInp:
+    """Embed an input sentence given a BERT client."""
+    # Retrieve the embeddings of the sentence
+    xs = torch.tensor(bc.encode([sent], is_tokenized=True).copy()).squeeze(0)
+    # Discard [CLS] and [SEP] embeddings
+    xs = xs[1:len(sent)+1]
+    # Make sure the lenghts match, just in case
+    assert len(xs) == len(sent)
+    return xs
+```
+* Update the `encode_with` function (in particular its docstring)
+* Update the main script to replace the embedding model with BERT
+
 
 
 [fasttext-models]: https://fasttext.cc/docs/en/crawl-vectors.html#models "Official fastText models for 157 languages"
 [fasttext-en-100]: https://user.phil.hhu.de/~waszczuk/treegrasp/fasttext/cc.en.100.bin.gz
 [fasttext-python-usage-overview]: https://fasttext.cc/docs/en/python-module.html#usage-overview
 [fasttext-reduce-dim]: https://fasttext.cc/docs/en/crawl-vectors.html#adapt-the-dimension
-
+[bert-as-service]: https://github.com/hanxiao/bert-as-service

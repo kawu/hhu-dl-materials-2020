@@ -3,11 +3,11 @@
 So far we were using custom (word- or character-level) embeddings, trained as
 part of the network in a task-specific way.  An alternative is to use
 embeddings pre-trained on large quantities of un-annotated texts in an
-unsupervised manner.  Using modern pre-trained embeddings is often unavoidable
-when it comes to achieving state-of-the-art results.  While their
-(pre-)training is often very costly, using them typically is not (although
-memory requirements of just putting the embedding model in the memory of a
-personal computer can be prohibitive).
+unsupervised way.  Using modern pre-trained embeddings is often inevitable when
+it comes to achieving state-of-the-art results.  While pre-training is often
+very costly, using pre-trained embeddings typically isn't (although memory
+requirements of just using an embedding model on a personal computer can be
+prohibitive).
 
 Pre-trained embeddings can be classified in two groups: non-contextualized
 (e.g. word2vec, GloVe, fastText) and contextualized (e.g. ELMo, BERT).  The

@@ -135,7 +135,7 @@ pre-processing).
 EncInp = Tensor
 ```
 This will lead to a typing error in the `encode_input` function:
-```bash
+```console
 pretrained$ mypy data.py
 data.py:99: error: Incompatible return value type (got "List[Tensor]", expected "Tensor")
 ```
@@ -146,14 +146,14 @@ def encode_input(sent: Inp, ft_model) -> EncInp:
     """Embed an input sentence given a fastText model."""
     return torch.tensor([ft_model[word] for word in sent])
 ```
-The type-checker will not complain at this point, since `ft_model` in the code
+This will be enough to satisfy the type-checker, since `ft_model` in the code
 above is not type-annotated, but to keep the code clean the types and docstring
 of the `encode_with` function should be updated as well.
 
 The next step is to modify the main script (`session.py`) in order to account
 for the change of the encoding and embedding strategy.  First of all, we can
-underscore to mark the character encoder as unused (this is just a convention)
-and load the desired fastText model:
+use underscore to mark the character encoder as unused (this is just a
+convention) and load the desired fastText model:
 ```python
 ...
 import fasttext # type: ignore
@@ -161,22 +161,38 @@ import fasttext # type: ignore
 _char_enc, pos_enc = create_encoders(train_data)
 
 # Load a fastText model
-fastText = fasttext.load("cc.en.300.bin")   # or "cc.en.100.bin"
+fastText = fasttext.load_model("cc.en.300.bin")   # or "cc.en.100.bin"
 
 # Encode the train and dev sets, using fastText and the POS encoder
 enc_train = encode_with(train_data, fastText, pos_enc)
 enc_dev = encode_with(dev_data, fastText, pos_enc)
 ...
 ```
-At this point, we can re-define the model, taking into account that we don't
-need the embedding-related components any more:
+At this point, we can re-define the `Joint` model, taking into account that:
+* We don't need the embedding-related components any more
+* Embedding size is 300 (or 100 in case of the reduced model)
+* The character-level encoder should be replaced with the fastText model
+
+In particular:
 ```python
-model = nn.Sequential(
-    SimpleBiLSTM(300, 200),     # or `SimpleBiLSTM(100, 200)` if using
-                                # reduced embeddings
-    Biaffine(200),
-)
+class Joint(nn.Module):
+    ...
+    def __init__(self,
+        ft_model,                   # fastText embedding model
+        pos_enc: Encoder[POS],      # Encoder for POS tags
+        emb_size: int,              # Embedding size
+        hid_size: int               # Hidden size used in LSTMs
+    ):
+        ...
+        self.ft_model = ft_model
+        ...
+        # Common part of the model: LSTM contextualization
+        self.embed = nn.Sequential(
+            # NOTE: Embedding components removed (embedding part of pre-processing)
+            SimpleBiLSTM(emb_size, hid_size),
+        )
 ```
+
 These are all the changes needed to adapt the model to use pre-trained fastText
 embeddings.  We can now proceed to train the model and see the impact on the
 resulting accuracy.

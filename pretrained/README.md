@@ -391,6 +391,7 @@ accuracy) of around 82.5\% on the dev set.
 **TODO**: Check the following:
 * Does adding Dropout help?
 * Is BiLSTM even necessary in this setting?
+* Are there any tokenization mismatches?
 
 
 [fasttext-models]: https://fasttext.cc/docs/en/crawl-vectors.html#models "Official fastText models for 157 languages"

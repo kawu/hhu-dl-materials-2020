@@ -26,8 +26,15 @@ neural model.
   - [Setup](#setup)
   - [Basic usage](#basic-usage)
   - [Integration](#integration)
-    - [Embedding during pre-processing](#embedding-during-pre-processing)
 - [BERT](#bert)
+  - [Setup](#setup-1)
+    - [Server](#server)
+    - [Client](#client)
+  - [Usage](#usage)
+    - [Contextualized embeddings](#contextualized-embeddings)
+    - [Sentence length](#sentence-length)
+    - [Processing tokenized sentence](#processing-tokenized-sentence)
+  - [Integration](#integration-1)
 
 <!-- END doctoc generated TOC please keep comment here to allow auto update -->
 
@@ -312,7 +319,7 @@ for a full description of the client/server API.
 BERT allows to retrieve the contextualized embeddings of the individual words
 in a sentence.  To this end, the server has to be started with
 `pooling_strategy` set to `NONE` (remember to do that in the `bert-as-service`
-environment if you followed the [server setup instructions](#setup2) above!):
+environment if you followed the [server setup instructions](#setup-1) above!):
 ```bash
 bert-serving-start -pooling_strategy NONE -model_dir uncased_L-2_H-128_A-2 -num_worker=4
 ```

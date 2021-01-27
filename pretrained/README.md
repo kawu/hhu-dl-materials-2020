@@ -188,7 +188,7 @@ class Joint(nn.Module):
         ...
         # Common part of the model: LSTM contextualization
         self.embed = nn.Sequential(
-            # NOTE: Embedding components removed (embedding part of pre-processing)
+            # NOTE: Embedding components removed
             SimpleBiLSTM(emb_size, hid_size),
         )
 ```

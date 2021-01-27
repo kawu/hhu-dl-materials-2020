@@ -196,6 +196,32 @@ class Joint(nn.Module):
 These are all the changes needed to adapt the model to use pre-trained fastText
 embeddings.  We can now proceed to train the model and see the impact on the
 resulting accuracy.
+```python
+train(model, enc_train, enc_dev, loss, pos_accuracy, epoch_num=10, learning_rate=0.001, report_rate=1)
+# => @1: loss(train)=4411.780, acc(train)=0.874, acc(dev)=0.850
+# => @2: loss(train)=2360.391, acc(train)=0.920, acc(dev)=0.900
+# => @3: loss(train)=1814.367, acc(train)=0.938, acc(dev)=0.914
+# => @4: loss(train)=1479.676, acc(train)=0.948, acc(dev)=0.920
+# => @5: loss(train)=1227.272, acc(train)=0.955, acc(dev)=0.925
+# => @6: loss(train)=1023.560, acc(train)=0.961, acc(dev)=0.927
+# => @7: loss(train)=865.200, acc(train)=0.964, acc(dev)=0.925
+# => @8: loss(train)=736.572, acc(train)=0.969, acc(dev)=0.927
+# => @9: loss(train)=604.668, acc(train)=0.971, acc(dev)=0.921
+# => @10: loss(train)=526.406, acc(train)=0.974, acc(dev)=0.921
+train(model, enc_train, enc_dev, loss, dep_accuracy, epoch_num=10, learning_rate=0.0001, report_rate=1)
+# => @1: loss(train)=342.685, acc(train)=0.966, acc(dev)=0.769
+# => @2: loss(train)=250.953, acc(train)=0.976, acc(dev)=0.774
+# => @3: loss(train)=212.318, acc(train)=0.982, acc(dev)=0.775
+# => @4: loss(train)=186.850, acc(train)=0.986, acc(dev)=0.771
+# => @5: loss(train)=164.101, acc(train)=0.989, acc(dev)=0.770
+# => @6: loss(train)=146.069, acc(train)=0.992, acc(dev)=0.775
+# => @7: loss(train)=129.453, acc(train)=0.994, acc(dev)=0.771
+# => @8: loss(train)=115.474, acc(train)=0.995, acc(dev)=0.767
+# => @9: loss(train)=103.844, acc(train)=0.997, acc(dev)=0.768
+# => @10: loss(train)=93.190, acc(train)=0.998, acc(dev)=0.772
+pos_accuracy(model, enc_dev)
+# => 0.922850844966936
+```
 
 
 ## BERT

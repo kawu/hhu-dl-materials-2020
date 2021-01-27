@@ -388,6 +388,10 @@ def encode_input(sent: Inp, bc: BertClient) -> EncInp:
 joint model allows to reach the POS accuracy of around 90\% and UAS (dependency
 accuracy) of around 82.5\% on the dev set.
 
+**TODO**: Check the following:
+* Does adding Dropout help?
+* Is BiLSTM even necessary in this setting?
+
 
 [fasttext-models]: https://fasttext.cc/docs/en/crawl-vectors.html#models "Official fastText models for 157 languages"
 [fasttext-en-100]: https://user.phil.hhu.de/~waszczuk/treegrasp/fasttext/cc.en.100.bin.gz

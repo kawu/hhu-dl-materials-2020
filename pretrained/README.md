@@ -394,4 +394,4 @@ accuracy) of around 82.5\% on the dev set.
 [fasttext-python-usage-overview]: https://fasttext.cc/docs/en/python-module.html#usage-overview
 [fasttext-reduce-dim]: https://fasttext.cc/docs/en/crawl-vectors.html#adapt-the-dimension
 [bert-as-service]: https://github.com/hanxiao/bert-as-service
-[bert-models]: https://github.com/google-research/bert/#bert
+[bert-small-models]: https://github.com/google-research/bert/#bert

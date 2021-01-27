@@ -42,7 +42,7 @@ the `dlnlp` environment):
 pip install fasttext
 ```
 The next step is to download a pre-trained model for a particular language,
-preferably one of the [models officially distributed on the
+preferably one of the [models officially distributed on the fastText
 website][fasttext-models].  The models are available in two formats: textual
 and binary.  In practice the latter is easier to use in a PyTorch application.
 In the following we use the official binary model for English, which can be
@@ -50,14 +50,15 @@ downloaded on Linux from the command line using:
 ```bash
 wget https://dl.fbaipublicfiles.com/fasttext/vectors-crawl/cc.en.300.bin.gz
 ```
-Note the file is relatively large (4.2 GB) so the download can take some time.
+Note that the file is relatively large (4.2 GB) so the download can take some
+time.
 
 **WARNING**: The model is quite memory greedy and I wouldn't recommend using it
 if you haven't at least 16 GB of RAM on your personal computer.  An alternative
 is to use a `fastText` model with [reduced
-dimensionality][fasttext-reduce-dim] (note that this typically lowers the
-results, though).  You can download a reduced English model from
-[here][fasttext-en-100] (the reduced model provides embeddings of size 100).
+dimensionality][fasttext-reduce-dim].  You can download a reduced (with
+embeddings of size 100) English model from [here][fasttext-en-100] .  Note that
+reducing dimensionality often leads to lower results.
 
 
 ### Basic usage
@@ -108,19 +109,19 @@ model['asparags']
 
 To integrate the fastText model in our dependency parser / POS tagger, we can
 follow one of two strategies:
-* Produce the fastText embeddings as part of the pre-processing
+* Produce the fastText embeddings as part of pre-processing
 * Calculate the fastText embeddings as part of the model
 
-In both cases, it is no longer necessary to encode the input words as integers
-(since the fastText model takes strings on input).  The second strategy is the
-only one that can be used if you want to adapt the embeddings (i.e. make them
-parameters of the neural model).  Below we describe an implementation of the
-first strategy.
+In any case, it is no longer necessary to encode input words as integers
+(fastText models take strings on input).  The second strategy is the only one
+that can be used if you want to adapt the embeddings (i.e. make them parameters
+of the neural model).  Below we describe an implementation of the first
+strategy.
 
 #### Embedding during pre-processing
 
 Embedding during pre-processing means that we want to apply the fastText model
-to replace the words on input (strings):
+to replace the words on input:
 ```python
 # Input: a list of words
 Inp = List[Word]

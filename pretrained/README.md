@@ -355,7 +355,9 @@ maximum sentence length in your dataset.
 #### Processing tokenized sentence
 
 See https://github.com/hanxiao/bert-as-service#using-your-own-tokenizer.
-Beware of tokenization mismatches.
+**Beware of tokenization mismatches**: BERT uses its own tokenization strategy
+and giving on input tokens which do not follow this strategy will most likely
+degrade the results.
 
 
 ### Integration
@@ -369,10 +371,16 @@ Integration of the BERT model (with no pooling strategy, see
 # Encoded input: a matrix of pre-trained embeddings
 EncInp = Tensor
 ```
-* Update the `encode_input` function to use BERT:
+* Update the `encode_input` function to use BERT (**NOTE**: assuming uncased
+  BERT model):
 ```python
 def encode_input(sent: Inp, bc: BertClient) -> EncInp:
-    """Embed an input sentence given a BERT client."""
+    """Embed an input sentence given a BERT client.
+
+    **NOTE**: The function assumes an uncased BERT model.
+    """
+    # Lower-case input for an uncased BERT model
+    sent = [x.lower() for x in sent]
     # Retrieve the embeddings of the sentence
     xs = torch.tensor(bc.encode([sent], is_tokenized=True).copy()).squeeze(0)
     # Discard [CLS] and [SEP] embeddings
@@ -385,8 +393,10 @@ def encode_input(sent: Inp, bc: BertClient) -> EncInp:
 * Update the main script to replace the embedding model with BERT
 
 **Results**: Using the [BERT-Base model][bert-small-models] embeddings in the
-joint model allows to reach the POS accuracy of around 90\% and UAS (dependency
-accuracy) of around 82.5\% on the dev set.
+joint model allows to reach the POS accuracy of around 93.2\% and UAS
+(dependency accuracy) of around 85.5\% on the dev set.  And this result could
+be possibly further improved by accounting for tokenization mismatches (see
+[processing tokenized sentence](#processing-tokenized-sentence)).
 
 **TODO**: Check the following:
 * Does adding Dropout help?

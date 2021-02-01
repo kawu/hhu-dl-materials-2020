@@ -1,7 +1,5 @@
 # Pre-trained embeddings
 
-:construction: work in progress :construction:
-
 So far we were using custom (word- or character-level) embeddings, trained as
 part of the network in a task-specific way.  An alternative is to use
 embeddings pre-trained on large quantities of un-annotated texts in an
@@ -236,6 +234,8 @@ pos_accuracy(model, enc_dev)
 
 
 ## BERT
+
+:construction: work in progress :construction:
 
 This sections shows how to use [bert-as-service][bert-as-service].
 

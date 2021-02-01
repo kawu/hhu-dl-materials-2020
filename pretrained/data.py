@@ -3,6 +3,8 @@ from typing import Tuple, List, TypedDict, NewType
 import torch
 from torch import Tensor
 
+import fasttext     # type: ignore
+
 import conllu
 
 from utils import Encoder
@@ -30,7 +32,7 @@ Inp = List[Word]
 Out = List[Tuple[POS, Head]]
 
 # Encoded input: list of tensors, one per word
-EncInp = List[Tensor]
+EncInp = Tensor
 
 # Encoded output: pair (encoded POS tags, dependency heads)
 EncOut = Tuple[Tensor, Tensor]
@@ -94,12 +96,12 @@ def create_encoders(
     pos_enc = Encoder(pos for _, out in data for pos, head in out)
     return (char_enc, pos_enc)
 
-def encode_input(sent: Inp, char_enc: Encoder[Char]) -> EncInp:
-    """Encode input sentence given a character encoder."""
-    return [
-        torch.tensor([char_enc.encode(Char(char)) for char in word])
+def encode_input(sent: Inp, ft_model) -> EncInp:
+    """Embed an input sentence given a fastText model."""
+    return torch.tensor([
+        ft_model[word]
         for word in sent
-    ]
+    ])
 
 def encode_output(out: Out, pos_enc: Encoder[POS]) -> EncOut:
     """Encode output pair given a POS encoder."""
@@ -109,33 +111,29 @@ def encode_output(out: Out, pos_enc: Encoder[POS]) -> EncOut:
 
 def encode_with(
     data: List[Tuple[Inp, Out]],
-    char_enc: Encoder[Char],
+    ft_model,
     pos_enc: Encoder[POS]
 ) -> List[Tuple[EncInp, EncOut]]:
-    """Encode a dataset using given input character and output POS tag encoders.
+    """Encode a dataset using given input fastText model and
+    output POS tag encoder.
 
     Parameters
     ----------
     data : List[Tuple[Inp, Out]]
-        List of input/output pairs to encode
-    char_enc : Encoder[Char]
-        Encoder able to encode (as integers) input characters
+        List of input/output pairs to encode/embed
+    ft_model : FastText
+        FastText model for input words
     pos_enc : Encoder[POS]
         Encoder able to encode (as integers) output POS tags
 
     Returns
     -------
     enc_data : List[Tuple[EncInp, EncOut]]
-        List of encoded input/output pairs
-
-    If there are no unknown (OOV) symbols in the `data` parmeter, then
-    the resulting encoded dataset `enc_data` is isomorphic to `data`,
-    i.e. it can be decoded back to `data` using the `decode` method
-    of the `char_enc` and `pos_enc` encoders.
+        List of embedded/encoded input/output pairs
     """
     enc_data = []
     for inp, out in data:
-        enc_inp = encode_input(inp, char_enc)
+        enc_inp = encode_input(inp, ft_model)
         enc_out = encode_output(out, pos_enc)
         enc_data.append((enc_inp, enc_out))
     return enc_data

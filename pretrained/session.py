@@ -4,6 +4,8 @@ import torch
 import torch.nn as nn
 from torch.nn.utils.rnn import pad_sequence
 
+import fasttext     # type: ignore
+
 from data import *
 from modules import *
 from utils import train
@@ -11,11 +13,14 @@ from utils import train
 # Parse the training data and create the character/POS encoders
 train_data = parse_and_extract("UD_English-ParTUT/en_partut-ud-train.conllu")
 dev_data = parse_and_extract("UD_English-ParTUT/en_partut-ud-dev.conllu")
-char_enc, pos_enc = create_encoders(train_data)
+_char_enc, pos_enc = create_encoders(train_data)
+
+# Load the fastText model for English
+ft_model = fasttext.load_model("cc.en.100.bin")
 
 # Encode the train set
-enc_train = encode_with(train_data, char_enc, pos_enc)
-enc_dev = encode_with(dev_data, char_enc, pos_enc)
+enc_train = encode_with(train_data, ft_model, pos_enc)
+enc_dev = encode_with(dev_data, ft_model, pos_enc)
 
 # Report size of the training data
 print("# Train size =", len(enc_train))
@@ -28,7 +33,7 @@ class Joint(nn.Module):
 
     where:
 
-    * EncInp is an encoded input sentence (list of tensors)
+    * EncInp is an embedded input sentence (2d tensor)
     * PosScores is a Tensor[N x T] with POS-related scores,
       where T is the number of distinct POS tags.
     * DepScores is a Tensor[N x (N + 1)] of dependency-related scores,
@@ -39,7 +44,7 @@ class Joint(nn.Module):
     """
 
     def __init__(self,
-        char_enc: Encoder[Char],    # Encoder for input characters
+        ft_model,                   # fastText model for input words
         pos_enc: Encoder[POS],      # Encoder for POS tags
         emb_size: int,              # Embedding size
         hid_size: int               # Hidden size used in LSTMs
@@ -47,18 +52,11 @@ class Joint(nn.Module):
         super().__init__()
 
         # Keep encoding objects for future use
-        self.char_enc = char_enc
+        self.ft_model = ft_model
         self.pos_enc = pos_enc
 
-        # Common part of the model: embedding and LSTM contextualization
-        self.embed = nn.Sequential(
-            Map(nn.Sequential(
-                nn.Embedding(char_enc.size()+1, emb_size, padding_idx=char_enc.size()),
-                SimpleLSTM(emb_size, hid_size),
-                Apply(lambda xs: xs[-1]),
-            )),
-            SimpleBiLSTM(hid_size, hid_size),
-        )
+        # Common part of the model: LSTM contextualization
+        self.context = SimpleBiLSTM(emb_size, hid_size)
 
         # Scoring module for the POS tagging task
         self.score_pos = nn.Linear(hid_size, pos_enc.size())
@@ -67,14 +65,14 @@ class Joint(nn.Module):
         self.score_dep = Biaffine(hid_size)
 
     def forward(self, xs: EncInp) -> Tuple[Tensor, Tensor]:
-        embs = self.embed(xs)
+        embs = self.context(xs)
         return (self.score_pos(embs), self.score_dep(embs))
 
     @torch.no_grad()
     def tag(self, sent: List[Word]) -> List[POS]:
         """Tag a sentence with POS tags."""
-        xs = encode_input(sent, self.char_enc)
-        embs = self.embed(xs)
+        xs = encode_input(sent, self.ft_model)
+        embs = self.context(xs)
         scores = self.score_pos(embs)
         ys = torch.argmax(scores, dim=1)
         return [self.pos_enc.decode(y.item()) for y in ys]
@@ -82,13 +80,13 @@ class Joint(nn.Module):
     @torch.no_grad()
     def parse(self, sent: List[Word]) -> List[Head]:
         """Predicted a dependency head for each word in a sentence."""
-        xs = encode_input(sent, self.char_enc)
-        embs = self.embed(xs)
+        xs = encode_input(sent, self.ft_model)
+        embs = self.context(xs)
         scores = self.score_dep(embs)
         ys = torch.argmax(scores, dim=1)
         return [y.item() for y in ys]
 
-model = Joint(char_enc, pos_enc, emb_size=50, hid_size=200)
+model = Joint(ft_model, pos_enc, emb_size=100, hid_size=200)
 
 def pos_accuracy(model, data: List[Tuple[EncInp, EncOut]]):
     """Calculate the POS tagging accuracy of the model on the given dataset

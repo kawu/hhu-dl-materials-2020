@@ -235,7 +235,9 @@ pos_accuracy(model, enc_dev)
 
 ## BERT
 
+<!--
 :construction: work in progress :construction:
+-->
 
 This sections shows how to use [bert-as-service][bert-as-service].
 
@@ -398,10 +400,12 @@ joint model allows to reach the POS accuracy of around 93.2\% and UAS
 be possibly further improved by accounting for tokenization mismatches (see
 [processing tokenized sentence](#processing-tokenized-sentence)).
 
+<!--
 **TODO**: Check the following:
 * Does adding Dropout help?
 * Is BiLSTM even necessary in this setting?
 * Are there any tokenization mismatches?
+-->
 
 
 [fasttext-models]: https://fasttext.cc/docs/en/crawl-vectors.html#models "Official fastText models for 157 languages"

@@ -4,6 +4,7 @@ import torch
 from torch import Tensor
 
 import fasttext     # type: ignore
+from bert_serving.client import BertClient  # type: ignore
 
 import conllu
 
@@ -96,12 +97,27 @@ def create_encoders(
     pos_enc = Encoder(pos for _, out in data for pos, head in out)
     return (char_enc, pos_enc)
 
-def encode_input(sent: Inp, ft_model) -> EncInp:
-    """Embed an input sentence given a fastText model."""
-    return torch.tensor([
-        ft_model[word]
-        for word in sent
-    ])
+# def encode_input(sent: Inp, ft_model) -> EncInp:
+#     """Embed an input sentence given a fastText model."""
+#     return torch.tensor([
+#         ft_model[word]
+#         for word in sent
+#     ])
+
+def encode_input(sent: Inp, bc: BertClient) -> EncInp:
+    """Embed an input sentence given a BERT client.
+
+    **NOTE**: The function assumes an uncased BERT model.
+    """
+    # Lower-case input for an uncased BERT model
+    lower_sent = [x.lower() for x in sent]
+    # Retrieve the embeddings of the sentence
+    xs = torch.tensor(bc.encode([lower_sent], is_tokenized=True).copy()).squeeze(0)
+    # Discard [CLS] and [SEP] embeddings
+    xs = xs[1:len(sent)+1]
+    # Make sure the lenghts match, just in case
+    assert len(xs) == len(sent)
+    return xs
 
 def encode_output(out: Out, pos_enc: Encoder[POS]) -> EncOut:
     """Encode output pair given a POS encoder."""
@@ -111,18 +127,18 @@ def encode_output(out: Out, pos_enc: Encoder[POS]) -> EncOut:
 
 def encode_with(
     data: List[Tuple[Inp, Out]],
-    ft_model,
+    bert_client,
     pos_enc: Encoder[POS]
 ) -> List[Tuple[EncInp, EncOut]]:
-    """Encode a dataset using given input fastText model and
+    """Encode a dataset using given input BERT client and
     output POS tag encoder.
 
     Parameters
     ----------
     data : List[Tuple[Inp, Out]]
         List of input/output pairs to encode/embed
-    ft_model : FastText
-        FastText model for input words
+    bert_client : BertClient
+        BERT client for embedding input words
     pos_enc : Encoder[POS]
         Encoder able to encode (as integers) output POS tags
 
@@ -133,7 +149,7 @@ def encode_with(
     """
     enc_data = []
     for inp, out in data:
-        enc_inp = encode_input(inp, ft_model)
+        enc_inp = encode_input(inp, bert_client)
         enc_out = encode_output(out, pos_enc)
         enc_data.append((enc_inp, enc_out))
     return enc_data

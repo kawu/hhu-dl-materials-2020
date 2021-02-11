@@ -10,6 +10,9 @@ from data import *
 from modules import *
 from utils import train
 
+# Configuration constants
+DEVICE = 'cpu'
+
 # Parse the training data and create the character/POS encoders
 train_data = parse_and_extract("UD_English-ParTUT/en_partut-ud-train.conllu")[:100]
 dev_data = parse_and_extract("UD_English-ParTUT/en_partut-ud-dev.conllu")[:100]
@@ -49,7 +52,8 @@ class Joint(nn.Module):
         bert_client,                # BERT client
         pos_enc: Encoder[POS],      # Encoder for POS tags
         emb_size: int,              # Embedding size
-        hid_size: int               # Hidden size used in LSTMs
+        hid_size: int,              # Hidden size used in LSTMs
+        device                      # Device to put the model parameters on
     ):
         super().__init__()
 
@@ -65,6 +69,12 @@ class Joint(nn.Module):
 
         # Biaffine dependency scoring module
         self.score_dep = Biaffine(hid_size)
+
+        # Dummy parameter to retrieve the device
+        self.dummy_param = nn.Parameter(torch.empty(0))
+
+        # Move the module to the target device
+        self.to(device)
 
     def forward(self, xs: List[EncInp]) -> Tuple[Tensor, Tensor]:
         # Create a tensor with sentence lengths
@@ -91,7 +101,8 @@ class Joint(nn.Module):
     @torch.no_grad()
     def tag(self, sent: List[Word]) -> List[POS]:
         """Tag a sentence with POS tags."""
-        xs = encode_input(sent, self.bert_client)
+        device = self.dummy_param.device
+        xs = encode_input(sent, self.bert_client, device=device)
         embs = self.context.forward1(xs)
         scores = self.score_pos(embs)
         ys = torch.argmax(scores, dim=1)
@@ -100,13 +111,14 @@ class Joint(nn.Module):
     @torch.no_grad()
     def parse(self, sent: List[Word]) -> List[Head]:
         """Predicted a dependency head for each word in a sentence."""
-        xs = encode_input(sent, self.bert_client)
+        device = self.dummy_param.device
+        xs = encode_input(sent, self.bert_client, device=device)
         embs = self.context.forward1(xs)
         scores = self.score_dep.forward1(embs)
         ys = torch.argmax(scores, dim=1)
         return [y.item() for y in ys]
 
-model = Joint(bert_client, pos_enc, emb_size=128, hid_size=200)
+model = Joint(bert_client, pos_enc, emb_size=128, hid_size=200, device=DEVICE)
 
 def pos_accuracy(model, data: List[Tuple[EncInp, EncOut]]):
     """Calculate the POS tagging accuracy of the model on the given dataset

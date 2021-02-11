@@ -104,7 +104,7 @@ def create_encoders(
 #         for word in sent
 #     ])
 
-def encode_input(sent: Inp, bc: BertClient) -> EncInp:
+def encode_input(sent: Inp, bc: BertClient, device) -> EncInp:
     """Embed an input sentence given a BERT client.
 
     **NOTE**: The function assumes an uncased BERT model.
@@ -112,23 +112,24 @@ def encode_input(sent: Inp, bc: BertClient) -> EncInp:
     # Lower-case input for an uncased BERT model
     lower_sent = [x.lower() for x in sent]
     # Retrieve the embeddings of the sentence
-    xs = torch.tensor(bc.encode([lower_sent], is_tokenized=True).copy()).squeeze(0)
+    xs = torch.tensor(bc.encode([lower_sent], is_tokenized=True).copy()).to(device).squeeze(0)
     # Discard [CLS] and [SEP] embeddings
     xs = xs[1:len(sent)+1]
     # Make sure the lenghts match, just in case
     assert len(xs) == len(sent)
     return xs
 
-def encode_output(out: Out, pos_enc: Encoder[POS]) -> EncOut:
+def encode_output(out: Out, pos_enc: Encoder[POS], device) -> EncOut:
     """Encode output pair given a POS encoder."""
-    enc_pos = torch.tensor([pos_enc.encode(pos) for pos, head in out])
-    enc_head = torch.tensor([head for pos, head in out])
+    enc_pos = torch.tensor([pos_enc.encode(pos) for pos, head in out], device=device)
+    enc_head = torch.tensor([head for pos, head in out], device=device)
     return (enc_pos, enc_head)
 
 def encode_with(
     data: List[Tuple[Inp, Out]],
     bert_client,
-    pos_enc: Encoder[POS]
+    pos_enc: Encoder[POS],
+    device
 ) -> List[Tuple[EncInp, EncOut]]:
     """Encode a dataset using given input BERT client and
     output POS tag encoder.
@@ -141,6 +142,8 @@ def encode_with(
         BERT client for embedding input words
     pos_enc : Encoder[POS]
         Encoder able to encode (as integers) output POS tags
+    device
+        Target device ('cpu', 'cuda')
 
     Returns
     -------
@@ -149,7 +152,7 @@ def encode_with(
     """
     enc_data = []
     for inp, out in data:
-        enc_inp = encode_input(inp, bert_client)
-        enc_out = encode_output(out, pos_enc)
+        enc_inp = encode_input(inp, bert_client, device)
+        enc_out = encode_output(out, pos_enc, device)
         enc_data.append((enc_inp, enc_out))
     return enc_data

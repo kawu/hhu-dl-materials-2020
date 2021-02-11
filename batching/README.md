@@ -424,11 +424,35 @@ where `batch_size` should be a parameter of the `train` function.
 
 ## GPU support
 
-GPU support can be enabled by making sure that the tensors are kept on/moved to
-appropriate device.
+First, make sure that Torch is compiled with CUDA enabled.   If it's not the
+case (during the installation session we installed PyTorch *without* CUDA
+enabled), re-install it.
 
+GPU support can be enabled by making sure that the tensors and PyTorch modules
+are created on/moved to appropriate device.  To this end:
+* Add `device` parameter (with default value `cpu`) to the `Joint` model and
+  `self.to(device)` at the end of the `__init__` method .  This will move all
+  the parameters of the model to the target device.
+* Modify the `encode_input`, `encode_output`, and `encode_with`
+  preprocessing/embedding functions to (i) take the `device` parameter and (ii)
+  move all the constructed tensors in these functions to the target device.
+  For instance:
+```python
+def encode_output(out: Out, pos_enc: Encoder[POS], device) -> EncOut:
+    ...
+    enc_head = torch.tensor([head for pos, head in out]).to(device)
+    ...
+```
+* Modify the `tag` and `parse` methods of the `Joint` model to supply the
+  underlying device as arguments to `encode_input`.  See [this
+  thread](https://stackoverflow.com/questions/58926054/how-to-get-the-device-type-of-a-pytorch-module-conveniently)
+  on how to retrieve the device of the model.
+
+
+<!--
 **NOTE**: Actually not all tensors, some have to be CPU-bound, e.g. some
 elements of a PackedSequence.
+-->
 
 
 

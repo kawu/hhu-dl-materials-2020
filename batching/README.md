@@ -158,13 +158,262 @@ class BiLSTM(nn.Module):
         return self.lstm(seq)[0]
 ```
 
+#### Joint model
+
+Concerning the `Joint` PyTorch module, the following steps are required to
+adapt it to batching:
+* Replace `SimpleBiLSTM` with `BiLSTM`
+* Implement batching-enabled version of `forward`:
+```python
+    def forward(self, xs: List[EncInp]) -> Tuple[Tensor, Tensor]:
+        # Create a tensor with sentence lengths
+        ns = torch.tensor([len(x) for x in xs])
+        # Convert the input list to a packed sequence
+        seq = rnn.pack_sequence(xs, enforce_sorted=False)
+        # Contextualize all sentences in the sequence
+        ctx = self.context(seq)
+        # Convert the sequence to a packed representation
+        embs, _ns = rnn.pad_packed_sequence(ctx, batch_first=True)
+        # Check that the sentence length match, just in case
+        assert (ns == _ns).all()
+        # Calculate and return the scores
+        pos_scores = self.score_pos(embs)
+        dep_scores = self.score_dep(embs)
+        return (pos_scores, dep_scores)
+```
+* The single-sentence variant `forward1` can be implemented in terms of
+  `forward`:
+```python
+    def forward1(self, xs: EncInp) -> Tuple[Tensor, Tensor]:
+        pos_scores, dep_scores = self.forward([xs])
+        return (pos_scores[0], dep_scores[0])
+```
+* The `tag` and `parse` methods can be updated to use `foward1` instead of
+  `forward`
+* Finally, the documentation string should be updated to account for the
+  changes
+
+At this point, it should be possible to test the model on sample data to make
+sure there are no runtime exceptions.
+
+
 ### Adapting the training process
 
+#### Accuracy
 
+Concerning the training process, the accuracy functions can be updated by
+simply explicitly calling `forward1`, which means they could be further
+optimized but let's leave that aside -- our goal is to speed up training, not
+necessarily accuracy calculation.
 
+#### Batch loss
+
+The loss of the model should be now calculated on a batch, i.e., on a list of
+input/output pairs.  We thus need a function which does precisely that:
+```python
+def batch_loss_base(model: Joint, batch: List[Tuple[EncInp, EncOut]]):
+    '''Cumulative cross-entropy loss of the model on the given dataset.
+
+    Parameters
+    ----------
+    model : Joint
+        Joint POS tagging / dependency parsing model
+    batch : List[Tuple[EncInp, EncOut]]
+        List of int-encoded input/output pairs
+    '''
+    # Use cross-entropy loss as training criterion
+    criterion = nn.CrossEntropyLoss(reduction='sum')
+    # Create lists of input sentences and target values, respectively
+    xs = [x for x, _y in batch]
+    ys = [y for _x, y in batch]
+    # Sentence length in the batch
+    ns = list(map(len, xs))
+    # Apply the model to the input
+    pos_scores_batch, dep_scores_batch = model(xs)
+    # Calculate the loss values sentence by sentence
+    batch_loss = 0.0
+    for i in range(len(xs)):
+        # Length of the i-th sentence
+        n = ns[i]
+        # POS scores and dependency scores for the i-th sentence
+        pos_scores = pos_scores_batch[i][:n]
+        dep_scores = dep_scores_batch[i][:n][:n+1]
+        # Targets POS tags and dependencies
+        pos_gold, dep_gold = ys[i]
+        # Apply the criterion and update the cumulative batch loss
+        batch_loss += criterion(pos_scores, pos_gold) + \
+            criterion(dep_scores, dep_gold)
+    return batch_loss
+```
+That's a rather naive implementation, which can be replaced by one that is
+truly vectorized:
+```python
+def batch_loss(model: Joint, batch: List[Tuple[EncInp, EncOut]]):
+    '''Cumulative cross-entropy loss of the model on the given dataset.
+
+    Parameters
+    ----------
+    model : Joint
+        Joint POS tagging / dependency parsing model
+    batch : List[Tuple[EncInp, EncOut]]
+        List of int-encoded input/output pairs
+    '''
+    # Use cross-entropy loss as training criterion
+    criterion = nn.CrossEntropyLoss(reduction='sum', ignore_index=-1)
+    # Create lists of input sentences and target values, respectively
+    xs = [x for x, _y in batch]
+    ys = [y for _x, y in batch]
+    # Gold POS tags and dependencies, padded
+    pos_gold = pad([pos for pos, _dep in ys], padding_value=-1)
+    dep_gold = pad([dep for _pos, dep in ys], padding_value=-1)
+    # Apply the model to the input
+    pos_scores, dep_scores = model(xs)
+    # Calculate the POS-related cumulative loss
+    pos_loss = criterion(pos_scores.permute(0, 2, 1), pos_gold)
+    dep_loss = criterion(dep_scores.permute(0, 2, 1), dep_gold)
+    return pos_loss + dep_loss
+```
+The vectorized version relies on a custom padding function:
+```python
+def pad(xs: List[Tensor], padding_value) -> Tensor:
+    '''Pad and stack a list of tensors.
+
+    Parameters
+    ----------
+    xs : List[Tensor]
+        List of tensors with the same number of dimensions and the same dtype.
+        Their sizes along the first dimension can differ, but the remaining
+        dimensions must be the same.
+    padding_value
+        Value used for padding (of the same dtype as the tensors in `xs`)
+
+    Examples
+    --------
+    >>> x = torch.tensor([0, 1, 2])
+    >>> y = torch.tensor([3, 4, 5, 6])
+    >>> z = torch.tensor([7])
+    >>> pad([x, y, z], padding_value=-1)
+    tensor([[ 0,  1,  2, -1],
+            [ 3,  4,  5,  6],
+            [ 7, -1, -1, -1]])
+    >>> xs = torch.tensor([[0, 1], [3, 4]])
+    >>> ys = torch.tensor([[5, 6], [7, 8], [9, 10]])
+    >>> pad([xs, ys], padding_value=-1)[0]
+    tensor([[ 0,  1],
+            [ 3,  4],
+            [-1, -1]])
+    >>> pad([xs, ys], padding_value=-1)[1]
+    tensor([[ 5,  6],
+            [ 7,  8],
+            [ 9, 10]])
+
+    The size of the input tensors can differ only along the first dimension:
+    >>> zs = torch.tensor([[5, 6, 7]])
+    >>> pad([xs, zs], padding_value=-1) # doctest: +ELLIPSIS
+    Traceback (most recent call last):
+        ...
+    RuntimeError: ...
+    '''
+    seq = rnn.pack_sequence(xs, enforce_sorted=False)
+    ys, _ns = rnn.pad_packed_sequence(seq,
+        batch_first=True, padding_value=padding_value)
+    return ys
+```
+The vectorized version and the naive one provide the exactly same results,
+which can be checked by for instance implementing a dedicated test based on
+randomized input/output data and random model (which returns random scores; the
+actual Joint model could be used, too).
+
+#### Batch loader
+
+Finally, we need to update the training procedure.  To this end, we will use a
+*batch loader*, which allows to generate a stream of batches (non-overlapping
+subsets) from a gives dataset.
+```python
+def batch_loader(data_set, batch_size: bool, shuffle=False) -> DataLoader:
+    """Create a batch data loader from the given data set.
+
+    Using PyTorch Datasets and DataLoaders is especially useful when working
+    with large datasets, which cannot be stored in the computer memory (RAM)
+    all at once.
+
+    Let's create a small dataset of numbers:
+    >>> data_set = range(5)
+    >>> for elem in data_set:
+    ...     print(elem)
+    0
+    1
+    2
+    3
+    4
+
+    The DataLoader returned by the batch_loader function allows to
+    process the dataset in batches.  For example, in batches of
+    2 elements:
+    >>> bl = batch_loader(data_set, batch_size=2, shuffle=False)
+    >>> for batch in bl:
+    ...     print(batch)
+    [0, 1]
+    [2, 3]
+    [4]
+
+    The last batch is of size 1 because the dataset has 5 elements in total.
+    You can iterate over the dataset in batches over again:
+    >>> for batch in bl:
+    ...     print(batch)
+    [0, 1]
+    [2, 3]
+    [4]
+
+    For the sake of training of a PyTorch model, it may be better to shuffle
+    the elements each time the stream of batches is created.
+    To this end, use the `shuffle=True` option.
+    >>> bl = batch_loader(data_set, batch_size=2, shuffle=True)
+
+    DataLoader "visits" each element of the dataset once.
+    >>> sum(len(batch) for batch in bl) == len(data_set)
+    True
+    >>> set(x for batch in bl for x in batch) == set(data_set)
+    True
+    """
+    return DataLoader(
+        data_set,
+        batch_size=batch_size,
+        collate_fn=lambda x: x,
+        shuffle=shuffle
+    )
+```
+The training procedure itself can be then updated by:
+* Creating the batch loader on top of the training set
+```python
+    ...
+    # Create data loader for the training set
+    train_dl = batch_loader(train_data, batch_size=batch_size, shuffle=True)
+    ...
+```
+where `batch_size` should be a parameter of the `train` function.
+* Instead of looping over the individual elements of the training set, we
+  should loop over the subsequent batches provided by the batch loader:
+```python
+        ...
+        for batch in train_dl:
+            # Calculate the loss
+            batch_loss = loss(model, batch)
+            # Update the total loss on the training set (used
+            # for reporting)
+            total_loss += batch_loss.item()
+            # Calculate the gradients using backpropagation
+            batch_loss.backward()
+            # Update the parameters along the gradients
+            optim.step()
+            # Zero-out the gradients
+            optim.zero_grad()
+        ...
+```
 
 ## GPU support
 
+**TODO**
 
 
 

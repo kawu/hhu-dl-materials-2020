@@ -11,6 +11,17 @@ BERT embedding model, is used as a starting point for this document.
 <!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
 
 
+- [Batching](#batching)
+  - [Adapting the model](#adapting-the-model)
+    - [Biaffine](#biaffine)
+    - [BiLSTM](#bilstm)
+    - [Joint model](#joint-model)
+  - [Adapting the training process](#adapting-the-training-process)
+    - [Accuracy](#accuracy)
+    - [Batch loss](#batch-loss)
+    - [Batch loader and training](#batch-loader-and-training)
+- [GPU support](#gpu-support)
+
 <!-- END doctoc generated TOC please keep comment here to allow auto update -->
 
 
@@ -324,7 +335,7 @@ which can be checked by for instance implementing a dedicated test based on
 randomized input/output data and random model (which returns random scores; the
 actual Joint model could be used, too).
 
-#### Batch loader
+#### Batch loader and training
 
 Finally, we need to update the training procedure.  To this end, we will use a
 *batch loader*, which allows to generate a stream of batches (non-overlapping

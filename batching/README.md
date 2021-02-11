@@ -424,7 +424,11 @@ where `batch_size` should be a parameter of the `train` function.
 
 ## GPU support
 
-**TODO**
+GPU support can be enabled by making sure that the tensors are kept on/moved to
+appropriate device.
+
+**NOTE**: Actually not all tensors, some have to be CPU-bound, e.g. some
+elements of a PackedSequence.
 
 
 

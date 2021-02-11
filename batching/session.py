@@ -11,19 +11,19 @@ from modules import *
 from utils import train
 
 # Configuration constants
-DEVICE = 'cpu'
+DEVICE = 'cuda'
 
 # Parse the training data and create the character/POS encoders
-train_data = parse_and_extract("UD_English-ParTUT/en_partut-ud-train.conllu")[:100]
-dev_data = parse_and_extract("UD_English-ParTUT/en_partut-ud-dev.conllu")[:100]
+train_data = parse_and_extract("UD_English-ParTUT/en_partut-ud-train.conllu")
+dev_data = parse_and_extract("UD_English-ParTUT/en_partut-ud-dev.conllu")
 _char_enc, pos_enc = create_encoders(train_data)
 
 # Create BERT client
 bert_client = BertClient()
 
 # Encode the train set
-enc_train = encode_with(train_data, bert_client, pos_enc)
-enc_dev = encode_with(dev_data, bert_client, pos_enc)
+enc_train = encode_with(train_data, bert_client, pos_enc, device=DEVICE)
+enc_dev = encode_with(dev_data, bert_client, pos_enc, device=DEVICE)
 
 # Report size of the training data
 print("# Train size =", len(enc_train))

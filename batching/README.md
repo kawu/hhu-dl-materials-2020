@@ -75,7 +75,7 @@ class Biaffine(nn.Module):
     >>> ns = torch.tensor([4, 5, 2])        # Sentence lengths
     >>> B = len(ns)                         # Batch size
     >>> D = 10                              # Embedding size
-    >>> bia = Biaffine(10)                  # Biaffine module
+    >>> bia = Biaffine(D)                   # Biaffine module
     >>> xs = torch.randn(B, max(ns), D)     # Sample embeddings
 
     Make sure that forward1 and forward give the same results

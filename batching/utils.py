@@ -1,6 +1,8 @@
 import torch
 import torch.nn as nn
 
+from torch.utils.data import DataLoader
+
 from typing import Iterable, TypeVar, Generic, Dict
 
 
@@ -43,6 +45,60 @@ class Encoder(Generic[T]):
         return self.ix_to_class[ix]
 
 
+def batch_loader(data_set, batch_size: bool, shuffle=False) -> DataLoader:
+    """Create a batch data loader from the given data set.
+
+    Using PyTorch Datasets and DataLoaders is especially useful when working
+    with large datasets, which cannot be stored in the computer memory (RAM)
+    all at once.
+
+    Let's create a small dataset of numbers:
+    >>> data_set = range(5)
+    >>> for elem in data_set:
+    ...     print(elem)
+    0
+    1
+    2
+    3
+    4
+
+    The DataLoader returned by the batch_loader function allows to
+    process the dataset in batches.  For example, in batches of
+    2 elements:
+    >>> bl = batch_loader(data_set, batch_size=2, shuffle=False)
+    >>> for batch in bl:
+    ...     print(batch)
+    [0, 1]
+    [2, 3]
+    [4]
+
+    The last batch is of size 1 because the dataset has 5 elements in total.
+    You can iterate over the dataset in batches over again:
+    >>> for batch in bl:
+    ...     print(batch)
+    [0, 1]
+    [2, 3]
+    [4]
+
+    For the sake of training of a PyTorch model, it may be better to shuffle
+    the elements each time the stream of batches is created.
+    To this end, use the `shuffle=True` option.
+    >>> bl = batch_loader(data_set, batch_size=2, shuffle=True)
+
+    DataLoader "visits" each element of the dataset once.
+    >>> sum(len(batch) for batch in bl) == len(data_set)
+    True
+    >>> set(x for batch in bl for x in batch) == set(data_set)
+    True
+    """
+    return DataLoader(
+        data_set,
+        batch_size=batch_size,
+        collate_fn=lambda x: x,
+        shuffle=shuffle
+    )
+
+
 def train(
     model: nn.Module,
     train_data,
@@ -52,6 +108,7 @@ def train(
     epoch_num=10,
     learning_rate=0.001,
     report_rate=10,
+    batch_size=16
 ):
     """Training function based on stochastic gradient descent.
 
@@ -68,10 +125,9 @@ def train(
         The function reports the accuracy of the model on the dev_data
         every couple of epochs (see `report_rate`)
     loss : function
-        Function which takes two arguments -- the output of the model
-        on a given input, and the target output (both in encoded form)
-        -- and returns a float scalar tensor.  The model is trained
-        to minimize the cumulative loss over the entire training set
+        Function which takes two arguments -- a model and a batch
+        of dataset pairs.  The model is trained to minimize the
+        cumulative loss over the entire training set
         (see `train_data`).
     accuracy : function
         Helper function with two arguments -- a PyTorch model and a
@@ -87,21 +143,22 @@ def train(
         Determines the frequency of reporting the `loss` on the
         training set (`train_data`) and accuracy on both datasets
         (`train_data` and `dev_data`)
+    batch_size : int
+        Size of the batches
     """
     # Use Adam to adapt the model's parameters
     optim = torch.optim.Adam(model.parameters(), lr=learning_rate)
+    # Create a batch loader for the training set
+    bl = batch_loader(train_data, batch_size=batch_size, shuffle=True)
     for k in range(epoch_num):
         # Turn on the training mode
         model.train()
         # Variable to store the total loss on the training set
         total_loss = 0
-        # Optional: use random dataset permutation in each epoch
-        for i in torch.randperm(len(train_data)):
-            # Pick a dataset pair on position i
-            x, y = train_data[i]
-            # Calculate the loss between the output of the model
-            # and the target output
-            z = loss(model(x), y)
+        # For each batch in the training set
+        for batch in bl:
+            # Calculate the loss on the batch
+            z = loss(model, batch)
             # Update the total loss on the training set (used
             # for reporting)
             total_loss += z.item()

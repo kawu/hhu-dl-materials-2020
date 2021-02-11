@@ -105,6 +105,59 @@ class Biaffine(nn.Module):
         return torch.bmm(deps, heds.permute(0, 2, 1))
 ```
 
+#### BiLSTM
+
+```python
+class BiLSTM(nn.Module):
+    '''Contextualise the input sequence of embedding vectors using
+    bidirectional LSTM.
+
+    Type: PackedSequence -> PackedSequence
+
+    Example
+    -------
+
+    Sample input (randomized):
+    >>> ns = torch.tensor([4, 5, 2])        # Sentence lengths
+    >>> Din = 10                            # Input embedding size
+    >>> Dout = 20                           # Output embedding size
+    >>> lstm = BiLSTM(Din, Dout)            # BiLSTM module
+    >>> xs = [                              # Sample sentences
+    ...     torch.randn(n, Din)
+    ...     for n in ns
+    ... ]
+    >>> seq = rnn.pack_sequence(xs,         # Create packed sequence
+    ...             enforce_sorted=False)
+
+    Make sure that forward1 and forward give the same results
+    for all inputs in the batch:
+    >>> out_seq = lstm.forward(seq)
+    >>> ys, _ns = rnn.pad_packed_sequence(out_seq, batch_first=True)
+    >>> assert (ns == _ns).all()
+    >>> for i in range(len(xs)):
+    ...    y1 = lstm.forward1(xs[i])
+    ...    y2 = ys[i][:ns[i]]
+    ...    assert torch.isclose(y1, y2, atol=1e-6).all()
+    '''
+
+    def __init__(self, inp_size: int, out_size: int, **kwargs):
+        super().__init__()
+        assert out_size % 2 == 0, "Output size have to be even"
+        self.lstm = nn.LSTM(
+            input_size=inp_size,
+            hidden_size=out_size // 2,
+            bidirectional=True,
+            **kwargs    # Other keyword arguments, if any
+        )
+
+    def forward1(self, xs: Tensor) -> Tensor:
+        out, _ = self.lstm(xs.view(xs.shape[0], 1, xs.shape[1]))
+        return out.view(out.shape[0], out.shape[2])
+
+    def forward(self, seq: rnn.PackedSequence) -> rnn.PackedSequence:
+        return self.lstm(seq)[0]
+```
+
 ### Adapting the training process
 
 
